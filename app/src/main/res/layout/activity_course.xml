@@ -1,0 +1,446 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<com.example.lqs2.courseapp.MyDrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/course_bg_img_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"/>
+
+        <LinearLayout
+
+            android:id="@+id/course_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#1000"
+                android:gravity="bottom"
+                android:paddingTop="13dp">
+
+
+                <Spinner
+                    android:id="@+id/switchYear"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="4"
+                    android:gravity="center"
+                    android:spinnerMode="dialog"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="45dp"
+                    android:gravity="center"
+                    android:paddingRight="5dp"
+                    android:text="年"
+                    android:textSize="17sp" />
+
+                <Spinner
+                    android:id="@+id/switchTeam"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_gravity="center"
+                    android:layout_weight="2"
+                    android:gravity="center"
+                    android:spinnerMode="dialog"
+                    android:textColor="#E0FFFF"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="45dp"
+                    android:gravity="center"
+                    android:paddingRight="5dp"
+                    android:text="学期"
+                    android:textSize="17sp" />
+                <!--竖线-->
+                <!--<View-->
+                <!--android:id="@+id/line1"-->
+                <!--android:layout_width="1dp"-->
+                <!--android:background="#fff"-->
+                <!--android:layout_height="20dp"-->
+                <!--android:layout_marginLeft="20dp"-->
+                <!--android:layout_marginTop="10dp"-->
+                <!--android:layout_marginBottom="10dp"-->
+                <!--android:layout_gravity="center"-->
+                <!--android:gravity="center"-->
+                <!--/>-->
+                <!--选择第几周-->
+                <Spinner
+                    android:id="@+id/switchWeek"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_weight="3"
+                    android:gravity="center_vertical"
+                    android:spinnerMode="dialog"
+                    android:textColor="#E0FFFF"
+                    android:textSize="13sp" />
+
+            </LinearLayout>
+
+
+            <!--<View-->
+            <!--android:id="@+id/line2"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="1dp" />-->
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#1000"
+                android:orientation="horizontal">
+
+
+                <!--这是一个空白的格子-->
+                <!--<TextView-->
+                <!--android:layout_width="30dp"-->
+                <!--android:layout_height="30dp" />-->
+
+                <!--<ImageView-->
+                <!--android:layout_width="30dp"-->
+                <!--android:layout_height="30dp"-->
+                <!--android:src="@drawable/ic_flush"-->
+                <!--android:scaleType="fitEnd"/>-->
+
+
+                <!--竖线-->
+                <View
+                    android:id="@+id/line3"
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent" />
+
+                <ImageButton
+                    android:id="@+id/flush_course_button"
+                    android:layout_width="35dp"
+                    android:layout_height="40dp"
+                    android:gravity="fill"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_flush" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="周一" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="周二" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="周三" />
+
+
+                <com.github.ybq.android.spinkit.SpinKitView xmlns:app="http://schemas.android.com/apk/res-auto"
+                    android:id="@+id/course_page_progress_bar"
+                    style="@style/SpinKitView.Wave"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    app:SpinKit_Color="@color/r3" />
+
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="周四" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="周五" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="周六" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="周日" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/date"
+                    android:layout_width="35dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:text="日期" />
+
+                <TextView
+                    android:id="@+id/date_1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="1_date" />
+
+                <TextView
+                    android:id="@+id/date_2"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="2_date" />
+
+                <TextView
+                    android:id="@+id/date_3"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="3_date" />
+
+                <TextView
+                    android:id="@+id/date_4"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="4_date" />
+
+                <TextView
+                    android:id="@+id/date_5"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="5_date" />
+
+                <TextView
+                    android:id="@+id/date_6"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="6_date" />
+
+                <TextView
+                    android:id="@+id/date_7"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="7_date" />
+
+
+            </LinearLayout>
+
+
+            <android.support.v4.widget.SwipeRefreshLayout
+                android:id="@+id/course_swipe_refresh"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:fitsSystemWindows="true">
+
+
+                <ScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:fitsSystemWindows="true">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:fitsSystemWindows="true"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="40dp"
+                            android:layout_height="match_parent"
+                            android:fitsSystemWindows="true"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="55dp"
+                                android:layout_gravity="center"
+                                android:gravity="center"
+                                android:text="1 08:00"
+                                android:textSize="12sp" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="55dp"
+                                android:layout_gravity="center"
+                                android:gravity="center"
+                                android:singleLine="false"
+                                android:text="2 08:55"
+                                android:textSize="12sp" />
+
+                            <!--<view-->
+                            <!--android:id="@+id/line4"-->
+                            <!--android:layout_width="match_parent"-->
+                            <!--android:layout_height="1dp"/>-->
+
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="55dp"
+                                android:layout_gravity="center"
+                                android:gravity="center"
+                                android:text="3 10:10"
+                                android:textSize="12sp" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="50dp"
+                                android:layout_gravity="center"
+                                android:gravity="center"
+                                android:text="4 10:55"
+                                android:textSize="12sp" />
+
+                            <!--<view-->
+                            <!--android:id="@+id/line5"-->
+                            <!--android:layout_width="match_parent"-->
+                            <!--android:layout_height="1dp"/>-->
+
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="55dp"
+                                android:layout_gravity="center"
+                                android:gravity="center"
+                                android:text="5 13:40"
+                                android:textSize="12sp" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="55dp"
+                                android:layout_gravity="center"
+                                android:gravity="center"
+                                android:text="6 14:35"
+                                android:textSize="12sp" />
+
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="55dp"
+                                android:layout_gravity="center"
+                                android:gravity="center"
+                                android:text="7 15:40"
+                                android:textSize="12sp" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="55dp"
+                                android:layout_gravity="center"
+                                android:gravity="center"
+                                android:text="8 16:35"
+                                android:textSize="12sp" />
+
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="55dp"
+                                android:layout_gravity="center"
+                                android:gravity="center"
+                                android:text="9 18:30"
+                                android:textSize="12sp" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="55dp"
+                                android:layout_gravity="center"
+                                android:gravity="center"
+                                android:text="10 19:25"
+                                android:textSize="12sp" />
+
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="55dp"
+                                android:layout_gravity="center"
+                                android:gravity="center"
+                                android:text="11"
+                                android:textSize="12sp" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="55dp"
+                                android:layout_gravity="center"
+                                android:gravity="center"
+                                android:text="12 "
+                                android:textSize="12sp" />
+
+                        </LinearLayout>
+
+                        <View
+                            android:id="@+id/line8"
+                            android:layout_width="1dp"
+                            android:layout_height="match_parent" />
+
+                        <GridLayout
+                            android:id="@+id/grid_layout"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:columnCount="7"
+                            android:horizontalSpacing="1dp"
+                            android:orientation="vertical"
+                            android:rowCount="12"
+                            android:stretchMode="columnWidth"
+                            android:verticalSpacing="1dp" />
+                    </LinearLayout>
+                </ScrollView>
+            </android.support.v4.widget.SwipeRefreshLayout>
+
+
+        </LinearLayout>
+    </FrameLayout>
+</com.example.lqs2.courseapp.MyDrawerLayout>

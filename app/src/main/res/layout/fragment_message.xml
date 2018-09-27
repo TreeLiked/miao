@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".fragment.MessageFragment"
+    android:background="#FAFAFA">
+
+    <!--&lt;!&ndash; TODO: Update blank fragment layout &ndash;&gt;-->
+    <!--<TextView-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:text="@string/hello_blank_fragment" />-->
+
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/fri_msg_swipe_refresh_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.yanzhenjie.recyclerview.swipe.SwipeMenuRecyclerView
+            android:id="@+id/fri_msg_all"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+        </com.yanzhenjie.recyclerview.swipe.SwipeMenuRecyclerView>
+
+    </android.support.v4.widget.SwipeRefreshLayout>
+
+
+
+</FrameLayout>

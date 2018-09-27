@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+
+    <LinearLayout
+        android:id="@+id/user_profile_pic_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center">
+
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/user_detail_profile_pic"
+            android:layout_width="65dp"
+            android:layout_height="65dp"
+            android:scaleType="centerCrop" />
+
+    </LinearLayout>
+
+
+    <!--<TextView-->
+        <!--android:id="@+id/user_detail_id"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_below="@id/user_profile_pic_layout"-->
+        <!--android:layout_marginTop="15dp"-->
+        <!--android:gravity="start"-->
+        <!--android:textColor="@color/user_detail_text_color" />-->
+
+
+    <TextView
+        android:id="@+id/user_detail_userId"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/user_profile_pic_layout"
+        android:layout_marginTop="15dp"
+        android:gravity="start"
+        android:textColor="@color/friend_detail_text_color" />
+
+    
+
+
+    <TextView
+        android:id="@+id/user_detail_userSex"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/user_detail_userId"
+        android:layout_marginTop="15dp"
+        android:gravity="start"
+        android:textColor="@color/friend_detail_text_color" />
+
+    <TextView
+        android:id="@+id/user_detail_userMail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/user_detail_userSex"
+        android:layout_marginTop="15dp"
+        android:gravity="start"
+        android:textColor="@color/friend_detail_text_color" />
+
+    <TextView
+        android:id="@+id/user_detail_userCreateTime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/user_detail_userMail"
+        android:layout_marginTop="15dp"
+        android:layout_marginBottom="20dp"
+        android:gravity="start"
+        android:textColor="@color/friend_detail_text_color" />
+
+
+
+</RelativeLayout>

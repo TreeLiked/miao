@@ -1,0 +1,15 @@
+SharedPreference键值对
+1. weekStarDate 设置周的那一天
+2. head_image 头像
+3. main_bg 首页背景
+4. diy_main_bg
+4. diy_head_image
+5. hasModifiedWeek 每周一增加周flag
+6. xqs 所有的学期
+   xns 所有的学年
+   xqc 当前的学期
+   xnc 当前的学年
+   xqcr 正确的学期
+   xncr 正确的学年
+7. darkme_un
+   darkme_pwd

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:text="在此粘贴需要推送的文本" />
+
+    <EditText
+        android:id="@+id/darkme_post_handoff_text_edit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="5"
+        android:theme="@style/MyEditText"
+        android:background="@drawable/multi_edittext"
+        android:minLines="3"
+        android:enabled="true"
+        android:gravity="top"
+        android:inputType="textMultiLine" />
+
+
+</LinearLayout>

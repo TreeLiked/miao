@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.lqs2.courseapp">
+
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <!-- Attempt to get length of null array -->
+    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEM" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+
+    <!-- android:theme="@style/TransparentTheme" -->
+    <!-- android:name=".MyApplication" -->
+    <application
+        android:name=".MyApplication"
+        android:allowBackup="true"
+        android:icon="@mipmap/logo"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/logo"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <activity
+            android:name=".activities.MainActivity"
+            android:launchMode="singleTask">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".activities.LoginNJITActivity" />
+        <activity
+            android:name=".activities.CourseActivity"
+            android:launchMode="singleTask" />
+        <activity android:name=".activities.Login_ECARD_Activity" />
+        <!-- <activity -->
+        <!-- android:name=".activities.DailyRecordActivity" -->
+        <!-- android:launchMode="singleTask" /> -->
+        <activity
+            android:name=".activities.GradeActivity"
+            android:launchMode="singleTask" />
+        <activity android:name=".activities.NetworkActivity" />
+        <activity android:name=".activities.SettingActivity" />
+        <activity android:name=".activities.SchoolCalendarActivity" />
+        <!-- <activity android:name=".activities.DailyRecord_All" /> -->
+        <activity
+            android:name=".activities.NewTweetActivity"
+            android:windowSoftInputMode="stateVisible|adjustPan"
+            android:launchMode="singleTask"/>
+        <activity
+            android:name=".activities.TweetDetailActivity"
+            android:theme="@style/NewsActivityTheme" />
+
+        <!-- uCrop -->
+        <activity
+            android:name="com.yalantis.ucrop.UCropActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <!-- 多图片选择 -->
+
+        <activity
+            android:name=".activities.FileActivity"
+            android:launchMode="singleTask" />
+
+        <!-- android 7及以上，改用FileProvider -->
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="com.example.lqs2.courseapp.fileProvider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths" />
+        </provider>
+
+        <!-- <provider -->
+        <!-- android:name="android.support.v4.content.FileProvider" -->
+        <!-- android:authorities="${applicationId}.easyphotopicker.fileprovider" -->
+        <!-- android:exported="false" -->
+        <!-- android:grantUriPermissions="true" -->
+        <!-- tools:replace="android:authorities"> -->
+        <!-- <meta-data -->
+        <!-- android:name="android.support.FILE_PROVIDER_PATHS" -->
+        <!-- android:resource="@xml/filepaths" -->
+        <!-- tools:replace="android:resource"/> -->
+        <!-- </provider> -->
+
+        <activity android:name=".activities.MemoActivity" />
+        <activity android:name=".activities.FriendActivity" />
+        <activity android:name=".activities.ChatActivity" />
+        <activity android:name=".activities.ImageBrowseActivity"></activity>
+    </application>
+
+</manifest>

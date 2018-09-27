@@ -1,0 +1,399 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingTop="25dp"
+    android:fitsSystemWindows="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="#efeff4">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="20dp"
+            android:layout_marginTop="20dp"
+            android:paddingLeft="10dp"
+            android:text="基础设置"
+            android:textColor="#BEBEBE" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/divider_line" />
+
+            <TextView
+                android:id="@+id/setting_account"
+                android:layout_width="match_parent"
+                android:layout_height="35dp"
+                android:background="#fefffe"
+                android:gravity="center_vertical"
+                android:paddingLeft="20dp"
+                android:text="账号设置"
+                android:textSize="16sp" />
+
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:orientation="vertical">
+
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="20dp"
+                android:paddingLeft="10dp"
+                android:text="个性设置"
+                android:textColor="#BEBEBE" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/divider_line" />
+
+            <TextView
+                android:id="@+id/setting_sig"
+                android:layout_width="match_parent"
+                android:layout_height="35dp"
+                android:background="#fefffe"
+                android:gravity="center_vertical"
+                android:paddingLeft="20dp"
+                android:text="我的签名"
+                android:textSize="16sp" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginStart="20dp"
+                android:background="@color/divider_line" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="35dp"
+                android:orientation="horizontal">
+
+
+                <TextView
+                    android:id="@+id/setting_diy_main_bg_textview"
+                    android:layout_width="match_parent"
+                    android:layout_height="35dp"
+                    android:layout_alignParentLeft="true"
+                    android:layout_weight="5"
+                    android:background="#fefffe"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="20dp"
+                    android:text="自定义主页背景"
+                    android:textSize="16sp" />
+
+
+                <com.kyleduo.switchbutton.SwitchButton
+                    android:id="@+id/setting_diy_main_bg_switch"
+                    style="@style/SwitchButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginRight="20dp"
+                    android:textColor="#fefffe"
+                    android:textSize="16dp"
+                    app:kswTextAdjust="-2dp"
+                    app:kswTextExtra="8dp"
+                    app:kswTextOff="Off"
+                    app:kswTextOn="On" />
+
+                <ProgressBar
+                    android:id="@+id/setting_pb_0"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/setting_diy_main_bg_switch"
+                    android:layout_centerVertical="true"
+                    android:paddingEnd="30dp"
+                    android:paddingLeft="20dp"
+                    android:paddingRight="30dp"
+                    android:paddingStart="20dp"
+                    android:visibility="invisible" />
+
+
+            </RelativeLayout>
+
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginStart="20dp"
+                android:background="@color/divider_line" />
+
+            <TextView
+                android:id="@+id/setting_choose_default_bg"
+                android:layout_width="match_parent"
+                android:layout_height="35dp"
+                android:layout_alignParentLeft="true"
+                android:layout_weight="5"
+                android:background="#fefffe"
+                android:gravity="center_vertical"
+                android:paddingLeft="20dp"
+                android:text="选取默认壁纸"
+                android:textSize="16sp" />
+
+
+        </LinearLayout>
+
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="20dp"
+            android:layout_marginTop="20dp"
+            android:paddingLeft="10dp"
+            android:text="功能设置"
+            android:textColor="#BEBEBE" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/divider_line" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="35dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="35dp"
+                    android:layout_alignParentLeft="true"
+                    android:layout_weight="5"
+                    android:background="#fefffe"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="20dp"
+                    android:text="连续互通"
+                    android:textSize="16sp" />
+
+
+                <com.kyleduo.switchbutton.SwitchButton
+                    android:id="@+id/setting_toggle_handoff_switch"
+                    style="@style/SwitchButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginRight="20dp"
+                    android:textColor="#fefffe"
+                    android:textSize="16dp"
+                    app:kswTextAdjust="-2dp"
+                    app:kswTextExtra="8dp"
+                    app:kswTextOff="Off"
+                    app:kswTextOn="On" />
+
+                <ProgressBar
+                    android:id="@+id/setting_pb_1"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/setting_toggle_handoff_switch"
+                    android:layout_centerVertical="true"
+                    android:indeterminateTint="@color/r4"
+                    android:indeterminateTintMode="src_atop"
+                    android:visibility="invisible" />
+
+
+            </RelativeLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginStart="20dp"
+                android:background="@color/divider_line" />
+
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="35dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/setting_dark_mode"
+                    android:layout_width="match_parent"
+                    android:layout_height="35dp"
+                    android:background="#fefffe"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="20dp"
+                    android:text="主页模式切换"
+                    android:textSize="16sp" />
+
+                <com.kyleduo.switchbutton.SwitchButton
+                    android:id="@+id/setting_toggle_dark_mode_switch"
+                    style="@style/SwitchButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginRight="20dp"
+                    android:textColor="#fefffe"
+                    android:textSize="16dp"
+                    app:kswTextAdjust="-2dp"
+                    app:kswTextExtra="8dp"
+                    app:kswTextOff="Off"
+                    app:kswTextOn="On" />
+
+            </RelativeLayout>
+
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginStart="20dp"
+                android:background="@color/divider_line" />
+
+
+            <TextView
+                android:id="@+id/setting_test"
+                android:layout_width="match_parent"
+                android:layout_height="35dp"
+                android:background="#fefffe"
+                android:gravity="center_vertical"
+                android:paddingLeft="20dp"
+                android:text="测试按钮"
+                android:textSize="16sp" />
+
+
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="20dp"
+            android:layout_marginTop="20dp"
+            android:paddingLeft="10dp"
+            android:text="其他"
+            android:textColor="#BEBEBE" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/divider_line" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+
+            <TextView
+                android:id="@+id/setting_login_out"
+                android:layout_width="match_parent"
+                android:layout_height="35dp"
+                android:background="#fefffe"
+                android:gravity="center_vertical"
+                android:paddingLeft="20dp"
+                android:text="登出"
+                android:textSize="16sp" />
+
+            <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginStart="20dp"
+            android:background="@color/divider_line" />
+
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="35dp"
+                android:orientation="horizontal"
+                android:background="#fefffe">
+
+                <TextView
+                    android:id="@+id/setting_check_update_auto"
+                    android:layout_width="wrap_content"
+                    android:layout_height="35dp"
+                    android:background="#fefffe"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="20dp"
+                    android:text="自动检查更新"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/setting_check_update_hand"
+                    android:layout_width="wrap_content"
+                    android:layout_height="35dp"
+                    android:background="#fefffe"
+                    android:paddingLeft="5dp"
+                    android:gravity="center"
+                    android:text="点我手动检查更新"
+                    android:textSize="12sp"
+                    android:textColor="@color/T_99"
+                    android:layout_toEndOf="@id/setting_check_update_auto"
+                    android:layout_toRightOf="@id/setting_check_update_auto" />
+
+
+                <com.kyleduo.switchbutton.SwitchButton
+                    android:id="@+id/setting_toggle_auto_detect_update_switch"
+                    style="@style/SwitchButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginRight="20dp"
+                    android:textColor="#fefffe"
+                    android:textSize="16dp"
+                    app:kswTextAdjust="-2dp"
+                    app:kswTextExtra="8dp"
+                    app:kswTextOff="Off"
+                    app:kswTextOn="On" />
+
+            </RelativeLayout>
+
+
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginStart="20dp"
+                android:background="@color/divider_line" />
+
+            <TextView
+                android:id="@+id/setting_about"
+                android:layout_width="match_parent"
+                android:layout_height="35dp"
+                android:background="#fefffe"
+                android:gravity="center_vertical"
+                android:paddingLeft="20dp"
+                android:text="关于"
+                android:textSize="16sp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

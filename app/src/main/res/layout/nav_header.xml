@@ -1,0 +1,45 @@
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/nav_header_head_bg"
+    android:layout_width="match_parent"
+    android:layout_height="180dp"
+    android:background="@color/r17">
+
+
+    <ImageView
+        android:id="@+id/head_image_background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop" />
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/whole_head_image"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_centerInParent="true" />
+
+
+    <!--<TextView-->
+    <!--android:id="@+id/whole_text"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_above="@id/whole_id"-->
+    <!--android:text="您还没有登录"-->
+    <!--android:textColor="#FFF"-->
+    <!--android:textSize="14sp"/>-->
+
+
+    <TextView
+        android:id="@+id/whole_id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="20dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginBottom="10dp"
+        android:textColor="#000"
+        android:textSize="14sp" />
+
+
+</RelativeLayout>

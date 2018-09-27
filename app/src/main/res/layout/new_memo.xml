@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:text="标题（可选，不填则默认设置为创建时间, 20字以内）" />
+
+    <EditText
+        android:id="@+id/new_memo_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:maxLines="1"
+        android:theme="@style/MyEditText" />
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="30dp"
+        android:text="内容（必选，100字以内）" />
+
+
+    <EditText
+        android:id="@+id/new_memo_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textMultiLine"
+        android:enabled="true"
+        android:maxLines="6"
+        android:minLines="3"
+        android:background="@drawable/multi_edittext"
+        android:theme="@style/MyEditText" />
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="30dp"
+        android:text="事件类型" />
+
+    <RadioGroup
+        android:id="@+id/new_memo_type"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/new_memo_type_0"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="一般" />
+
+        <RadioButton
+            android:id="@+id/new_memo_type_1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="紧急" />
+    </RadioGroup>
+
+
+
+</LinearLayout>

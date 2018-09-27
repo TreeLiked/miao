@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="white_bg">#00BFFF</color>
+    colorAccent
+    <color name="blue">#378BE0</color>
+    <color name="white">#fff</color>
+    <color name="transparent">#00000000</color>
+    <color name="black">#000</color>
+
+    <color name="light_blue">#9960BFE5</color>
+    <color name="light_green">#9968CA5E</color>
+    <color name="light_pink">#99F49C97</color>
+    <color name="hole_blue">#9993AAE2</color>
+
+
+    <color name="r1">#99FF1493</color>
+    <color name="r2">#99FF69B4</color>
+    <color name="r3">#9987CEFA</color>
+    <color name="r4">#9900BFFF</color>
+    <color name="r5">#9900CD00</color>
+    <color name="r6">#99F5DEB3</color>
+    <color name="r7">#99BF3EFF</color>
+    <color name="r8">#99D8BFD8</color>
+    <color name="r9">#99FFB6C1</color>
+    <color name="r10">#999370DB</color>
+    <color name="r11">#99FFD700</color>
+    <color name="r12">#99FFA54F</color>
+    <color name="r13">#99FFFFF0</color>
+    <color name="r14">#99FF00FF</color>
+    <color name="r15">#99DCDCDC</color>
+    <color name="r16">#99FF1493</color>
+    <color name="r17">#F6F8FA</color>
+    <color name="r17_m">#99F6F8FA</color>
+    <color name="r18">#FFE4E1</color>
+    <color name="r19">#F5F5F5</color>
+    <color name="divider_line">#E9E9E9</color>
+    <color name="fri_title_bg">#00BFFF</color>
+    <color name="friend_detail_text_color">#363636</color>
+
+
+    <!--t—_dialog颜色-->
+    <color name="T_24">#242424</color>
+    <color name="T_26">#262626</color>
+    <!--白色-->
+    <color name="T_FF">#ffffff</color>
+    <!--灰色-->
+    <color name="T_54">#545454</color>
+    <!--深灰-->
+    <color name="T_75">#757575</color>
+    <!--通用字体颜色-->
+    <color name="T_66">#666666</color>
+    <!--浅灰色-->
+    <color name="T_99">#999999</color>
+    <color name="T_F6">#f6f6f6</color>
+    <!--黑色-->
+    <color name="T_00">#000000</color>
+    <!-- 文字黑色 -->
+    <color name="T_BD">#bdbdbd</color>
+    <color name="T_DB">#dbdbdb</color>
+    <color name="T_B6">#b6b6b6</color>
+    <color name="T_verify">#4c85ff</color>
+    <color name="T_coupons">#ef965e</color>
+    <color name="T_address_grey">#555555</color>
+    <color name="T_33">#333333</color>
+    <color name="topic">#627984</color>
+    <color name="topic_trans">#aa627984</color>
+    <color name="T_4D">#4D4D4D</color>
+    <color name="T_D9">#D9D9D9</color>
+    <color name="T_F2">#F2F2F2</color>
+    <color name="green_light">#2BB0FC</color>
+
+
+
+
+    <!--floatbuttonbar 开源库-->
+    <color name="black_semi_transparent">#B2000000</color>
+    <color name="background">#e5e5e5</color>
+    <color name="half_black">#808080</color>
+    <color name="white2">#fafafa</color>
+    <color name="white_pressed">#f1f1f1</color>
+    <color name="pink">#e91e63</color>
+    <color name="pink_pressed">#ec407a</color>
+    <color name="blue_semi_transparent">#805677fc</color>
+    <color name="blue_semi_transparent_pressed">#80738ffe</color>
+
+
+
+</resources>

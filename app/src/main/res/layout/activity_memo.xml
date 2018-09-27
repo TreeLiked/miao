@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:fab="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/r17"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/memo_bg_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop" />
+
+        <com.ogaclejapan.smarttablayout.SmartTabLayout
+            android:id="@+id/tab_layout_memo"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:stl_clickable="true"
+            app:stl_defaultTabBackground="@color/r8"
+            app:stl_defaultTabTextAllCaps="true"
+            app:stl_defaultTabTextColor="#ffffff"
+            app:stl_defaultTabTextHorizontalPadding="16dp"
+            app:stl_defaultTabTextMinWidth="0dp"
+            app:stl_defaultTabTextSize="18sp"
+            app:stl_distributeEvenly="true"
+            app:stl_dividerColor="#00000000"
+            app:stl_dividerThickness="3dp"
+            app:stl_drawDecorationAfterTab="false"
+            app:stl_indicatorAlwaysInCenter="false"
+            app:stl_indicatorColor="#AFEEEE"
+            app:stl_indicatorCornerRadius="2dp"
+            app:stl_indicatorGravity="bottom"
+            app:stl_indicatorInFront="true"
+            app:stl_indicatorInterpolation="smart"
+            app:stl_indicatorThickness="4dp"
+            app:stl_indicatorWidth="auto"
+            app:stl_indicatorWithoutPadding="false"
+            app:stl_overlineColor="#4D000000"
+            app:stl_overlineThickness="0dp"
+            app:stl_titleOffset="24dp"
+            app:stl_underlineColor="#4D000000"
+            app:stl_underlineThickness="1dp" />
+
+
+        <LinearLayout
+            android:id="@+id/memo_title_layout"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:layout_below="@id/tab_layout_memo"
+            android:layout_marginTop="50dp">
+
+            <TextView
+                android:id="@+id/memo_page_title"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:paddingLeft="10dp"
+                android:paddingStart="10dp"
+                android:text="[darkme.cn/memo]"
+                android:textColor="@color/black"
+                android:textSize="25sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/memo_flush_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/memo_title_layout"
+            android:gravity="center_horizontal"
+            android:orientation="horizontal">
+
+            <com.github.ybq.android.spinkit.SpinKitView xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/memo_load_progress_bar"
+                style="@style/SpinKitView.Large.CubeGrid"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:background="#E4E4E4"
+                app:SpinKit_Color="@color/white_bg" />
+
+        </LinearLayout>
+
+        <android.support.v4.view.ViewPager
+            android:id="@+id/view_pager_memo"
+            android:layout_width="match_parent"
+            android:layout_height="330dp"
+            android:layout_below="@id/memo_flush_layout"
+            android:layout_marginTop="30dp"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:overScrollMode="never" />
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/memo_flush_layout"
+            android:layout_marginTop="400dp"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/memo_current_num"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textColor="@color/black"
+                android:textSize="15sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true">
+
+
+            <com.getbase.floatingactionbutton.FloatingActionsMenu
+                android:id="@+id/memo_float_menu"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="40dp"
+                android:layout_marginEnd="40dp"
+                android:layout_marginRight="40dp"
+                fab:fab_addButtonColorNormal="@color/white"
+                fab:fab_addButtonColorPressed="@color/white_pressed"
+                fab:fab_addButtonPlusIconColor="@color/half_black"
+                fab:fab_labelStyle="@style/menu_labels_style">
+
+
+                <com.getbase.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/memo_choice_finished"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:fab_colorNormal="@color/white"
+                    app:fab_icon="@drawable/memo_finished_icon"
+                    fab:fab_colorPressed="@color/white_pressed"
+                    fab:fab_title="查看已完成" />
+
+                <com.getbase.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/memo_choice_unfinished"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:fab_colorNormal="@color/white"
+                    app:fab_icon="@drawable/memo_unfinished_icon"
+                    fab:fab_colorPressed="@color/white_pressed"
+                    fab:fab_title="查看未完成" />
+
+                <com.getbase.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/memo_choice_create"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:fab_colorNormal="@color/white"
+                    app:fab_icon="@drawable/memo_create_icon"
+                    fab:fab_colorPressed="@color/white_pressed"
+                    fab:fab_title="新建备忘录" />
+
+                <com.getbase.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/memo_choice_help"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:fab_colorNormal="@color/white"
+                    app:fab_icon="@drawable/memo_help_icon"
+                    fab:fab_colorPressed="@color/white_pressed"
+                    fab:fab_title="使用帮助" />
+
+            </com.getbase.floatingactionbutton.FloatingActionsMenu>
+
+        </LinearLayout>
+
+
+    </RelativeLayout>
+</LinearLayout>

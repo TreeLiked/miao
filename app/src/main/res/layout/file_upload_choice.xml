@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="200dp"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:text="指定用户"/>
+
+    <EditText
+        android:id="@+id/file_choice_dest"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:maxLines="1"
+        android:theme="@style/MyEditText"
+        android:hint="不指定仅自己可见"/>
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:layout_marginLeft="5dp"
+        android:text="备注"/>
+
+    <EditText
+        android:id="@+id/file_choice_atta"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="5"
+        android:theme="@style/MyEditText"
+        android:background="@drawable/multi_edittext"
+        android:minLines="3"
+        android:enabled="true"
+        android:gravity="top"
+        android:inputType="textMultiLine" />
+
+</LinearLayout>

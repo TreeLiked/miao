@@ -1,0 +1,67 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+
+
+
+        <item
+            android:id="@+id/nav_home"
+            android:icon="@drawable/nav_home"
+            android:title="darkme.cn"/>
+
+        <item
+            android:id="@+id/nav_course"
+        android:icon="@drawable/class_arr"
+            android:title="课程表" />
+
+        <!--<item-->
+            <!--android:id="@+id/nav_e_card"-->
+            <!--android:icon="@drawable/nav_mail"-->
+            <!--android:title="校园卡消费查询" />-->
+        <item
+            android:id="@+id/nav_grade"
+            android:icon="@drawable/nav_course"
+            android:title="成绩查询"
+            android:iconTintMode="src_over"/>
+        <!--<item-->
+            <!--android:id="@+id/nav_comment"-->
+            <!--android:title="一键评教"/>-->
+        <!--<item-->
+            <!--android:id="@+id/nav_network"-->
+            <!--android:icon="@drawable/nav_network"-->
+            <!--android:title="校园网络服务" />-->
+        <item
+            android:id="@+id/nav_school_calendar"
+            android:icon="@drawable/nav_school_calendar"
+            android:title="获取校历"/>
+
+
+        <item
+            android:id="@+id/nav_addNews"
+            android:icon="@drawable/nav_network"
+            android:title="发布帖子"/>
+
+        <item
+            android:id="@+id/nav_friends"
+            android:icon="@drawable/nav_friends"
+            android:title="好友"/>
+
+        <item
+            android:id="@+id/nav_cloud_file"
+            android:icon="@drawable/nav_file"
+            android:title="我的网盘"/>
+
+        <item
+            android:id="@+id/nav_should_do"
+            android:title="备忘录"
+            android:icon="@drawable/nav_should_do"/>
+
+        <item
+            android:id="@+id/nav_settings"
+            android:icon="@drawable/nav_settings"
+            android:title="设置"/>
+        <!--<item-->
+            <!--android:id="@+id/nav_login_out"-->
+            <!--android:icon="@drawable/nav_out"-->
+            <!--android:title="登出" />-->
+    </group>
+</menu>

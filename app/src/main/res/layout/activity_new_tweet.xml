@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#FEFFFF">
+
+    <!--<LinearLayout-->
+        <!--android:id="@+id/addNewsBar"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:background="#FEFFFF"-->
+        <!--android:orientation="vertical" />-->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:layout_marginTop="10dp">
+
+            <TextView
+                android:id="@+id/cancel_release_tweet"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent"
+                android:text="取消"
+                android:textSize="20sp"
+                android:textColor="#000000"
+                android:gravity="start|center_vertical"
+                android:layout_marginStart="20dp"
+                android:layout_marginLeft="20dp" />
+
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="2"
+                android:text="发布动态"
+                android:textSize="20sp"
+                android:gravity="center"
+                android:textColor="#000000" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginBottom="5dp">
+
+                <Button
+                    android:id="@+id/release_tweets"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:text="发表"
+                    android:layout_gravity="center_vertical"
+                    android:textSize="18sp"
+                    android:textColor="#A6A7A8"
+                    android:background="@drawable/button_shape_normal"
+                    android:layout_marginHorizontal="10dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginBottom="5dp"/>
+
+            </LinearLayout>
+
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#A6A7A8"/>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="6"
+            android:orientation="vertical">
+
+            <EditText
+                android:id="@+id/tweets_add"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#FEFFFF"
+                android:enabled="true"
+                android:gravity="top"
+                android:hint="分享新鲜事..."
+                android:paddingHorizontal="15dp"
+                android:textColorHint="#CACACA"
+                android:inputType="textMultiLine"
+                android:maxLines="10"
+                />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/choose_pic"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#F3F4F6"
+            android:layout_marginStart="15dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginLeft="15dp">
+
+            <ImageView
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:scaleType="centerInside"
+                android:layout_margin="20dp"
+                android:background="@drawable/upload_camera"
+                />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="8"
+            android:background="#F3F4F7">
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/img_thumbnails_recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+            </android.support.v7.widget.RecyclerView>
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>
