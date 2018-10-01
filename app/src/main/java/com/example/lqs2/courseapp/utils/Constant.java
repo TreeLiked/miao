@@ -57,11 +57,6 @@ public class Constant {
             "       ·已完成\n" +
             "4、登录后可与[darkme.cn]同步";
 
-    public static final String daily_introduction = "您可以理解这为一个记事本, 每天可以重复编辑, 但是今天之前禁止修改, 它会在您返回的时候自动保存, 您只可以在每周的星期一查看之前的记录";
-    public static final String create_daily_table = "create table Daily ("
-            + "id integer primary key autoincrement, "
-            + "date String, "
-            + "content String)";
 
     public static final int SERVER_ERROR = 0;
     public static final int INFO_ERROR = 1;
@@ -74,8 +69,10 @@ public class Constant {
     public static final String __VIEWSTATE_COMMENT = "";
 
 
-    //    个人中心请求
     public static final String DOWNLOAD_DIR = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath();
+
+
+    //    个人中心请求
     public static final int CENTER_FILE = 101;
     public static final int LOCAL_FILE = 102;
     public static final int CENTER_MEMO = 103;
@@ -102,58 +99,63 @@ public class Constant {
     private static String APPID = "1253931949";
 
 
-    public static String BASE_URL = "http://darkme.cn:8880/android";
-    public static String upload_image_url = "http://darkme.cn:8880/android/image/ui";
-    public static String img_access_url = "http://darkme.cn:8880/file/img";
+    public static String BASE_URL = "http://192.168.31.235:8880/android";
+    public static String upload_image_url = "http://192.168.31.235:8880/android/image/ui";
+    public static String img_access_url = "http://192.168.31.235:8880/file/img";
 
 
-    public static String file_show_url = "http://darkme.cn:8880/android/file/gmf";
-    public static String file_del_url = "http://darkme.cn:8880/android/file/rmf";
-    public static String file_sear_url = "http://darkme.cn:8880/android/file/smf";
-    public static String file_generate_url = "http://darkme.cn:8880/android/file/gnf";
+    public static String file_show_url = "http://192.168.31.235:8880/android/file/gmf";
+    public static String file_del_url = "http://192.168.31.235:8880/android/file/rmf";
+    public static String file_sear_url = "http://192.168.31.235:8880/android/file/smf";
+    public static String file_generate_url = "http://192.168.31.235:8880/android/file/gnf";
 
-    public static String file_insert_record_url = "http://darkme.cn:8880/android/file/ifr";
-
-
-    public static String tweet_post_url = "http://darkme.cn:8880/android/tweet/nt";
-    public static String tweet_get_all_url = "http://darkme.cn:8880/android/tweet/gat";
-    public static String tweet_del_url = "http://darkme.cn:8880/android/tweet/dt";
-    public static String tweet_praise_add_url = "http://darkme.cn:8880/android/tweet/mtg";
+    public static String file_insert_record_url = "http://192.168.31.235:8880/android/file/ifr";
 
 
-    public static String user_do_exist_url = "http://darkme.cn:8880/android/user/ude";
-    public static String user_do_login_url = "http://darkme.cn:8880/android/user/ulv";
-    public static String user_do_register_url = "http://darkme.cn:8880/android/user/urv";
-
-    public static String user_set_profile_picture_url = "http://darkme.cn:8880/android/user/supp";
-    public static String user_get_profile_picture_url = "http://darkme.cn:8880/android/user/gupp";
-
-    public static String user_get_handoff_text_url = "http://darkme.cn:8880/android/user/guht";
-    public static String user_turn_off_handoff_text_url = "http://darkme.cn:8880/android/user/offuht";
-    public static String user_post_handoff_text_url = "http://darkme.cn:8880/android/user/suht";
-
-    public static String user_tweet_info_url = "http://darkme.cn:8880/android/user/guti";
-    public static String user_praise_tweet_url = "http://darkme.cn:8880/android/user/upt";
-    public static String user_collect_tweet_url = "http://darkme.cn:8880/android/user/uct";
+    public static String tweet_post_url = "http://192.168.31.235:8880/android/tweet/nt";
+    public static String tweet_get_all_url = "http://192.168.31.235:8880/android/tweet/gat";
+    public static String tweet_del_url = "http://192.168.31.235:8880/android/tweet/dt";
+    public static String tweet_praise_add_url = "http://192.168.31.235:8880/android/tweet/mtg";
 
 
-    public static String user_show_my_friend_url = "http://darkme.cn:8880/android/user/gmf";
-    public static String user_change_friend_mark = "http://darkme.cn:8880/android/user/cfm";
-    public static String user_delete_friend_url = "http://darkme.cn:8880/android/user/duf";
-    public static String user_send_make_friend_msg ="http://darkme.cn:8880/android/user/smfm";
-    public static String user_send_agree_make_friend_msg ="http://darkme.cn:8880/android/user/amfm";
+    public static String user_do_exist_url = "http://192.168.31.235:8880/android/user/ude";
+    public static String user_do_login_url = "http://192.168.31.235:8880/android/user/ulv";
+    public static String user_do_register_url = "http://192.168.31.235:8880/android/user/urv";
 
-    public static String user_get_msg ="http://darkme.cn:8880/android/user/gum";
-    public static String user_del_msg ="http://darkme.cn:8880/android/user/dum";
+    public static String user_set_profile_picture_url = "http://192.168.31.235:8880/android/user/supp";
+    public static String user_get_profile_picture_url = "http://192.168.31.235:8880/android/user/gupp";
+
+    public static String user_get_handoff_text_url = "http://192.168.31.235:8880/android/user/guht";
+    public static String user_turn_off_handoff_text_url = "http://192.168.31.235:8880/android/user/offuht";
+    public static String user_post_handoff_text_url = "http://192.168.31.235:8880/android/user/suht";
+
+    public static String user_tweet_info_url = "http://192.168.31.235:8880/android/user/guti";
+    public static String user_praise_tweet_url = "http://192.168.31.235:8880/android/user/upt";
+    public static String user_collect_tweet_url = "http://192.168.31.235:8880/android/user/uct";
 
 
+    public static String user_show_my_friend_url = "http://192.168.31.235:8880/android/user/gmf";
+    public static String user_change_friend_mark = "http://192.168.31.235:8880/android/user/cfm";
+    public static String user_delete_friend_url = "http://192.168.31.235:8880/android/user/duf";
+    public static String user_send_make_friend_msg = "http://192.168.31.235:8880/android/user/smfm";
+    public static String user_send_agree_make_friend_msg = "http://192.168.31.235:8880/android/user/amfm";
 
-    public static String user_get_memo_by_state_url = "http://darkme.cn:8880/android/memo/gmbs";
-    public static String user_change_memo_state_url = "http://darkme.cn:8880/android/memo/cmbs";
-    public static String user_new_memo_url = "http://darkme.cn:8880/android/memo/nm";
+    public static String user_get_msg = "http://192.168.31.235:8880/android/user/gum";
+    public static String user_del_msg = "http://192.168.31.235:8880/android/user/dum";
 
-    public static String check_update_url = "http://darkme.cn:8880/android/version/cu";
-    public static String push_update_url = "http://darkme.cn:8880/android/version/pu";
+
+    public static String user_get_memo_by_state_url = "http://192.168.31.235:8880/android/memo/gmbs";
+    public static String user_change_memo_state_url = "http://192.168.31.235:8880/android/memo/cmbs";
+    public static String user_new_memo_url = "http://192.168.31.235:8880/android/memo/nm";
+
+    public static String check_update_url = "http://192.168.31.235:8880/android/version/cu";
+    public static String push_update_url = "http://192.168.31.235:8880/android/version/pu";
+
+    public static String school_notice_url = "https://www.njit.edu.cn/index/tzgg.htm";
+    public static String notice_main_url = "https://www.njit.edu.cn/index/tzgg.htm";
+    public static String notice_next_base_url = "https://www.njit.edu.cn/index/tzgg/";
+    public static String notice_base_url = "https://www.njit.edu.cn";
+
 
     //ImageAdapter的三种类型
     public static final int ADAPTER_FOR_NewTweetActivity = 1;

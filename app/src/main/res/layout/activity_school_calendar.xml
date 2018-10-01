@@ -11,17 +11,28 @@
         style="@style/SpinKitView.Circle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
         android:layout_gravity="center"
         android:layout_marginTop="20dp"
-        app:SpinKit_Color="@color/white"
-        android:layout_centerHorizontal="true"/>
+        app:SpinKit_Color="@color/white" />
 
+
+    <TextView
+        android:id="@+id/school_calendar_text_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/school_calendar_bar"
+        android:gravity="center_horizontal"
+        android:text="正在加载..."
+        android:textColor="@color/white"
+        android:layout_marginTop="100dp"
+        android:textSize="30dp" />
 
     <com.github.chrisbanes.photoview.PhotoView
         android:id="@+id/school_calendar_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_centerInParent="true"/>
+        android:layout_centerInParent="true" />
 
     <!--<Button-->
     <!--android:id="@+id/download_calendar"-->

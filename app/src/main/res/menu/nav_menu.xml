@@ -13,6 +13,12 @@
         android:icon="@drawable/class_arr"
             android:title="课程表" />
 
+
+        <item
+            android:id="@+id/nav_school_notice"
+            android:icon="@drawable/nav_notification"
+            android:title="通知" />
+
         <!--<item-->
             <!--android:id="@+id/nav_e_card"-->
             <!--android:icon="@drawable/nav_mail"-->
@@ -20,7 +26,7 @@
         <item
             android:id="@+id/nav_grade"
             android:icon="@drawable/nav_course"
-            android:title="成绩查询"
+            android:title="成绩"
             android:iconTintMode="src_over"/>
         <!--<item-->
             <!--android:id="@+id/nav_comment"-->
@@ -32,13 +38,13 @@
         <item
             android:id="@+id/nav_school_calendar"
             android:icon="@drawable/nav_school_calendar"
-            android:title="获取校历"/>
+            android:title="校历" />
 
 
         <item
             android:id="@+id/nav_addNews"
             android:icon="@drawable/nav_network"
-            android:title="发布帖子"/>
+            android:title="动态" />
 
         <item
             android:id="@+id/nav_friends"
@@ -48,7 +54,7 @@
         <item
             android:id="@+id/nav_cloud_file"
             android:icon="@drawable/nav_file"
-            android:title="我的网盘"/>
+            android:title="网盘" />
 
         <item
             android:id="@+id/nav_should_do"
@@ -59,6 +65,7 @@
             android:id="@+id/nav_settings"
             android:icon="@drawable/nav_settings"
             android:title="设置"/>
+
         <!--<item-->
             <!--android:id="@+id/nav_login_out"-->
             <!--android:icon="@drawable/nav_out"-->

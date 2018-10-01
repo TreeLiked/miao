@@ -1,7 +1,5 @@
 package com.example.lqs2.courseapp.ObjectSample;
 
-import android.util.Log;
-
 import com.example.lqs2.courseapp.common.QServiceCfg;
 import com.example.lqs2.courseapp.fragment.FileFragment;
 import com.example.lqs2.courseapp.utils.FileUtils;
@@ -37,14 +35,10 @@ public class GetObjectSample {
         String bucket = qServiceCfg.getBucketForObjectAPITest();
         String cosPath = qServiceCfg.getGetCosPath();
         String downloadDir = qServiceCfg.getDownloadDir();
-
         GetObjectRequest getObjectRequest = new GetObjectRequest(bucket, cosPath, downloadDir);
-
         getObjectRequest.setSign(3600, null, null);
-        getObjectRequest.setRange(1);
         startProgress("即将开始下载", filename, 1);
         getObjectRequest.setProgressListener((progress, max) -> {
-            Log.w("XIAO", "progress = " + progress + " max = " + max);
             float per = ((float) progress / max);
             float p = (float) (Math.round(per * 100));
             showProgress((int) (p), "正在下载：" + filename);

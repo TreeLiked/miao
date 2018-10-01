@@ -48,8 +48,8 @@
         <!-- <activity android:name=".activities.DailyRecord_All" /> -->
         <activity
             android:name=".activities.NewTweetActivity"
-            android:windowSoftInputMode="stateVisible|adjustPan"
-            android:launchMode="singleTask"/>
+            android:launchMode="singleTask"
+            android:windowSoftInputMode="stateVisible|adjustPan" />
         <activity
             android:name=".activities.TweetDetailActivity"
             android:theme="@style/NewsActivityTheme" />
@@ -91,7 +91,8 @@
         <activity android:name=".activities.MemoActivity" />
         <activity android:name=".activities.FriendActivity" />
         <activity android:name=".activities.ChatActivity" />
-        <activity android:name=".activities.ImageBrowseActivity"></activity>
+        <activity android:name=".activities.ImageBrowseActivity" />
+        <activity android:name=".activities.NoticeActivity"></activity>
     </application>
 
 </manifest>

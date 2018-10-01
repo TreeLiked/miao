@@ -988,6 +988,20 @@ public class HttpUtil {
         return client.newCall(request).execute();
     }
 
+//    notice
+
+    public static void pushSchoolNotice(Callback c) {
+        doAsynGetRequest(Constant.school_notice_url, null, c);
+    }
+
+    public static void pushSchoolNotice(int position, Callback c) {
+        doAsynGetRequest(Constant.notice_next_base_url + position + ".htm", null, c);
+    }
+
+    public static void getNoticeDetail(String contentUrl, Callback c) {
+        doAsynGetRequest(contentUrl, null, c);
+    }
+
     private static String generateGetUrl(String url, HashMap<String, String> args) {
         StringBuilder builder = new StringBuilder();
         builder.append(url).append("?");

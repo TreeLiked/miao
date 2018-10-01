@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -32,10 +33,11 @@ import okhttp3.Response;
 public class SchoolCalendarActivity extends ActivityCollector {
     private PhotoView calendar_view;
     private ProgressBar progressBar;
+
+    private TextView textView;
 //    private Button download;
     private String picName;
 
-    private int WRITEREQUESTCODE = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +55,7 @@ public class SchoolCalendarActivity extends ActivityCollector {
         }
 
         calendar_view = findViewById(R.id.school_calendar_view);
+        textView = findViewById(R.id.school_calendar_text_view);
         calendar_view.setOnLongClickListener(v -> {
 
 
@@ -115,7 +118,7 @@ public class SchoolCalendarActivity extends ActivityCollector {
                 Document doc = Jsoup.parse(html1);
                 Element ul_li_0 = doc.getElementById("line_u13_0");
                 Element a = ul_li_0.selectFirst("a");
-                System.out.println(a.text());
+//                System.out.println(a.text());
                 String link = a.attr("href");
                 link = "http://jwc.njit.edu.cn/" + link;
                 HttpUtil.loadCalendarPage(link, new Callback() {
@@ -137,9 +140,10 @@ public class SchoolCalendarActivity extends ActivityCollector {
                         String finalPic_url = pic_url;
                         runOnUiThread(() -> {
                             picName = a.text();
+                            textView.setText(picName);
                             Glide.with(SchoolCalendarActivity.this).load(finalPic_url).into(calendar_view);
                             progressBar.setVisibility(View.GONE);
-                            Toast.makeText(SchoolCalendarActivity.this, "喵～长按图片保存到本地", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(SchoolCalendarActivity.this, "喵～长按图片保存到本地", Toast.LENGTH_LONG).show();
                         });
                     }
                 });

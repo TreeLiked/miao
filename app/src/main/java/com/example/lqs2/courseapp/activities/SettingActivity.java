@@ -2,7 +2,6 @@ package com.example.lqs2.courseapp.activities;
 
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -10,7 +9,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.TextUtils;
-import android.view.Gravity;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ProgressBar;
@@ -27,7 +25,6 @@ import com.example.lqs2.courseapp.utils.StatusBarUtils;
 import com.example.lqs2.courseapp.utils.ToastUtils;
 import com.example.lqs2.courseapp.utils.UsualSharedPreferenceUtil;
 import com.example.lqs2.courseapp.utils.VersionUtils;
-import com.timmy.tdialog.TDialog;
 import com.yalantis.ucrop.UCrop;
 
 import java.io.File;
@@ -292,24 +289,24 @@ public class SettingActivity extends ActivityCollector implements View.OnClickLi
                 dialogs[0].show();
                 break;
             case R.id.setting_test:
-                TDialog tDialog = new TDialog.Builder(getSupportFragmentManager())
-                        .setLayoutRes(R.layout.t_dialog_evaluate)    //设置弹窗展示的xml布局
+//                TDialog tDialog = new TDialog.Builder(getSupportFragmentManager())
+//                        .setLayoutRes(R.layout.t_dialog_evaluate)    //设置弹窗展示的xml布局
 //                .setDialogView(view)  //设置弹窗布局,直接传入View
-                        .setWidth(600)  //设置弹窗宽度(px)
-                        .setHeight(800)  //设置弹窗高度(px)
-                        .setScreenWidthAspect(this, 0.8f)   //设置弹窗宽度(参数aspect为屏幕宽度比例 0 - 1f)
-                        .setScreenHeightAspect(this, 0.3f)  //设置弹窗高度(参数aspect为屏幕宽度比例 0 - 1f)
-                        .setGravity(Gravity.CENTER)     //设置弹窗展示位置
-                        .setTag("DialogTest")   //设置Tag
-                        .setDimAmount(0.6f)     //设置弹窗背景透明度(0-1f)
-                        .setCancelableOutside(true)     //弹窗在界面外是否可以点击取消
-                        .setCancelable(true)    //弹窗是否可以取消
-                        .setOnDismissListener(new DialogInterface.OnDismissListener() { //弹窗隐藏时回调方法
-                            @Override
-                            public void onDismiss(DialogInterface dialog) {
-                                Toast.makeText(SettingActivity.this, "弹窗消失回调", Toast.LENGTH_SHORT).show();
-                            }
-                        })
+//                        .setWidth(600)  //设置弹窗宽度(px)
+//                        .setHeight(800)  //设置弹窗高度(px)
+//                        .setScreenWidthAspect(this, 0.8f)   //设置弹窗宽度(参数aspect为屏幕宽度比例 0 - 1f)
+//                        .setScreenHeightAspect(this, 0.3f)  //设置弹窗高度(参数aspect为屏幕宽度比例 0 - 1f)
+//                        .setGravity(Gravity.CENTER)     //设置弹窗展示位置
+//                        .setTag("DialogTest")   //设置Tag
+//                        .setDimAmount(0.6f)     //设置弹窗背景透明度(0-1f)
+//                        .setCancelableOutside(true)     //弹窗在界面外是否可以点击取消
+//                        .setCancelable(true)    //弹窗是否可以取消
+//                        .setOnDismissListener(new DialogInterface.OnDismissListener() { //弹窗隐藏时回调方法
+//                            @Override
+//                            public void onDismiss(DialogInterface dialog) {
+//                                Toast.makeText(SettingActivity.this, "弹窗消失回调", Toast.LENGTH_SHORT).show();
+//                            }
+//                        })
 //                        .setOnBindViewListener(new OnBindViewListener() {   //通过BindViewHolder拿到控件对象,进行修改
 //                            @Override
 //                            public void bindView(BindViewHolder bindViewHolder) {
@@ -335,8 +332,8 @@ public class SettingActivity extends ActivityCollector implements View.OnClickLi
 //                                }
 //                            }
 //                        })
-                        .create()   //创建TDialog
-                        .show();    //展示
+//                        .create()   //创建TDialog
+//                        .show();    //展示
 
                 break;
 
@@ -360,11 +357,10 @@ public class SettingActivity extends ActivityCollector implements View.OnClickLi
             case R.id.setting_about:
 
             default:
-                String vs = String.valueOf(VersionUtils.getVersionCode());
+//                String vs = String.valueOf(VersionUtils.getVersionCode());
                 String vn = VersionUtils.getVersionName();
-                String c = "版  本  号：" + vs + "\n" +
-                        "版本名称：" + vn + "\n" +
-                        "版权所有：\n" + "@cm\n@djt\n@qcy\n@TreeLiked\n@ttw";
+                String c = "版  本  号：" + vn + "\n" +
+                        "版权所有：" + "@cm、\t@djt、\t@qcy、\t@TreeLiked、\t@ttw";
                 MaterialDialogUtils.showSimpleConfirmDialog(SettingActivity.this, new String[]{"关于喵", c, "确认", ""});
                 break;
         }

@@ -8,6 +8,10 @@ import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Html;
+import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -15,9 +19,11 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.example.lqs2.courseapp.R;
 import com.example.lqs2.courseapp.adapters.ImageAdapter;
+import com.example.lqs2.courseapp.entity.Notice;
 import com.example.lqs2.courseapp.entity.Tweet;
 import com.example.lqs2.courseapp.utils.Base64ImageUtils;
 import com.example.lqs2.courseapp.utils.Constant;
+import com.example.lqs2.courseapp.utils.StatusBarUtils;
 import com.example.lqs2.courseapp.utils.TimeUtils;
 
 import java.util.Objects;
@@ -26,11 +32,10 @@ public class TweetDetailActivity extends AppCompatActivity {
 
     private EditText comment_detail_edit;
 
-    private CollapsingToolbarLayout layout;
     private ImageView imageView;
+    private CollapsingToolbarLayout layout;
     private TextView contentView;
     private TextView postTimeView;
-    private RecyclerView recyclerView;
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @Override
@@ -38,33 +43,60 @@ public class TweetDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tweet_detail);
 
+        StatusBarUtils.setStatusTransparent(this);
+
         layout = findViewById(R.id.tweet_detail_cover_layout);
         imageView = findViewById(R.id.tweet_detail_cover);
         contentView = findViewById(R.id.tweet_detail_content);
         postTimeView = findViewById(R.id.tweet_detail_postTime);
 
 
-        ImageAdapter adapter = new ImageAdapter(this, TweetDetailActivity.this);
-        recyclerView = findViewById(R.id.tweet_detail_img_view);
-//        recyclerView.addItemDecoration(new DividerItemDecoration(this, LinearLayout.HORIZONTAL));
-        GridLayoutManager layoutManager = new GridLayoutManager(this, 3);
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setAdapter(adapter);
-
         Intent intent = getIntent();
-        Tweet tweet = (Tweet) Objects.requireNonNull(intent.getExtras()).getSerializable("tweet");
+//        0 来自动态，1来自通知
+        int type = intent.getIntExtra("FROM", 1);
+        switch (type) {
+            case 0:
+                RecyclerView recyclerView = findViewById(R.id.tweet_detail_img_view);
+                findViewById(R.id.notice_annex_layout).setVisibility(View.GONE);
+                ImageAdapter adapter = new ImageAdapter(this, TweetDetailActivity.this);
+//        recyclerView.addItemDecoration(new DividerItemDecoration(this, LinearLayout.HORIZONTAL));
+                GridLayoutManager layoutManager = new GridLayoutManager(this, 3);
+                recyclerView.setLayoutManager(layoutManager);
+                recyclerView.setAdapter(adapter);
+                Tweet tweet = (Tweet) Objects.requireNonNull(intent.getExtras()).getSerializable("tweet");
+                assert tweet != null;
+                layout.setTitle(tweet.getUserId());
+                if (null != tweet.getContent()) {
+                    contentView.setText(tweet.getContent());
+                }
+                postTimeView.setText(TimeUtils.tweetPostTimeConvert(tweet.getPostTime()));
+                if (Base64ImageUtils.isPicPath(tweet.getImgPath0())) {
+                    Glide.with(TweetDetailActivity.this).load(Constant.img_access_url + tweet.getImgPath0()).into(imageView);
+                    adapter.setDataC(ImageAdapter.getImagePathList(tweet));
+                } else {
+                    Glide.with(this).load(R.drawable.notice_banner).into(imageView);
+                }
+                break;
+            case 1:
+                findViewById(R.id.tweet_detail_img_view).setVisibility(View.GONE);
+                findViewById(R.id.news_detail_comment).setVisibility(View.GONE);
+                Glide.with(this).load(R.drawable.notice_banner).into(imageView);
+                Notice notice = (Notice) Objects.requireNonNull(intent.getExtras()).getSerializable("notice");
+                layout.setTitle(notice.getTitle());
+                layout.setExpandedTitleColor(getResources().getColor(R.color.white));
+                layout.setCollapsedTitleTextColor(getResources().getColor(R.color.black));
+                contentView.setText(notice.getContent());
+                postTimeView.setText(notice.getTime());
+                if (!TextUtils.isEmpty(notice.getAnnexUrl())) {
+                    TextView annexView = findViewById(R.id.annex_text_view);
+                    annexView.setMovementMethod(LinkMovementMethod.getInstance());
+                    CharSequence charSequence = Html.fromHtml("<a href=\"" + notice.getAnnexUrl() + "\">" + notice.getAnnexText() + "</a>");
+                    annexView.setText(charSequence);
 
-        assert tweet != null;
-        layout.setTitle(tweet.getUserId());
-        if (null != tweet.getContent()) {
-            contentView.setText(tweet.getContent());
-        }
-        postTimeView.setText(TimeUtils.tweetPostTimeConvert(tweet.getPostTime()));
-        if (Base64ImageUtils.isPicPath(tweet.getImgPath0())) {
-            Glide.with(TweetDetailActivity.this).load(Constant.img_access_url + tweet.getImgPath0()).into(imageView);
-            adapter.setDataC(ImageAdapter.getImagePathList(tweet));
-        } else {
-            Glide.with(this).load(R.drawable.girl).into(imageView);
+                }
+                break;
+            default:
+                break;
         }
 
 
@@ -142,7 +174,6 @@ public class TweetDetailActivity extends AppCompatActivity {
 
 
     }
-
 
 
 }

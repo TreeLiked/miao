@@ -15,7 +15,7 @@
             android:id="@+id/course_bg_img_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:scaleType="centerCrop"/>
+            android:scaleType="centerCrop" />
 
         <LinearLayout
 
@@ -27,27 +27,27 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="60dp"
                 android:background="#1000"
-                android:gravity="bottom"
-                android:paddingTop="13dp">
+                android:gravity="center"
+                android:paddingTop="20dp">
 
 
                 <Spinner
                     android:id="@+id/switchYear"
                     android:layout_width="0dp"
-                    android:layout_height="45dp"
+                    android:layout_height="match_parent"
                     android:layout_gravity="center"
                     android:layout_marginLeft="10dp"
                     android:layout_marginStart="10dp"
                     android:layout_weight="4"
                     android:gravity="center"
-                    android:spinnerMode="dialog"
+                    android:spinnerMode="dropdown"
                     android:textSize="13sp" />
 
                 <TextView
                     android:layout_width="wrap_content"
-                    android:layout_height="45dp"
+                    android:layout_height="match_parent"
                     android:gravity="center"
                     android:paddingRight="5dp"
                     android:text="年"
@@ -56,17 +56,17 @@
                 <Spinner
                     android:id="@+id/switchTeam"
                     android:layout_width="0dp"
-                    android:layout_height="45dp"
+                    android:layout_height="match_parent"
                     android:layout_gravity="center"
                     android:layout_weight="2"
                     android:gravity="center"
-                    android:spinnerMode="dialog"
+                    android:spinnerMode="dropdown"
                     android:textColor="#E0FFFF"
                     android:textSize="13sp" />
 
                 <TextView
                     android:layout_width="wrap_content"
-                    android:layout_height="45dp"
+                    android:layout_height="match_parent"
                     android:gravity="center"
                     android:paddingRight="5dp"
                     android:text="学期"
@@ -87,13 +87,21 @@
                 <Spinner
                     android:id="@+id/switchWeek"
                     android:layout_width="0dp"
-                    android:layout_height="45dp"
+                    android:layout_height="match_parent"
                     android:layout_gravity="center_vertical"
                     android:layout_weight="3"
                     android:gravity="center_vertical"
-                    android:spinnerMode="dialog"
+                    android:spinnerMode="dropdown"
                     android:textColor="#E0FFFF"
                     android:textSize="13sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:paddingRight="20dp"
+                    android:text="周"
+                    android:textSize="17sp" />
 
             </LinearLayout>
 
@@ -105,7 +113,7 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="40dp"
                 android:background="#1000"
                 android:orientation="horizontal">
 
@@ -131,14 +139,14 @@
                 <ImageButton
                     android:id="@+id/flush_course_button"
                     android:layout_width="35dp"
-                    android:layout_height="40dp"
+                    android:layout_height="match_parent"
                     android:gravity="fill"
                     android:scaleType="centerCrop"
                     android:src="@drawable/ic_flush" />
 
                 <TextView
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_gravity="center"
                     android:layout_weight="1"
                     android:gravity="center"
@@ -146,7 +154,7 @@
 
                 <TextView
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_gravity="center"
                     android:layout_weight="1"
                     android:gravity="center"
@@ -154,7 +162,7 @@
 
                 <TextView
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_gravity="center"
                     android:layout_weight="1"
                     android:gravity="center"
@@ -165,14 +173,14 @@
                     android:id="@+id/course_page_progress_bar"
                     style="@style/SpinKitView.Wave"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_gravity="center"
                     app:SpinKit_Color="@color/r3" />
 
 
                 <TextView
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_gravity="center"
                     android:layout_weight="1"
                     android:gravity="center"
@@ -180,7 +188,7 @@
 
                 <TextView
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_gravity="center"
                     android:layout_weight="1"
                     android:gravity="center"
@@ -188,7 +196,7 @@
 
                 <TextView
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_gravity="center"
                     android:layout_weight="1"
                     android:gravity="center"
@@ -196,7 +204,7 @@
 
                 <TextView
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_gravity="center"
                     android:layout_weight="1"
                     android:gravity="center"
@@ -312,7 +320,7 @@
                                 android:layout_height="55dp"
                                 android:layout_gravity="center"
                                 android:gravity="center"
-                                android:text="1 08:00"
+                                android:text="1\n08:00"
                                 android:textSize="12sp" />
 
                             <TextView
@@ -321,7 +329,7 @@
                                 android:layout_gravity="center"
                                 android:gravity="center"
                                 android:singleLine="false"
-                                android:text="2 08:55"
+                                android:text="2\n08:55"
                                 android:textSize="12sp" />
 
                             <!--<view-->
@@ -335,7 +343,7 @@
                                 android:layout_height="55dp"
                                 android:layout_gravity="center"
                                 android:gravity="center"
-                                android:text="3 10:10"
+                                android:text="3\n10:10"
                                 android:textSize="12sp" />
 
                             <TextView
@@ -343,7 +351,7 @@
                                 android:layout_height="50dp"
                                 android:layout_gravity="center"
                                 android:gravity="center"
-                                android:text="4 10:55"
+                                android:text="4\n10:55"
                                 android:textSize="12sp" />
 
                             <!--<view-->
@@ -357,7 +365,7 @@
                                 android:layout_height="55dp"
                                 android:layout_gravity="center"
                                 android:gravity="center"
-                                android:text="5 13:40"
+                                android:text="5\n13:40"
                                 android:textSize="12sp" />
 
                             <TextView
@@ -365,24 +373,7 @@
                                 android:layout_height="55dp"
                                 android:layout_gravity="center"
                                 android:gravity="center"
-                                android:text="6 14:35"
-                                android:textSize="12sp" />
-
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="55dp"
-                                android:layout_gravity="center"
-                                android:gravity="center"
-                                android:text="7 15:40"
-                                android:textSize="12sp" />
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="55dp"
-                                android:layout_gravity="center"
-                                android:gravity="center"
-                                android:text="8 16:35"
+                                android:text="6\n14:35"
                                 android:textSize="12sp" />
 
 
@@ -391,7 +382,7 @@
                                 android:layout_height="55dp"
                                 android:layout_gravity="center"
                                 android:gravity="center"
-                                android:text="9 18:30"
+                                android:text="7\n15:40"
                                 android:textSize="12sp" />
 
                             <TextView
@@ -399,7 +390,7 @@
                                 android:layout_height="55dp"
                                 android:layout_gravity="center"
                                 android:gravity="center"
-                                android:text="10 19:25"
+                                android:text="8\n16:35"
                                 android:textSize="12sp" />
 
 
@@ -408,7 +399,7 @@
                                 android:layout_height="55dp"
                                 android:layout_gravity="center"
                                 android:gravity="center"
-                                android:text="11"
+                                android:text="9\n18:30"
                                 android:textSize="12sp" />
 
                             <TextView
@@ -416,7 +407,24 @@
                                 android:layout_height="55dp"
                                 android:layout_gravity="center"
                                 android:gravity="center"
-                                android:text="12 "
+                                android:text="10\n19:25"
+                                android:textSize="12sp" />
+
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="55dp"
+                                android:layout_gravity="center"
+                                android:gravity="center"
+                                android:text="11\n"
+                                android:textSize="12sp" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="55dp"
+                                android:layout_gravity="center"
+                                android:gravity="center"
+                                android:text="12\n"
                                 android:textSize="12sp" />
 
                         </LinearLayout>

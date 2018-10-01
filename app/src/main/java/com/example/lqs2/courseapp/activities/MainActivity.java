@@ -15,7 +15,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
@@ -256,7 +255,7 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
 
 //        单定义
         navigationView.setCheckedItem(R.id.nav_course);
-        final FloatingActionButton fab = findViewById(R.id.fab);
+        final com.getbase.floatingactionbutton.FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(this);
         fab.setOnLongClickListener(v -> {
             MaterialDialog[] dialog = new MaterialDialog[1];
@@ -395,6 +394,11 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
 //                        //TODO
 //                    }
 //                    break;
+
+
+                case R.id.nav_school_notice:
+                    goActivity(NoticeActivity.class, null);
+                    break;
                 case R.id.nav_grade:
 
 
@@ -780,39 +784,7 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
 
 
         recyclerView.setAdapter(tweetAdapter);
-//        //设置代理
-//        recyclerView_layout.setDelegate(this);
-//
-//
-//
-//        // 设置下拉刷新和上拉加载更多的风格     参数1：应用程序上下文，参数2：是否具有上拉加载更多功能
-//        BGARefreshViewHolder refreshViewHolder = new BGANormalRefreshViewHolder(this, true);
-//        // 设置下拉刷新和上拉加载更多的风格
-//        refreshViewHolder.setRefreshViewBackgroundDrawableRes(R.drawable.default_head);
-//        refreshViewHolder.setLoadingMoreText("正在加载更多");
-//        refreshViewHolder.setLoadMoreBackgroundColorRes(R.color.r1);
-//        recyclerView_layout.setRefreshViewHolder(refreshViewHolder);
-
-//        testSomeData();
-
-
-        // 为了增加下拉刷新头部和加载更多的通用性，提供了以下可选配置选项  -------------START
-        // 设置正在加载更多时不显示加载更多控件
-        // mRefreshLayout.setIsShowLoadingMoreView(false);
-        // 设置正在加载更多时的文本
-        // 设置整个加载更多控件的背景颜色资源 id
-//        refreshViewHolder.setLoadMoreBackgroundColorRes(loadMoreBackgroundColorRes);
-        // 设置整个加载更多控件的背景 drawable 资源 id
-//        refreshViewHolder.setLoadMoreBackgroundDrawableRes(loadMoreBackgroundDrawableRes);
-        // 设置下拉刷新控件的背景颜色资源 id
-//        refreshViewHolder.setRefreshViewBackgroundColorRes(refreshViewBackgroundColorRes);
-        // 设置下拉刷新控件的背景 drawable 资源 id
-//        refreshViewHolder.setRefreshViewBackgroundDrawableRes(refreshViewBackgroundDrawableRes);
-        // 设置自定义头部视图（也可以不用设置）     参数1：自定义头部视图（例如广告位）， 参数2：上拉加载更多是否可用
-//        recyclerView_layout.setCustomHeaderView(null, false);
-        // 可选配置  -------------END
     }
-
 
     private void displayUserInfo(int type) {
         switch (type) {

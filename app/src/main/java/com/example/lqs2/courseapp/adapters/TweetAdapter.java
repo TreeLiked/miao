@@ -53,7 +53,7 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> 
     private MainActivity activity;
     private String un;
     private Gson gson;
-    private boolean darkMode = false;
+    private boolean darkMode;
 
 
     public void setData(List<Tweet> tweetList) {
@@ -199,6 +199,7 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> 
     public void showTweetDetail(Tweet tweet) {
         Intent intent = new Intent(activity, TweetDetailActivity.class);
         Bundle bundle = new Bundle();
+        intent.putExtra("FROM", 0);
         bundle.putSerializable("tweet", tweet);
         intent.putExtras(bundle);
         activity.startActivity(intent);

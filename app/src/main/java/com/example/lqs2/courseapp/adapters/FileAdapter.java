@@ -18,6 +18,7 @@ import com.example.lqs2.courseapp.entity.File;
 import com.example.lqs2.courseapp.fragment.FileFragment;
 import com.example.lqs2.courseapp.utils.Constant;
 import com.example.lqs2.courseapp.utils.HttpUtil;
+import com.example.lqs2.courseapp.utils.PermissionUtils;
 import com.example.lqs2.courseapp.utils.Tools;
 
 import java.io.IOException;
@@ -35,10 +36,15 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.ViewHolder> {
     private FileFragment fileFragment;
     private List<File> mFileList;
 
-    public FileAdapter(List<File> mFileList, Context context, FileFragment fileFragment) {
-        this.mFileList = mFileList;
+    public FileAdapter(Context context, FileFragment fileFragment) {
         this.mContext = context;
         this.fileFragment = fileFragment;
+    }
+
+
+    public void setData(List<File> mFileList) {
+        this.mFileList = mFileList;
+        notifyDataSetChanged();
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
@@ -88,6 +94,7 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.ViewHolder> {
                                 public void onFailure(Call call, IOException e) {
                                     showToast("删除失败，请稍后重试", 0);
                                 }
+
                                 @Override
                                 public void onResponse(Call call, Response response) throws IOException {
                                     if ("1".equals(response.body().string())) {
@@ -114,18 +121,23 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.ViewHolder> {
         });
         if (!FileFragment.isCloud) {
             holder.linearLayout.setOnLongClickListener(v -> {
-                int position = holder.getAdapterPosition();
-                File file = mFileList.get(position);
-                MaterialDialog dialog = new MaterialDialog(mContext);
-                dialog
-                        .setTitle("删除此文件")
-                        .setMessage("这将一并在本地移除文件")
-                        .setPositiveButton("取消", v1 -> dialog.dismiss())
-                        .setNegativeButton("确认删除", v1 -> {
-                            fileFragment.deleteFileInDownloadDir(file.getFile_name());
-                            dialog.dismiss();
-                        })
-                        .show();
+                if (PermissionUtils.checkWriteExtraStoragePermission(mContext)) {
+
+                    int position = holder.getAdapterPosition();
+                    File file = mFileList.get(position);
+                    MaterialDialog dialog = new MaterialDialog(mContext);
+                    dialog
+                            .setTitle("删除此文件")
+                            .setMessage("这将一并在本地移除文件")
+                            .setPositiveButton("取消", v1 -> dialog.dismiss())
+                            .setNegativeButton("确认删除", v1 -> {
+                                fileFragment.deleteFileInDownloadDir(file.getFile_name());
+                                dialog.dismiss();
+                            })
+                            .show();
+                } else {
+                    PermissionUtils.requestWritePermission(mContext, fileFragment.getActivity(), PermissionUtils.CODE_WRITE_EXTERNAL_STORAGE);
+                }
                 return true;
             });
         }
@@ -145,7 +157,7 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.ViewHolder> {
 
     @Override
     public int getItemCount() {
-        return mFileList.size();
+        return mFileList != null ? mFileList.size() : -1;
     }
 
     private String getFileIconType(String filename) {

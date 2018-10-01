@@ -168,6 +168,7 @@ public class FriMsgAdapter extends RecyclerView.Adapter<FriMsgAdapter.ViewHolder
                 MaterialDialogUtils.showSimpleConfirmDialog(mContext, new String[]{"系统通知", msg.getMsgContent(), "我知道了", ""});
                 break;
             case 2:
+//                这种写法也是没谁了，，主要是不想写了
                 if (msg.getMsgContent().contains("迫切")) {
                     MaterialDialogUtils.showYesOrNoDialog(mContext, new String[]{"好友通知", msg.getMsgContent(), "答应了", "当作没看见"}, new MaterialDialogUtils.DialogOnConfirmClickListener() {
                         @Override

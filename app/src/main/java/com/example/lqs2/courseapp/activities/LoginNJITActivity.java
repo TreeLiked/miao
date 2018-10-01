@@ -135,11 +135,6 @@ public class LoginNJITActivity extends ActivityCollector {
 
         Intent intent = getIntent();
         final String type = intent.getStringExtra("TODO");
-//
-//        View decorView = getWindow().getDecorView();
-//        int option = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-//                | View.SYSTEM_UI_FLAG_FULLSCREEN;
-//        decorView.setSystemUiVisibility(option);
 
 
 //        监听网络变化
@@ -152,7 +147,6 @@ public class LoginNJITActivity extends ActivityCollector {
         if (ContextCompat.checkSelfPermission(LoginNJITActivity.this, Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(LoginNJITActivity.this, new String[]{Manifest.permission.INTERNET}, 1);
         }
-
 
         accountText = findViewById(R.id.xh);
         passwordText = findViewById(R.id.xm);
@@ -334,7 +328,6 @@ public class LoginNJITActivity extends ActivityCollector {
                                                                             SharedPreferenceUtil.put(LoginNJITActivity.this, "xncr", xnText);
                                                                             SharedPreferenceUtil.put(LoginNJITActivity.this, "xqcr", xqText);
                                                                         }
-
                                                                         startActivity(intent1);
                                                                         finish();
                                                                     } else {

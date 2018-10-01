@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 
-<android.support.v4.widget.DrawerLayout
-    android:id="@+id/drawer_layout"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -17,13 +16,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <!--<android.support.v7.widget.Toolbar-->
-                <!--android:id="@+id/toolbar"-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="?attr/actionBarSize"-->
-                <!--android:background="?attr/colorPrimary"-->
-                <!--android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"-->
-                <!--app:popupTheme="@style/ThemeOverlay.AppCompat.Light"-->
-                <!--android:paddingTop="11dp" />-->
+            <!--android:id="@+id/toolbar"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="?attr/actionBarSize"-->
+            <!--android:background="?attr/colorPrimary"-->
+            <!--android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"-->
+            <!--app:popupTheme="@style/ThemeOverlay.AppCompat.Light"-->
+            <!--android:paddingTop="11dp" />-->
         </android.support.design.widget.AppBarLayout>
 
         <RelativeLayout
@@ -40,14 +39,14 @@
 
             <RelativeLayout
                 android:id="@+id/course_recent"
-                android:layout_marginTop="30dp"
                 android:layout_width="match_parent"
                 android:layout_height="130dp"
+                android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
-                android:background= "@drawable/shape_corner"
                 android:layout_marginLeft="8dp"
                 android:layout_marginRight="8dp"
-                android:layout_alignParentLeft="true">
+                android:layout_marginTop="30dp"
+                android:background="@drawable/shape_corner">
 
                 <TextView
                     android:id="@+id/main_course_title"
@@ -88,7 +87,7 @@
                     android:layout_below="@id/main_course_location"
                     android:textColor="#000"
 
-                    android:textSize="17dp"/>
+                    android:textSize="17dp" />
 
             </RelativeLayout>
 
@@ -96,68 +95,66 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_below="@id/course_recent"
-                android:layout_marginTop="6dp"
                 android:layout_marginLeft="8dp"
-                android:layout_marginRight="8dp">
+                android:layout_marginRight="8dp"
+                android:layout_marginTop="6dp">
 
 
                 <!--<android.support.v4.widget.SwipeRefreshLayout-->
-                    <!--android:id="@+id/main_swipe_flush"-->
-                    <!--android:layout_width="match_parent"-->
-                    <!--android:layout_height="match_parent">-->
+                <!--android:id="@+id/main_swipe_flush"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="match_parent">-->
 
-                    <LinearLayout
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/main_tweet_title"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:orientation="vertical">
+                        android:layout_height="46dp"
+                        android:layout_marginBottom="10dp"
+                        android:gravity="center"
+                        android:text="动态"
+                        android:textColor="@color/black"
+                        android:textSize="20sp" />
 
-                        <TextView
-                            android:id="@+id/main_tweet_title"
+                    <!--<android.support.v7.widget.RecyclerView-->
+                    <!--android:id="@+id/main_recycle_view"-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="match_parent" />-->
+
+                    <android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                        android:id="@+id/main_recycle_view_refresh_layout"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <!-- 内容控件 -->
+                        <com.yanzhenjie.recyclerview.swipe.SwipeMenuRecyclerView
+                            android:id="@+id/main_recycle_view"
                             android:layout_width="match_parent"
-                            android:layout_height="46dp"
-                            android:gravity="center"
-                            android:textSize="20sp"
-                            android:textColor="@color/black"
-                            android:text="动态"
-                            android:layout_marginBottom="10dp"/>
+                            android:layout_height="match_parent"
+                            android:scrollbars="vertical" />
 
-                        <!--<android.support.v7.widget.RecyclerView-->
-                            <!--android:id="@+id/main_recycle_view"-->
-                            <!--android:layout_width="match_parent"-->
-                            <!--android:layout_height="match_parent" />-->
-
-                        <android.support.v4.widget.SwipeRefreshLayout
-                            xmlns:android="http://schemas.android.com/apk/res/android"
-                            android:id="@+id/main_recycle_view_refresh_layout"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent">
-
-                            <!-- 内容控件 -->
-                            <com.yanzhenjie.recyclerview.swipe.SwipeMenuRecyclerView
-                                android:layout_width="match_parent"
-                                android:id="@+id/main_recycle_view"
-                                android:layout_height="match_parent"
-                                android:scrollbars="vertical"/>
-
-                        </android.support.v4.widget.SwipeRefreshLayout>
-                    </LinearLayout>
-
+                    </android.support.v4.widget.SwipeRefreshLayout>
+                </LinearLayout>
 
 
                 <!--</android.support.v4.widget.SwipeRefreshLayout>-->
             </LinearLayout>
         </RelativeLayout>
 
-        <android.support.design.widget.FloatingActionButton
+        <com.getbase.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
-            android:layout_marginRight="41dp"
-            android:layout_marginBottom="59dp"
-            android:src="@drawable/home_diy"
-            android:elevation="8dp"
-            app:backgroundTint="#fff"/>
+            android:layout_marginBottom="51dp"
+            android:layout_marginRight="39dp"
+            app:fab_colorNormal="@color/white"
+            app:fab_colorPressed="@color/white_pressed"
+            app:fab_icon="@drawable/main_star_icon" />
 
     </android.support.design.widget.CoordinatorLayout>
 
@@ -166,8 +163,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        app:menu="@menu/nav_menu"
-        app:headerLayout="@layout/nav_header" />
+        app:headerLayout="@layout/nav_header"
+        app:menu="@menu/nav_menu" />
 
 </android.support.v4.widget.DrawerLayout>
 

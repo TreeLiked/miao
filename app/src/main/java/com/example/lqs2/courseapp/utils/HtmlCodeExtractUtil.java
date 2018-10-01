@@ -1,8 +1,10 @@
 package com.example.lqs2.courseapp.utils;
 
+import com.example.lqs2.courseapp.MyApplication;
+import com.example.lqs2.courseapp.activities.NoticeActivity;
 import com.example.lqs2.courseapp.entity.Course;
 import com.example.lqs2.courseapp.entity.Grade;
-import com.example.lqs2.courseapp.MyApplication;
+import com.example.lqs2.courseapp.entity.Notice;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -32,7 +34,7 @@ public class HtmlCodeExtractUtil {
         return split[0].substring(split[0].lastIndexOf(">") + 1) + " @" + split[split.length - 1].substring(0, split[split.length - 1].lastIndexOf("</"));
     }
 
-    private static int[] parseP_Week(String text, Course course) {
+    private static int[] parsePerWeek(String text, Course course) {
 
         String regex_week = "\\{第.*[-].*周\\}";
         String regex_teacher = "\\}<br>.*<br>";
@@ -114,7 +116,7 @@ public class HtmlCodeExtractUtil {
                 if (text.length() > 10) {
                     //解析文本数据
                     Course course = new Course();
-                    int[] ints = parseP_Week(tdCode, course);
+                    int[] ints = parsePerWeek(tdCode, course);
                     if (!(ints[0] <= weekNow && weekNow <= ints[1])) {
                         continue;
                     }
@@ -160,7 +162,7 @@ public class HtmlCodeExtractUtil {
             Course course = new Course();
 //            System.err.println("有多节课内容需要解析!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 //            System.out.println(code);
-            int[] ints = parseP_Week(code, course);
+            int[] ints = parsePerWeek(code, course);
             if (!(ints[0] <= weekNow && weekNow <= ints[1])) {
                 return;
             }
@@ -267,4 +269,64 @@ public class HtmlCodeExtractUtil {
         return gradeList;
     }
 
+
+    public static List<Notice> parseHtmlForNotice(String html, boolean b) {
+        List<Notice> notices = new ArrayList<>();
+        try {
+            Document doc = Jsoup.parse(html);
+            Elements lis = doc.select("li[id^=line_u5]");
+            if (b) {
+                String anchorText = doc.select("a[class='Next']").first().attr("href");
+                NoticeActivity.anchorPosition = Integer.parseInt(anchorText.substring(anchorText.indexOf("/") + 1, anchorText.lastIndexOf(".")));
+            }
+
+            for (Element li : lis) {
+                Notice notice = new Notice();
+                Element a = li.select("a").first();
+                notice.setTitle(a.attr("title"));
+                notice.setContentUrl(Constant.notice_base_url + a.attr("href").substring(2));
+                notice.setTime(li.select(".date").first().text());
+                notices.add(notice);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return notices;
+    }
+
+    public static Notice getSingleNoticeDetail(String html) {
+        Notice notice = new Notice();
+
+        if (html.contains("您无权访问此页面")) {
+            notice.setTitle("访问限制");
+            notice.setContent("您无权访问此页面");
+            return notice;
+        }
+        try {
+            Document doc = Jsoup.parse(html);
+            String title = doc.select(".link_16").first().text();
+            notice.setTitle(title);
+            String time = doc.select(".link_1").first().text();
+            notice.setTime(time.substring(0, time.indexOf("浏览")));
+            Elements ps = doc.select("#vsb_content").first().select("p");
+            StringBuilder builder = new StringBuilder();
+            builder.append("标题：").append("\n").append(title).append("\n\n");
+            for (Element p : ps) {
+                builder.append(p.text()).append("\n");
+            }
+            notice.setContent(builder.toString());
+
+
+            Element annexEle = doc.select("#fujianlist").first();
+            if (annexEle != null) {
+                String href = Constant.notice_base_url + annexEle.attr("href");
+                notice.setAnnexText(annexEle.select("span").first().attr("dt"));
+                notice.setAnnexUrl(href);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return notice;
+    }
 }

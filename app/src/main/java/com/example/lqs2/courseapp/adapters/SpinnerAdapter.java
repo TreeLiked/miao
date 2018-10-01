@@ -24,9 +24,9 @@ public class SpinnerAdapter extends ArrayAdapter<String> {
 
     @Override
     public View getDropDownView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        String str = getItem(position);
-        View view = LayoutInflater.from(getContext()).inflate(resourceId, parent, false);
-        TextView label = view.findViewById(R.id.spinner_item_label);
+        String str = String.valueOf(getItem(position));
+        View view = LayoutInflater.from(getContext()).inflate(R.layout.spinner_item, parent, false);
+        TextView label = view.findViewById(R.id.spinner_item_text_view);
         label.setText(str);
         return view;
     }

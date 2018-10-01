@@ -3,7 +3,6 @@ package com.example.lqs2.courseapp.activities;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -14,7 +13,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.provider.MediaStore;
 import android.support.annotation.RequiresApi;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
@@ -250,38 +248,38 @@ public class CourseActivity extends ActivityCollector implements View.OnClickLis
         }
 
         if (days[0] == day) {
-            t1.setTextColor(Color.RED);
+            t1.setTextColor(getResources().getColor(R.color.r1));
             t1.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD_ITALIC));
             return;
         }
         if (days[1] == day) {
             t2.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD_ITALIC));
-            t2.setTextColor(Color.RED);
+            t2.setTextColor(getResources().getColor(R.color.fri_title_bg));
             return;
         }
         if (days[2] == day) {
-            t3.setTypeface(Typeface.defaultFromStyle(Typeface.ITALIC));
-            t3.setTextColor(Color.parseColor("#00BFFF"));
+            t3.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD_ITALIC));
+            t3.setTextColor(getResources().getColor(R.color.r5));
             return;
         }
         if (days[3] == day) {
             t4.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD_ITALIC));
-            t4.setTextColor(Color.parseColor("#00BFFF"));
+            t4.setTextColor(getResources().getColor(R.color.r7));
             return;
         }
         if (days[4] == day) {
             t5.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD_ITALIC));
-            t5.setTextColor(Color.RED);
+            t5.setTextColor(getResources().getColor(R.color.pink_pressed));
             return;
         }
         if (days[5] == day) {
             t6.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD_ITALIC));
-            t6.setTextColor(Color.RED);
+            t6.setTextColor(getResources().getColor(R.color.r12));
             return;
         }
         if (days[6] == day) {
             t7.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD_ITALIC));
-            t7.setTextColor(Color.RED);
+            t7.setTextColor(Color.BLUE);
         }
     }
 
@@ -309,8 +307,6 @@ public class CourseActivity extends ActivityCollector implements View.OnClickLis
 //        Typeface typeface = Typeface.createFromAsset(CourseActivity.this.getAssets(), "fonts/arial.ttf");
 
         for (int i = 0; i < mCourseList.size(); ++i) {
-
-
             final Course course = mCourseList.get(i);
             int row = course.getClsNum();
             int col = course.getDay();
@@ -350,7 +346,6 @@ public class CourseActivity extends ActivityCollector implements View.OnClickLis
                 mMaterialDialog.show();
             });
 
-
             //设定View在表格的行列
             GridLayout.Spec rowSpec = GridLayout.spec(row - 1, size);
             GridLayout.Spec columnSpec = GridLayout.spec(col - 1);
@@ -361,7 +356,6 @@ public class CourseActivity extends ActivityCollector implements View.OnClickLis
 //            params.height = (int) getResources().getDimension(R.dimen.table_row_height) * size;
             params.setGravity(Gravity.CENTER);
 //            params.setMargins(0, 0, 0, 0);
-
             gridLayout.addView(textView, params);
         }
         isShowProgressBar(false);
@@ -436,17 +430,17 @@ public class CourseActivity extends ActivityCollector implements View.OnClickLis
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
             switch (requestCode) {
-                case Constant.IMAGE_REQUEST_CODE:
-                    if (data != null) {
-                        Uri selectedImage = data.getData();
-                        String[] filePathColumns = {MediaStore.Images.Media.DATA};
-                        Cursor c = getContentResolver().query(selectedImage, filePathColumns, null, null, null);
-                        c.moveToFirst();
-                        int columnIndex = c.getColumnIndex(filePathColumns[0]);
-                        String imagePath = c.getString(columnIndex);
-                        c.close();
-                    }
-                    break;
+//                case Constant.IMAGE_REQUEST_CODE:
+//                    if (data != null) {
+//                        Uri selectedImage = data.getData();
+//                        String[] filePathColumns = {MediaStore.Images.Media.DATA};
+//                        Cursor c = getContentResolver().query(selectedImage, filePathColumns, null, null, null);
+//                        c.moveToFirst();
+//                        int columnIndex = c.getColumnIndex(filePathColumns[0]);
+//                        String imagePath = c.getString(columnIndex);
+//                        c.close();
+//                    }
+//                    break;
                 case Constant.IMAGE_REQUEST_CODE_CROP:
                     ImageTools.cropRawPhoto(data.getData(), CourseActivity.this, this, false);
                     break;
@@ -510,9 +504,9 @@ public class CourseActivity extends ActivityCollector implements View.OnClickLis
 
     private void initWeekSpinner() {
 
-        List<String> list = new ArrayList<>();
+        List<Integer> list = new ArrayList<>();
         for (int i = 0; i < HtmlCodeExtractUtil.MaxWeek; i++) {
-            list.add("第" + String.valueOf(i + 1) + "周");
+            list.add(i + 1);
         }
 
         spinnerAdapter = new SpinnerAdapter(CourseActivity.this, R.layout.week_spiner_item, list);
@@ -574,8 +568,9 @@ public class CourseActivity extends ActivityCollector implements View.OnClickLis
                 }
                 break;
             case R.id.switchWeek:
-                String str = (String) weekSpinner.getItemAtPosition(position);
-                int week = Integer.parseInt(str.substring(str.indexOf("第") + 1, str.indexOf("周")));
+//                String str = (String) weekSpinner.getItemAtPosition(position);
+//                int week = Integer.parseInt(str.substring(str.indexOf("第") + 1, str.indexOf("周")));
+                int week = (int) weekSpinner.getItemAtPosition(position);
                 mCourseList.clear();
                 mCourseList = HtmlCodeExtractUtil.getCourseList(sourceCode, week, 0);
                 SharedPreferenceUtil.put(CourseActivity.this, "weekNow", week);

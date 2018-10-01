@@ -274,6 +274,7 @@ public class ImageTools {
         boolean flag = true;
         if (PermissionUtils.checkWriteExtraStoragePermission(context)) {
             String storePath = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator;
+            System.out.println(storePath + "---------------------");
             File appDir = new File(storePath);
             if (!appDir.exists()) {
                 appDir.mkdir();

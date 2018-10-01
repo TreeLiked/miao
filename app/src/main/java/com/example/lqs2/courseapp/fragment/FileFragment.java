@@ -49,6 +49,7 @@ import com.example.lqs2.courseapp.utils.Constant;
 import com.example.lqs2.courseapp.utils.FilePathResolver;
 import com.example.lqs2.courseapp.utils.FileUtils;
 import com.example.lqs2.courseapp.utils.HttpUtil;
+import com.example.lqs2.courseapp.utils.PermissionUtils;
 import com.example.lqs2.courseapp.utils.SharedPreferenceUtil;
 import com.example.lqs2.courseapp.utils.UsualSharedPreferenceUtil;
 import com.getbase.floatingactionbutton.FloatingActionButton;
@@ -60,7 +61,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Calendar;
-import java.util.LinkedList;
 import java.util.List;
 
 import okhttp3.Call;
@@ -86,10 +86,10 @@ public class FileFragment extends Fragment implements View.OnClickListener {
                     refreshLayout.setRefreshing(false);
                     break;
                 case Constant.CENTER_FILE:
+                    fileAdapter.setData(fileList);
+                    break;
                 case Constant.LOCAL_FILE:
-                    fileAdapter = new FileAdapter(fileList, getActivity(), FileFragment.this);
-                    fileRecycleView.setAdapter(fileAdapter);
-                    fileAdapter.notifyDataSetChanged();
+                    fileAdapter.setData(fileList);
                     break;
                 case Constant.TURN_PROGRESS_BAR_ON:
                     pBar.setVisibility(View.VISIBLE);
@@ -183,7 +183,9 @@ public class FileFragment extends Fragment implements View.OnClickListener {
 
     private RecyclerView fileRecycleView;
     private FileAdapter fileAdapter;
-    private List<File> fileList = new LinkedList<>();
+    private List<File> fileList;
+
+    private Gson gson;
 
 
     private NotificationManager notificationManager;
@@ -199,31 +201,18 @@ public class FileFragment extends Fragment implements View.OnClickListener {
 
 
         View view = inflater.inflate(R.layout.fragment_file, container, false);
+        fileAdapter = new FileAdapter(getContext(), FileFragment.this);
+        gson = new Gson();
         fileRecycleView = view.findViewById(R.id.file_recycle_view);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         fileRecycleView.setLayoutManager(layoutManager);
-//        fileAdapter = new FileAdapter(fileList, getActivity(), FileFragment.this);
-//        fileRecycleView.setAdapter(fileAdapter);
+        fileRecycleView.setAdapter(fileAdapter);
         menu = view.findViewById(R.id.file_float_menu);
         FloatingActionButton showCloudFile = view.findViewById(R.id.file_choice_showCloudFile);
         FloatingActionButton showLocalFile = view.findViewById(R.id.file_choice_showLocalFile);
         FloatingActionButton searchFile = view.findViewById(R.id.file_choice_searchFile);
         FloatingActionButton uploadFile = view.findViewById(R.id.file_choice_uploadFile);
         FloatingActionButton logOut = view.findViewById(R.id.file_choice_logOut);
-
-
-//        System.out.println(menu.getParent().getClass() + "----------------");
-//        ViewGroup parent = (ViewGroup) showCloudFile.getParent();
-//        parent.removeView(showCloudFile);
-//        parent.removeView(showLocalFile);
-//        parent.removeView(searchFile);
-//        parent.removeView(uploadFile);
-//        parent.removeView(logOut);
-//        menu.addView(showCloudFile);
-//        menu.addView(showLocalFile);
-//        menu.addView(searchFile);
-//        menu.addView(uploadFile);
-//        menu.addView(logOut);
 
 
         showCloudFile.setOnClickListener(this);
@@ -415,11 +404,12 @@ public class FileFragment extends Fragment implements View.OnClickListener {
         showCloudFile(true, true);
     }
 
-    public void showCloudFile(boolean isInit, boolean showHaveShown) {
+    public void showCloudFile(boolean init, boolean showHaveShown) {
+        clearFileList();
         HttpUtil.showMyFile(un, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                if (!isInit) {
+                if (!init) {
                     showToast("刷新失败，呜～", Toast.LENGTH_SHORT);
                 } else {
                     if (showHaveShown) {
@@ -433,19 +423,20 @@ public class FileFragment extends Fragment implements View.OnClickListener {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String data = response.body().string();
-                System.out.println(data);
                 if (!"0".equals(data)) {
-                    fileList.clear();
-                    Gson gson = new Gson();
                     fileList = gson.fromJson(data, new TypeToken<List<File>>() {
                     }.getType());
-                    showFileList(true);
-                    if (!isInit) {
-                        showToast("刷新成功，喵～", Toast.LENGTH_SHORT);
-                    } else {
-                        if (showHaveShown) {
-                            showToast("已显示网盘文件", Toast.LENGTH_SHORT);
+                    if (fileList != null && fileList.size() > 0) {
+                        showFileList(true);
+                        if (!init) {
+                            showToast("刷新成功，喵～", Toast.LENGTH_SHORT);
+                        } else {
+                            if (showHaveShown) {
+                                showToast("已显示网盘文件", Toast.LENGTH_SHORT);
+                            }
                         }
+                    } else {
+                        showToast("您还没有存储东西到网盘", Toast.LENGTH_LONG);
                     }
                     showLoadBar(false);
                 } else {
@@ -484,40 +475,48 @@ public class FileFragment extends Fragment implements View.OnClickListener {
     }
 
     private void showLocalDownloadDir(boolean isInit, boolean showHaveShown) {
-        fileList.clear();
+        clearFileList();
         try {
-            java.io.File[] listFiles = new java.io.File(Constant.DOWNLOAD_DIR).listFiles();
-            Calendar cal = Calendar.getInstance();
-            if (listFiles != null && listFiles.length > 0) {
-                for (java.io.File file : listFiles) {
-                    if (file.isFile()) {
-                        File file1 = new File();
-                        file1.setFile_name(file.getName());
-                        cal.setTimeInMillis(file.lastModified());
-                        file1.setFile_post_date(cal.getTime().toLocaleString());
-                        file1.setFile_size(FileUtils.FormetFileSize(new FileInputStream(Constant.DOWNLOAD_DIR + java.io.File.separator + file.getName()).available()));
-                        fileList.add(file1);
-                        showLoadBar(false);
-                        showFileList(false);
-                        if (!isInit) {
-                            showToast("刷新成功，喵～", Toast.LENGTH_SHORT);
-                        } else {
-                            if (showHaveShown) {
-                                showToast("已显示本地下载文件夹", Toast.LENGTH_SHORT);
+            if (PermissionUtils.checkReadExtraStoragePermission(getContext())) {
+                java.io.File[] listFiles = new java.io.File(Constant.DOWNLOAD_DIR).listFiles();
+
+                // storage/emulated/0/Download
+                Calendar cal = Calendar.getInstance();
+                if (listFiles != null && listFiles.length > 0) {
+                    for (java.io.File file : listFiles) {
+                        if (file.isFile()) {
+                            File file1 = new File();
+                            file1.setFile_name(file.getName());
+                            cal.setTimeInMillis(file.lastModified());
+                            file1.setFile_post_date(cal.getTime().toLocaleString());
+                            file1.setFile_size(FileUtils.FormetFileSize(new FileInputStream(Constant.DOWNLOAD_DIR + java.io.File.separator + file.getName()).available()));
+                            fileList.add(file1);
+                            showLoadBar(false);
+                            showFileList(false);
+                            if (!isInit) {
+                                showToast("刷新成功，喵～", Toast.LENGTH_SHORT);
+                            } else {
+                                if (showHaveShown) {
+                                    showToast("已显示本地下载文件夹", Toast.LENGTH_SHORT);
+                                }
                             }
                         }
                     }
+                } else {
+                    showLoadBar(false);
+                    showToast("空目录无法显示", Toast.LENGTH_LONG);
+//                    if (!isInit) {
+//                        showFileList(false);
+//                        showToast("刷新成功，喵～", Toast.LENGTH_SHORT);
+//                    } else {
+//                        if (showHaveShown) {
+//                            showToast("已显示本地下载文件夹", Toast.LENGTH_SHORT);
+//                        }
+//                    }
                 }
             } else {
                 showLoadBar(false);
-                if (!isInit) {
-                    showFileList(false);
-                    showToast("刷新成功，喵～", Toast.LENGTH_SHORT);
-                } else {
-                    if (showHaveShown) {
-                        showToast("已显示本地下载文件夹", Toast.LENGTH_SHORT);
-                    }
-                }
+                PermissionUtils.requestReadPermission(getContext(), getActivity(), PermissionUtils.CODE_READ_EXTERNAL_STORAGE);
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -526,25 +525,32 @@ public class FileFragment extends Fragment implements View.OnClickListener {
         }
     }
 
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == Activity.RESULT_OK) {
             switch (requestCode) {
                 case Constant.GET_CONTENT:
                     Uri uri = data.getData();
-                    if (uri != null) {
-                        doShowUploadChoice(uri);
+                    String url = FilePathResolver.getPathFormUri(getActivity(), uri);
+                    if (url != null) {
+                        doShowUploadChoice(url);
                     } else {
                         showToast("文件路径不正确", Toast.LENGTH_SHORT);
                     }
                     break;
+                case PermissionUtils.CODE_READ_EXTERNAL_STORAGE:
+                    menu.collapseImmediately();
+                    isCloud = false;
+                    showLoadBar(true);
+                    showLocalDownloadDir(true, true);
                 default:
                     break;
             }
         }
     }
 
-    private void doShowUploadChoice(Uri uri) {
+    private void doShowUploadChoice(String url) {
         View view = null;
         try {
             LayoutInflater inflater = LayoutInflater.from(getActivity());
@@ -566,9 +572,6 @@ public class FileFragment extends Fragment implements View.OnClickListener {
                         EditText e_text2 = finalView.findViewById(R.id.file_choice_atta);
                         String t1 = e_text1.getText().toString();
                         String t2 = e_text2.getText().toString();
-//                        String absUrl = uri.getPath();
-                        String absUrl = FilePathResolver.getPathFormUri(getActivity(), uri);
-                        System.out.println(absUrl + "---=-=---");
                         if (t2.length() <= 45) {
                             if (!TextUtils.isEmpty(t1)) {
                                 try {
@@ -584,7 +587,7 @@ public class FileFragment extends Fragment implements View.OnClickListener {
                                         public void onResponse(Call call, Response response) throws IOException {
                                             if (!"0".equals(response.body().string())) {
                                                 dialog1.dismiss();
-                                                doUpload(absUrl, t1, t2);
+                                                doUpload(url, t1, t2);
                                             } else {
                                                 showToast("用户名【 " + t1 + " 】不存在，不指定请留空", Toast.LENGTH_SHORT);
                                             }
@@ -595,7 +598,7 @@ public class FileFragment extends Fragment implements View.OnClickListener {
                                 }
                             } else {
                                 dialog1.dismiss();
-                                doUpload(absUrl, t1, t2);
+                                doUpload(url, t1, t2);
                             }
                         } else {
                             showToast("备注限制在45字以内", Toast.LENGTH_SHORT);
@@ -655,7 +658,7 @@ public class FileFragment extends Fragment implements View.OnClickListener {
             public void onResponse(Call call, Response response) throws IOException {
 
                 if ("1".equals(response.body().string())) {
-                    showToast("上传成功， 文件编号：" + fileNo, Toast.LENGTH_LONG);
+                    showToast("文件编号：" + fileNo + "（ 上传进度见通知栏 ）", Toast.LENGTH_LONG);
                     showCloudFile(true, false);
                 } else {
                     showToast("上传失败", Toast.LENGTH_SHORT);
@@ -784,6 +787,12 @@ public class FileFragment extends Fragment implements View.OnClickListener {
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    private void clearFileList() {
+        if (null != fileList) {
+            fileList.clear();
         }
     }
 }
