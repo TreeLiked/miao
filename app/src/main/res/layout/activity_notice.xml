@@ -2,7 +2,9 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:focusable="true"
+    android:focusableInTouchMode="true">
 
 
     <TextView
@@ -14,6 +16,18 @@
         android:textColor="@color/black"
         android:textSize="25sp"
         android:layout_marginBottom="11dp" />
+
+    <EditText
+        android:id="@+id/notice_search_edit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/MyEditText"
+        android:singleLine="true"
+        android:hint="Search notice here..."
+        android:maxLines="1"
+        android:layout_marginBottom="6dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp" />
 
     <android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/notice_recycle_view_refresh_layout"

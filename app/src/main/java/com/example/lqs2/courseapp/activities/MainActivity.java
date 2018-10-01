@@ -60,6 +60,7 @@ import com.example.lqs2.courseapp.utils.VersionUtils;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.yalantis.ucrop.UCrop;
+import com.yanzhenjie.recyclerview.swipe.SwipeMenuRecyclerView;
 
 import java.io.File;
 import java.io.IOException;
@@ -129,7 +130,7 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
     //    @BindView(R.id.main_recycle_view)
 //    RecyclerView recyclerView;
     private SwipeRefreshLayout recyclerView_layout;
-    private com.yanzhenjie.recyclerview.swipe.SwipeMenuRecyclerView recyclerView;
+    private SwipeMenuRecyclerView recyclerView;
 
     //    @BindView(R.id.main_swipe_flush)
 //    SwipeRefreshLayout swipeRefreshLayout;
@@ -197,6 +198,7 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
             }
         }
     };
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -277,40 +279,22 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
                         dialog[0].dismiss();
                         if (!TextUtils.isEmpty(darkme_un)) {
                             if ((boolean) SharedPreferenceUtil.get(this, "toggle_handoff", false)) {
-                                View view1;
-                                LayoutInflater inflater = LayoutInflater.from(this);
-                                view1 = inflater.inflate(R.layout.darkme_post_handoff_text, null);
-                                EditText editText = view1.findViewById(R.id.darkme_post_handoff_text_edit);
-                                MaterialDialogUtils.showYesOrNoDialogWithCustomView(MainActivity.this, new String[]{"推送文本到[darkme.cn]", "", "确认", "退出"}, view1, new MaterialDialogUtils.DialogOnConfirmClickListener() {
-                                    @Override
-                                    public void onConfirmButtonClick() {
-                                        String str = editText.getText().toString();
-                                        if (!TextUtils.isEmpty(str)) {
-                                            HttpUtil.setUserHandoffText(darkme_un, str, new Callback() {
-                                                @Override
-                                                public void onFailure(Call call, IOException e) {
-                                                    showToastOnMainThread("连接错误", Toast.LENGTH_SHORT);
-                                                }
-
-                                                @Override
-                                                public void onResponse(Call call, Response response) throws IOException {
-                                                    String resp = response.body().string();
-                                                    if ("1".equals(resp)) {
-                                                        showToastOnMainThread("推送成功", Toast.LENGTH_LONG);
-                                                    } else if ("0".equals(resp)) {
-                                                        showToastOnMainThread("用户身份异常", Toast.LENGTH_SHORT);
-                                                    } else if ("-1".equals(resp)) {
-                                                        showToastOnMainThread("服务器发生异常", Toast.LENGTH_SHORT);
-                                                    } else {
-                                                        showToastOnMainThread("未知错误", Toast.LENGTH_SHORT);
-                                                    }
-                                                }
-                                            });
-                                        } else {
-                                            ToastUtils.showToast(MainActivity.this, "未检测到文本" + str, Toast.LENGTH_LONG);
+                                String clipText = getTextFromClipboard();
+                                if (!TextUtils.isEmpty(clipText)) {
+                                    MaterialDialogUtils.showYesOrNoDialogWithBothSthTodo(this, new String[]{"检测到文本", clipText, "直接推送", "打开推送页面"}, new MaterialDialogUtils.DialogBothDoSthOnClickListener() {
+                                        @Override
+                                        public void onConfirmButtonClick() {
+                                            pushHandoffText(darkme_un, clipText);
                                         }
-                                    }
-                                }, true);
+
+                                        @Override
+                                        public void onCancelButtonClick() {
+                                            openPushHandoffTextPage();
+                                        }
+                                    }, true);
+                                } else {
+                                    openPushHandoffTextPage();
+                                }
                             } else {
                                 ToastUtils.showToast(this, "请在设置里开启此功能", Toast.LENGTH_SHORT);
                             }
@@ -341,7 +325,6 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
 
             @Override
             public void onDrawerOpened(@NonNull View drawerView) {
-
                 if (initFlag || userInfoChangeFlag) {
                     initFlag = false;
                     userInfoChangeFlag = false;
@@ -361,11 +344,6 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
                         Intent intent = new Intent(MainActivity.this, SettingActivity.class);
                         startActivity(intent);
                     });
-//                    if (!TextUtils.isEmpty(darkme_un)) {
-//                        displayUserInfo(2);
-//                    } else {
-//                        displayUserInfo(1);
-//                    }
                 }
             }
 
@@ -670,6 +648,48 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
 
     }
 
+    private void openPushHandoffTextPage() {
+        View view1;
+        LayoutInflater inflater = LayoutInflater.from(this);
+        view1 = inflater.inflate(R.layout.darkme_post_handoff_text, null);
+        EditText editText = view1.findViewById(R.id.darkme_post_handoff_text_edit);
+        MaterialDialogUtils.showYesOrNoDialogWithCustomView(MainActivity.this, new String[]{"推送文本到[darkme.cn]", "", "确认", "退出"}, view1, new MaterialDialogUtils.DialogOnConfirmClickListener() {
+            @Override
+            public void onConfirmButtonClick() {
+                String str = editText.getText().toString();
+                if (!TextUtils.isEmpty(str)) {
+
+                } else {
+                    ToastUtils.showToast(MainActivity.this, "未检测到文本" + str, Toast.LENGTH_LONG);
+                }
+            }
+        }, true);
+    }
+
+    private void pushHandoffText(String un, String text) {
+        HttpUtil.setUserHandoffText(un, text, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                showToastOnMainThread("连接错误", Toast.LENGTH_SHORT);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String resp = response.body().string();
+                if ("1".equals(resp)) {
+                    showToastOnMainThread("推送成功", Toast.LENGTH_LONG);
+                } else if ("0".equals(resp)) {
+                    showToastOnMainThread("用户身份异常", Toast.LENGTH_SHORT);
+                } else if ("-1".equals(resp)) {
+                    showToastOnMainThread("服务器发生异常", Toast.LENGTH_SHORT);
+                } else {
+                    showToastOnMainThread("未知错误", Toast.LENGTH_SHORT);
+                }
+            }
+        });
+
+    }
+
     private void checkUpdate() {
         if ((boolean) SharedPreferenceUtil.get(this, "toggle_auto_detect_update", false)) {
             VersionUtils.checkUpdate(this, this, true, main_course_state);
@@ -735,19 +755,22 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
     private void copyTextToClipboard(String text) {
 
         runOnUiThread(() -> {
-            ClipboardManager mClipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+            ClipboardManager cm = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
             ClipData mClipData = ClipData.newPlainText("handoff_text", text);         //‘Label’这是任意文字标签
-            assert mClipboardManager != null;
-            mClipboardManager.setPrimaryClip(mClipData);
+            assert cm != null;
+            cm.setPrimaryClip(mClipData);
         });
     }
 
-    private void getTextFromClipboard(String text) {
-        ClipboardManager mClipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-        ClipData primaryClip = mClipboardManager.getPrimaryClip();
-
-//        ClipData mClipData =ClipData.newPlainText("handoff_text", text);         //‘Label’这是任意文字标签
-//        mClipboardManager.setPrimaryClip(mClipData);
+    private String getTextFromClipboard() {
+        ClipboardManager cm = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+        assert cm != null;
+        if (cm.hasPrimaryClip()) {
+            ClipData data = cm.getPrimaryClip();
+            ClipData.Item item = data.getItemAt(0);
+            return item.getText().toString();
+        }
+        return null;
     }
 
     private void initRefreshLayout() {
@@ -907,6 +930,9 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.toolbar, menu);
+//        if (checkHasLoginDarkme()) {
+//            menu.findItem(R.id.nav_home).setVisible(false);
+//        }
         return true;
     }
 

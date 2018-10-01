@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.example.lqs2.courseapp">
 
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
@@ -21,7 +22,8 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/logo"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        tools:ignore="GoogleAppIndexingWarning">
         <activity
             android:name=".activities.MainActivity"
             android:launchMode="singleTask">
@@ -35,14 +37,12 @@
         <activity
             android:name=".activities.CourseActivity"
             android:launchMode="singleTask" />
-        <activity android:name=".activities.Login_ECARD_Activity" />
         <!-- <activity -->
         <!-- android:name=".activities.DailyRecordActivity" -->
         <!-- android:launchMode="singleTask" /> -->
         <activity
             android:name=".activities.GradeActivity"
             android:launchMode="singleTask" />
-        <activity android:name=".activities.NetworkActivity" />
         <activity android:name=".activities.SettingActivity" />
         <activity android:name=".activities.SchoolCalendarActivity" />
         <!-- <activity android:name=".activities.DailyRecord_All" /> -->

@@ -5,9 +5,16 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
+import android.view.WindowManager;
+import android.widget.EditText;
 
 import com.example.lqs2.courseapp.R;
 import com.example.lqs2.courseapp.adapters.NoticeAdapter;
+import com.example.lqs2.courseapp.entity.Notice;
 import com.example.lqs2.courseapp.utils.HtmlCodeExtractUtil;
 import com.example.lqs2.courseapp.utils.HttpUtil;
 import com.example.lqs2.courseapp.utils.StatusBarUtils;
@@ -15,6 +22,8 @@ import com.example.lqs2.courseapp.utils.ToastUtils;
 import com.yanzhenjie.recyclerview.swipe.SwipeMenuRecyclerView;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -25,8 +34,15 @@ public class NoticeActivity extends AppCompatActivity {
 
     private SwipeRefreshLayout layout;
     private SwipeMenuRecyclerView recyclerView;
+    private EditText searchEdit;
+
     private NoticeAdapter adapter;
+
     public static int anchorPosition;
+    private int mLastVisibleItemPosition;
+
+    private List<Notice> noticeList = new ArrayList<>();
+    private List<Notice> noticeSearchList = new ArrayList<>();
 
 
     @Override
@@ -48,23 +64,71 @@ public class NoticeActivity extends AppCompatActivity {
     private void initRefresh() {
 
         layout.setOnRefreshListener(this::pushData);
-        recyclerView.useDefaultLoadMore();
-//        recyclerView.setAutoLoadMore(true);
-        recyclerView.setLoadMoreListener(this::loadMore);
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
+                if (layoutManager instanceof LinearLayoutManager) {
+                    mLastVisibleItemPosition = ((LinearLayoutManager) layoutManager).findLastVisibleItemPosition();
+                }
+                if (adapter != null) {
+                    if (newState == RecyclerView.SCROLL_STATE_IDLE
+                            && mLastVisibleItemPosition + 1 == adapter.getItemCount()) {
+                        loadMore();
+                    }
+                }
+            }
+        });
         recyclerView.setAdapter(adapter);
-
     }
 
     private void init() {
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+
         adapter = new NoticeAdapter(this, this);
         LinearLayoutManager manager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(manager);
         recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+
+
+        searchEdit.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (!TextUtils.isEmpty(s)) {
+                    if (null != noticeList && noticeList.size() > 0) {
+                        noticeSearchList.clear();
+                        for (int i = 0; i < noticeList.size(); i++) {
+                            Notice notice = noticeList.get(i);
+                            String str = s.toString().trim();
+                            System.out.println(notice.toString());
+                            if (notice.getTitle().contains(str) || notice.getTime().contains(str)) {
+                                noticeSearchList.add(notice);
+                            }
+                        }
+                        adapter.setData(noticeSearchList);
+                    }
+                } else {
+                    adapter.setData(noticeList);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+
+        });
     }
 
     private void bindViews() {
         layout = findViewById(R.id.notice_recycle_view_refresh_layout);
         recyclerView = findViewById(R.id.notice_recycle_view);
+        searchEdit = findViewById(R.id.notice_search_edit);
 
     }
 
@@ -81,7 +145,8 @@ public class NoticeActivity extends AppCompatActivity {
                 String resp = response.body().string();
                 runOnUiThread(() -> {
                     layout.setRefreshing(false);
-                    adapter.setData(HtmlCodeExtractUtil.parseHtmlForNotice(resp, true));
+                    noticeList.addAll(HtmlCodeExtractUtil.parseHtmlForNotice(resp, true));
+                    adapter.setData(noticeList);
                 });
             }
         });
@@ -100,9 +165,15 @@ public class NoticeActivity extends AppCompatActivity {
                 String resp = response.body().string();
                 runOnUiThread(() -> {
                     anchorPosition--;
+                    List<Notice> notices = HtmlCodeExtractUtil.parseHtmlForNotice(resp, false);
+                    if (notices != null && notices.size() > 0) {
+                        noticeList.addAll(notices);
+                        adapter.setData(noticeList);
+                    } else {
+                        recyclerView.loadMoreFinish(true, false);
+                    }
                     recyclerView.loadMoreFinish(false, true);
-                    layout.setRefreshing(false);
-                    adapter.setData(HtmlCodeExtractUtil.parseHtmlForNotice(resp, false));
+
                 });
             }
         });
