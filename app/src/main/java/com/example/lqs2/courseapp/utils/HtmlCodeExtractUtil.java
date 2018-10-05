@@ -294,8 +294,9 @@ public class HtmlCodeExtractUtil {
         return notices;
     }
 
-    public static Notice getSingleNoticeDetail(String html) {
+    public static Notice getSingleNoticeDetail(String html, String contentUrl) {
         Notice notice = new Notice();
+        notice.setContentUrl(contentUrl);
 
         if (html.contains("您无权访问此页面")) {
             notice.setTitle("访问限制");

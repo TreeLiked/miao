@@ -275,13 +275,13 @@ public class FileFragment extends Fragment implements View.OnClickListener {
                             if (null != no && no.length() == 4) {
                                 searchFile(no);
                             } else {
-                                showToast("说了4位纯数字啊", Toast.LENGTH_SHORT);
+                                showToast("文件编号不正确", Toast.LENGTH_SHORT);
                             }
                             dialog1.dismiss();
                         })
                         .positiveColor(Color.parseColor("#00BFFF"))
                         .negativeColor(Color.GRAY)
-                        .inputType(InputType.TYPE_CLASS_PHONE)
+                        .inputType(InputType.TYPE_CLASS_TEXT)
                         .positiveText("查找")
                         .negativeText("关闭")
                         .onNegative((dialog12, which) -> dialog12.dismiss())

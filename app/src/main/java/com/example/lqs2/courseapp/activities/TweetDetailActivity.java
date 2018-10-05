@@ -58,6 +58,7 @@ public class TweetDetailActivity extends AppCompatActivity {
             case 0:
                 RecyclerView recyclerView = findViewById(R.id.tweet_detail_img_view);
                 findViewById(R.id.notice_annex_layout).setVisibility(View.GONE);
+                findViewById(R.id.notice_link_layout).setVisibility(View.GONE);
                 ImageAdapter adapter = new ImageAdapter(this, TweetDetailActivity.this);
 //        recyclerView.addItemDecoration(new DividerItemDecoration(this, LinearLayout.HORIZONTAL));
                 GridLayoutManager layoutManager = new GridLayoutManager(this, 3);
@@ -86,12 +87,18 @@ public class TweetDetailActivity extends AppCompatActivity {
                 layout.setExpandedTitleColor(getResources().getColor(R.color.white));
                 layout.setCollapsedTitleTextColor(getResources().getColor(R.color.black));
                 contentView.setText(notice.getContent());
+
+                TextView linkView = findViewById(R.id.link_text_view);
+                linkView.setMovementMethod(LinkMovementMethod.getInstance());
+                CharSequence c1 = Html.fromHtml("<a href=\"" + notice.getContentUrl() + "\">" + "在网页中查看" + "</a>");
+                linkView.setText(c1);
+
                 postTimeView.setText(notice.getTime());
                 if (!TextUtils.isEmpty(notice.getAnnexUrl())) {
                     TextView annexView = findViewById(R.id.annex_text_view);
                     annexView.setMovementMethod(LinkMovementMethod.getInstance());
-                    CharSequence charSequence = Html.fromHtml("<a href=\"" + notice.getAnnexUrl() + "\">" + notice.getAnnexText() + "</a>");
-                    annexView.setText(charSequence);
+                    CharSequence c2 = Html.fromHtml("<a href=\"" + notice.getAnnexUrl() + "\">" + notice.getAnnexText() + "</a>");
+                    annexView.setText(c2);
 
                 }
                 break;

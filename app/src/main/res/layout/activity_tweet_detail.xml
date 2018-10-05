@@ -128,7 +128,7 @@
                 android:layout_height="50dp"
                 android:orientation="horizontal"
                 android:layout_marginTop="15dp"
-                android:layout_marginBottom="40dp"
+                android:layout_marginBottom="10dp"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp">
 
@@ -137,8 +137,24 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:textSize="20sp" />
+            </LinearLayout>
 
+            <LinearLayout
+                android:id="@+id/notice_link_layout"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:orientation="horizontal"
+                android:layout_marginTop="15dp"
+                android:layout_marginBottom="40dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp">
 
+                <TextView
+                    android:id="@+id/link_text_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:textColor="@color/fri_title_bg"
+                    android:textSize="20sp" />
             </LinearLayout>
 
         </LinearLayout>

@@ -82,7 +82,8 @@ public class NoticeAdapter extends RecyclerView.Adapter<NoticeAdapter.NoticeHold
 
     private void bindOneClick(NoticeHolder holder, Notice notice) {
 
-        holder.layout.setOnClickListener(v -> HttpUtil.getNoticeDetail(notice.getContentUrl(), new Callback() {
+        String contentUrl = notice.getContentUrl();
+        holder.layout.setOnClickListener(v -> HttpUtil.getNoticeDetail(contentUrl, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 ToastUtils.showConnectErrorOnMain(context, (NoticeActivity) context);
@@ -92,7 +93,7 @@ public class NoticeAdapter extends RecyclerView.Adapter<NoticeAdapter.NoticeHold
             public void onResponse(Call call, Response response) throws IOException {
 
                 String resp = response.body().string();
-                Notice notice = HtmlCodeExtractUtil.getSingleNoticeDetail(resp);
+                Notice notice = HtmlCodeExtractUtil.getSingleNoticeDetail(resp,contentUrl);
                 Intent intent = new Intent(activity, TweetDetailActivity.class);
                 Bundle bundle = new Bundle();
                 intent.putExtra("FROM", 1);
