@@ -372,14 +372,14 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
 //                        //TODO
 //                    }
 //                    break;
-
-
                 case R.id.nav_school_notice:
                     goActivity(NoticeActivity.class, null);
                     break;
+
+                case R.id.nav_library:
+                    goActivity(LibraryActivity.class, null);
+                    break;
                 case R.id.nav_grade:
-
-
                     final MaterialDialog dialog[] = new MaterialDialog[1];
                     dialog[0] = MaterialDialogUtils.getItemListDialog(this, "查询选项", (parent, view, position, id) -> {
                         switch (position) {
@@ -1313,11 +1313,11 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
 
                             if (dayOfMinute < times[0]) {
                                 state.append("状态：未开始, 距离上课: ").append((times[0] - dayOfMinute) / 60).append(" h ").append((times[0] - dayOfMinute) % 60).append(" min");
-                            } else if (dayOfMinute >= times[0] && dayOfMinute < times[1]) {
+                            } else if (dayOfMinute < times[1]) {
                                 state.append("状态：进行第-1-节课, 距离下课: ").append(times[1] - dayOfMinute).append(" min");
-                            } else if (dayOfMinute >= times[1] && dayOfMinute < times[2]) {
+                            } else if (dayOfMinute < times[2]) {
                                 state.append("状态：课间休息, 距离上课: ").append(times[2] - dayOfMinute).append(" min");
-                            } else if (dayOfMinute >= times[2] && dayOfMinute < times[3]) {
+                            } else if (dayOfMinute < times[3]) {
                                 state.append("状态：进行第-2-节课, 距离下课: ").append(times[3] - dayOfMinute).append(" min");
                             } else if (times[4] == 0) {
                                 dayCourseList.remove(0);

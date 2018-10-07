@@ -1002,6 +1002,25 @@ public class HttpUtil {
         doAsynGetRequest(contentUrl, null, c);
     }
 
+    //    book
+    public static void searchBookByKey(String key, Callback c) {
+
+//        client = getInstance();
+//        Request request = new Request.Builder()
+//                .url(generateGetUrl(Constant.bookUrlBefore + key + Constant.bookUrlAfter, null))
+//                .addHeader("Referer", "http://opac.lib.njit.edu.cn/opac/search.php")
+//                .addHeader("Host", "opac.lib.njit.edu.cn")
+//                .addHeader("Upgrade-Insecure-Requests", "1")
+//                .addHeader("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.45 Safari/537.36")
+//                .build();
+//        client.newCall(request).enqueue(c);
+        doAsynGetRequest(Constant.bookUrlBefore + key + Constant.bookUrlAfter, null, c);
+    }
+
+    public static void getBookDeatil(String detailUrl, Callback c) {
+        doAsynGetRequest(detailUrl, null, c);
+    }
+
     private static String generateGetUrl(String url, HashMap<String, String> args) {
         StringBuilder builder = new StringBuilder();
         builder.append(url).append("?");

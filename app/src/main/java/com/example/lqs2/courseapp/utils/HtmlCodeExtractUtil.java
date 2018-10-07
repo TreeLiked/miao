@@ -2,6 +2,8 @@ package com.example.lqs2.courseapp.utils;
 
 import com.example.lqs2.courseapp.MyApplication;
 import com.example.lqs2.courseapp.activities.NoticeActivity;
+import com.example.lqs2.courseapp.entity.Book;
+import com.example.lqs2.courseapp.entity.BookLoc;
 import com.example.lqs2.courseapp.entity.Course;
 import com.example.lqs2.courseapp.entity.Grade;
 import com.example.lqs2.courseapp.entity.Notice;
@@ -329,5 +331,89 @@ public class HtmlCodeExtractUtil {
             e.printStackTrace();
         }
         return notice;
+    }
+
+    public static List<Book> parseHtmlForBook(String html) {
+        List<Book> books = new ArrayList<>();
+        try {
+            Document doc = Jsoup.parse(html);
+            Elements booksLi = doc.select(".book_list_info");
+            for (Element li : booksLi) {
+                Book book = new Book();
+                Element a = li.selectFirst("a");
+                book.setBookNameWithNo(a.text());
+                Element p = li.selectFirst("p");
+                Element span = p.selectFirst("span");
+                String blInfo = span.text();
+                book.setBlInfo(blInfo);
+                span.remove();
+                String extraInfo = p.text();
+                String[] info = extraInfo.split(" ");
+                String author = info[0];
+                String publisher = info[1] + info[2];
+                book.setAuthor(author);
+                book.setPublisher(publisher);
+                String itemUrl = a.attr("href");
+                String detailUrl = "http://opac.lib.njit.edu.cn/opac/" + itemUrl;
+                book.setDetailUrl(detailUrl);
+                books.add(book);
+
+            }
+        } catch (Exception ignored) {
+        }
+        return books;
+    }
+
+    public static void parseHtmlForBookDetail(Book book, String html) {
+
+        Document doc = Jsoup.parse(html);
+        Elements bookListDls = doc.select(".booklist");
+        StringBuilder builder = new StringBuilder();
+        for (Element dl : bookListDls) {
+            String text = dl.text();
+            if (!text.contains("提要文摘附注")) {
+                builder.append(dl.text()).append("\n");
+            } else {
+                break;
+            }
+        }
+        book.setDetailInfo(builder.toString());
+
+        Element locTable = doc.selectFirst("table");
+        Elements trs = locTable.select("tr");
+        List<BookLoc> locs = new ArrayList<>();
+        for (int i = 0; i < trs.size(); i++) {
+            BookLoc loc = new BookLoc();
+            if (i == 0) {
+                continue;
+            }
+            Element tr = trs.get(i);
+            Elements tds = tr.select("td");
+            for (int j = 0; j < tds.size(); j++) {
+                String text = tds.get(j).text();
+                if (j == 0) {
+                    loc.setSearchNo(text);
+                    continue;
+                }
+                if (j == 1) {
+                    loc.setIdNo(text);
+                    continue;
+                }
+                if (j == 2) {
+                    loc.setYearNo(text);
+                    continue;
+                }
+                if (j == 3) {
+                    loc.setRoomNo(text);
+                    continue;
+                }
+                if (j == 4) {
+                    loc.setBlState(text);
+                    break;
+                }
+            }
+            locs.add(loc);
+        }
+        book.setLocs(locs);
     }
 }

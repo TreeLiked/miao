@@ -31,6 +31,9 @@ public class Constant {
     public static final String login_jw_success = "为保障您的个人信息的安全，请点在退出时，请击安全退出";
 
 
+    public static final String bookUrlBefore = "http://opac.lib.njit.edu.cn/opac/openlink.php?s2_type=title&s2_text=";
+    public static final String bookUrlAfter = "&search_bar=new&doctype=ALL&with_ebook=off&match_flag=forward&showmode=list&location=ALL";
+
     public static final String gradeQueryWelcome = "欢迎使用成绩查询系统";
     public static final String gradeQueryItem1 = "1、教务系统成绩查询";
     public static final String gradeQueryItem2 = "2、四六级成绩查询";

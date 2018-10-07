@@ -16,6 +16,7 @@ import android.os.Message;
 import android.support.annotation.RequiresApi;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -77,7 +78,6 @@ public class CourseActivity extends ActivityCollector implements View.OnClickLis
     private boolean flag1 = false;
     private String xn;
     private String xq;
-    public static SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 
 
     private ImageView imageView;
@@ -125,8 +125,9 @@ public class CourseActivity extends ActivityCollector implements View.OnClickLis
 
         WindowManager wm = (WindowManager) this.getSystemService(Context.WINDOW_SERVICE);
         assert wm != null;
-        width = wm.getDefaultDisplay().getWidth();
-        height = wm.getDefaultDisplay().getHeight();
+        DisplayMetrics dm = getResources().getDisplayMetrics();
+        width = dm.widthPixels;
+        height = dm.heightPixels;
 
         progressBar = findViewById(R.id.course_page_progress_bar);
         progressBar.setIndeterminateDrawable(new Wave());
@@ -284,16 +285,16 @@ public class CourseActivity extends ActivityCollector implements View.OnClickLis
     }
 
 
+    @SuppressLint("SetTextI18n")
     private void showCourses() {
         isShowProgressBar(true);
         gridLayout.removeAllViews();
-
         int[] colors = new int[]{R.color.r1, R.color.r2, R.color.r3, R.color.r4,
                 R.color.r5, R.color.r6, R.color.r7, R.color.r8, R.color.r9, R.color.r10, R.color.r11, R.color.r12, R.color.r14};
 //        先填充对角线，否则空列偏移
         for (int i = 0; i < 7; i++) {
             TextView blankView = new TextView(this);
-            blankView.setWidth((int) ((width - 70.5) / 7));
+            blankView.setWidth((int) ((width - Tools.dip2px(40)) / 7));
             blankView.setHeight(Tools.dip2px(50 * 2));
             blankView.setGravity(Gravity.CENTER);
             GridLayout.Spec rowSpec1 = GridLayout.spec(i, 2);
@@ -319,7 +320,7 @@ public class CourseActivity extends ActivityCollector implements View.OnClickLis
 
 //            Typeface typeFace =Typeface.createFromAsset(getResources().getAssets(),"fonts/arial.ttf");
 //            textView.setTypeface(typeFace);
-            textView.setWidth((int) ((width - 70.5) / 7));
+            textView.setWidth((int) ((width - Tools.dip2px(54)) / 7));
             textView.setHeight(Tools.dip2px(55 * size));
             textView.setGravity(Gravity.CENTER);
             textView.setTextColor(Color.rgb(255, 255, 255));

@@ -40,9 +40,8 @@
         <!-- <activity -->
         <!-- android:name=".activities.DailyRecordActivity" -->
         <!-- android:launchMode="singleTask" /> -->
-        <activity
-            android:name=".activities.GradeActivity"
-            android:launchMode="singleTask" />
+        <activity android:name=".activities.GradeActivity" />
+        <activity android:name=".activities.LibraryActivity" />
         <activity android:name=".activities.SettingActivity" />
         <activity android:name=".activities.SchoolCalendarActivity" />
         <!-- <activity android:name=".activities.DailyRecord_All" /> -->

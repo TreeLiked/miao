@@ -11,12 +11,7 @@ import android.widget.TextView;
 
 import com.example.lqs2.courseapp.R;
 import com.example.lqs2.courseapp.adapters.ChatMsgAdapter;
-import com.example.lqs2.courseapp.entity.ChatMsg;
 import com.example.lqs2.courseapp.utils.StatusBarUtils;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
 
 public class ChatActivity extends ActivityCollector {
 
@@ -75,24 +70,4 @@ public class ChatActivity extends ActivityCollector {
             return true;
         });
     }
-
-    private void testSomeData() {
-        List<ChatMsg> msgList = new ArrayList<>();
-
-        Random random = new Random();
-        for (int i = 0 ; i < 100; i ++){
-            ChatMsg chatMsg = new ChatMsg("adnsldnas", random.nextInt(2) == 1? ChatMsg.TYPE_SENT : ChatMsg.TYPE_RECEIVED);
-            if (i % 2 == 0) {
-                chatMsg.setFromId("admin");
-            } else {
-                chatMsg.setFromId("admin2");
-            }
-            msgList.add(chatMsg);
-        }
-        msgAdapter.setData(msgList);
-    }
-
-
-
-
 }

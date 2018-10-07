@@ -41,6 +41,9 @@
     <color name="friend_detail_text_color">#363636</color>
 
 
+    <color name="black_light">#838B8B</color>
+
+
     <!--t—_dialog颜色-->
     <color name="T_24">#242424</color>
     <color name="T_26">#262626</color>

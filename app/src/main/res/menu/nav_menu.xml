@@ -13,13 +13,19 @@
         <item
             android:id="@+id/nav_course"
         android:icon="@drawable/class_arr"
-            android:title="课程表" />
+            android:title="课程" />
 
 
         <item
             android:id="@+id/nav_school_notice"
             android:icon="@drawable/nav_notification"
             android:title="通知" />
+
+        <item
+            android:id="@+id/nav_library"
+            android:icon="@drawable/nav_library_icon"
+            android:title="图书" />
+
 
         <!--<item-->
             <!--android:id="@+id/nav_e_card"-->
@@ -60,13 +66,18 @@
 
         <item
             android:id="@+id/nav_should_do"
-            android:title="备忘录"
+            android:title="记事"
             android:icon="@drawable/nav_should_do"/>
 
         <item
             android:id="@+id/nav_settings"
             android:icon="@drawable/nav_settings"
             android:title="设置"/>
+
+        <item
+            android:id="@+id/nav_blank0"
+            android:title="" />
+
 
         <!--<item-->
             <!--android:id="@+id/nav_login_out"-->
