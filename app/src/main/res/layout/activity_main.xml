@@ -40,7 +40,7 @@
             <RelativeLayout
                 android:id="@+id/course_recent"
                 android:layout_width="match_parent"
-                android:layout_height="130dp"
+                android:layout_height="135dp"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
                 android:layout_marginLeft="8dp"
@@ -55,7 +55,7 @@
                     android:background="@drawable/course_recent_title"
                     android:gravity="center"
                     android:text="最近课程"
-                    android:textColor="#000"
+                    android:textColor="@color/black"
                     android:textSize="20sp" />
 
 
@@ -66,9 +66,7 @@
                     android:layout_below="@id/main_course_title"
                     android:layout_centerVertical="true"
                     android:layout_marginTop="6dp"
-
                     android:gravity="center_vertical"
-                    android:textColor="#000"
                     android:textSize="17sp" />
 
                 <TextView
@@ -76,8 +74,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="26dp"
                     android:layout_below="@id/main_course_name"
-
-                    android:textColor="#000"
                     android:textSize="17sp" />
 
                 <TextView
@@ -85,8 +81,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="26dp"
                     android:layout_below="@id/main_course_location"
-                    android:textColor="#000"
-
+                    android:paddingBottom="5dp"
                     android:textSize="17dp" />
 
             </RelativeLayout>

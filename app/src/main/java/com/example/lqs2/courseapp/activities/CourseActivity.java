@@ -15,9 +15,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.RequiresApi;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.ActionBar;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
@@ -26,7 +24,6 @@ import android.widget.ArrayAdapter;
 import android.widget.GridLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -42,15 +39,15 @@ import com.example.lqs2.courseapp.utils.HtmlCodeExtractUtil;
 import com.example.lqs2.courseapp.utils.ImageTools;
 import com.example.lqs2.courseapp.utils.MaterialDialogUtils;
 import com.example.lqs2.courseapp.utils.SharedPreferenceUtil;
+import com.example.lqs2.courseapp.utils.StatusBarUtils;
 import com.example.lqs2.courseapp.utils.ToastUtils;
 import com.example.lqs2.courseapp.utils.Tools;
 import com.github.ybq.android.spinkit.style.Wave;
 import com.yalantis.ucrop.UCrop;
 
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -105,22 +102,15 @@ public class CourseActivity extends ActivityCollector implements View.OnClickLis
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_course);
-        LinearLayout layout = findViewById(R.id.course_layout);
 
         xn = (String) SharedPreferenceUtil.get(CourseActivity.this, "xnc", "");
         xq = (String) SharedPreferenceUtil.get(CourseActivity.this, "xqc", "");
         weekNow = (int) SharedPreferenceUtil.get(CourseActivity.this, "weekNow", 0);
 
-        if (Build.VERSION.SDK_INT >= 21) {
-            View decorView = getWindow().getDecorView();
-            int option = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                    | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
-            decorView.setSystemUiVisibility(option);
-            getWindow().setStatusBarColor(Color.TRANSPARENT);
-        }
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null)
-            actionBar.hide();
+        StatusBarUtils.setStatusTransparent(this);
+//        ActionBar actionBar = getSupportActionBar();
+//        if (actionBar != null)
+//            actionBar.hide();
 
 
         WindowManager wm = (WindowManager) this.getSystemService(Context.WINDOW_SERVICE);
@@ -147,13 +137,10 @@ public class CourseActivity extends ActivityCollector implements View.OnClickLis
         swipeRefresh = findViewById(R.id.course_swipe_refresh);
 
 
-//        FloatingActionButton fab = findViewById(R.id.fab_course);
-
-
+        weatherAddWeek();
         mCourseList = HtmlCodeExtractUtil.getCourseList(sourceCode, weekNow == 0 ? 1 : weekNow, 0);
 
         flushButton.setOnClickListener(this);
-
 //        初始化控件
         weekSpinner.setGravity(View.TEXT_ALIGNMENT_CENTER);
         weekSpinner.setOnItemSelectedListener(this);
@@ -172,10 +159,21 @@ public class CourseActivity extends ActivityCollector implements View.OnClickLis
 
         initWeekSpinner();
         initYearTeamSpinner();
-
-
         showDate();
         showCourseBg();
+    }
+
+    private void weatherAddWeek() {
+        int weekToday = Tools.getWeek();
+        Calendar cal = Calendar.getInstance();
+        String key = cal.get(Calendar.YEAR) + "" + (cal.get(Calendar.MONTH) + 1) + "" + cal.get(Calendar.DAY_OF_MONTH);
+        if (weekToday == 1) {
+            boolean added = (boolean) SharedPreferenceUtil.get(this, key, false);
+            if (!added) {
+                SharedPreferenceUtil.put(this, key, true);
+                weekNow++;
+            }
+        }
     }
 
     @SuppressLint("SetTextI18n")
@@ -431,17 +429,6 @@ public class CourseActivity extends ActivityCollector implements View.OnClickLis
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
             switch (requestCode) {
-//                case Constant.IMAGE_REQUEST_CODE:
-//                    if (data != null) {
-//                        Uri selectedImage = data.getData();
-//                        String[] filePathColumns = {MediaStore.Images.Media.DATA};
-//                        Cursor c = getContentResolver().query(selectedImage, filePathColumns, null, null, null);
-//                        c.moveToFirst();
-//                        int columnIndex = c.getColumnIndex(filePathColumns[0]);
-//                        String imagePath = c.getString(columnIndex);
-//                        c.close();
-//                    }
-//                    break;
                 case Constant.IMAGE_REQUEST_CODE_CROP:
                     ImageTools.cropRawPhoto(data.getData(), CourseActivity.this, this, false);
                     break;
@@ -467,7 +454,6 @@ public class CourseActivity extends ActivityCollector implements View.OnClickLis
     private void changeCourseBg(Context context, Bitmap bitmap, boolean backDefault, boolean isInit) {
         runOnUiThread(() -> {
             if (backDefault) {
-//                Blurry.with(context).radius(4).from(bitmap).into(imageView);
                 Glide.with(context).load(bitmap).into(imageView);
                 if (!isInit) {
                     ToastUtils.showToast(CourseActivity.this, "恢复默认背景成功", Toast.LENGTH_LONG);
@@ -587,6 +573,7 @@ public class CourseActivity extends ActivityCollector implements View.OnClickLis
 //        flag1 = false;
 //        weekSpinner.setSelection(week, true);
                 showCourses();
+                sendCourseChangedBC();
                 break;
             default:
                 break;
@@ -616,40 +603,6 @@ public class CourseActivity extends ActivityCollector implements View.OnClickLis
         }
     }
 
-    public void decideWeekNow() throws ParseException {
-        int todayWeekWitch = Tools.getWeek();
-        Log.d("date", "今天是周几 : " + todayWeekWitch);
-        if (todayWeekWitch == 1) {
-            String weekStartDate = (String) SharedPreferenceUtil.get(CourseActivity.this, "weekStartDate", "");
-            Log.d("date", "decideWeekNow: weekStartDate : " + weekStartDate);
-
-            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-            if (!"".equals(weekStartDate)) {
-                Log.d("date", "------------------");
-                Date today = new Date();
-                Date startDate = format.parse(weekStartDate);
-
-                Log.d("date", "周开始日期: " + startDate);
-                Log.d("date", "今天日期: " + today);
-
-                int days = (int) ((today.getTime() - startDate.getTime()) / (1000 * 3600 * 24));
-                Log.d("date", "间隔几天 : " + days);
-                int i = days / 7;
-                Log.d("date", "增加了几周: " + i);
-                boolean hasModifiedWeek = (boolean) SharedPreferenceUtil.get(CourseActivity.this, "hasModifiedWeek", false);
-                if (!hasModifiedWeek) {
-                    if (i > 0) {
-                        weekNow += i;
-                        weekSpinner.setSelection(weekNow - 1, true);
-                        flag1 = true;
-                    }
-                    SharedPreferenceUtil.put(CourseActivity.this, "hasModifiedWeek", true);
-                }
-            }
-        } else {
-            SharedPreferenceUtil.put(CourseActivity.this, "hasModifiedWeek", false);
-        }
-    }
 
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
@@ -676,10 +629,10 @@ public class CourseActivity extends ActivityCollector implements View.OnClickLis
             mCourseList.clear();
             mCourseList = HtmlCodeExtractUtil.getCourseList(sourceCode, weekNow == 0 ? 1 : weekNow, 0);
         }
-//        try {
-//            decideWeekNow();
-//        } catch (ParseException e) {
-//            e.printStackTrace();
-//        }
+    }
+
+    private void sendCourseChangedBC() {
+        Intent intent = new Intent(Constant.ACTION3);
+        MainActivity.localBroadcastManager.sendBroadcast(intent);
     }
 }

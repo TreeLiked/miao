@@ -11,8 +11,6 @@ public class Constant {
 
 
     public static final String refer_url = "http://jwjx.njit.edu.cn/";
-    public static final String get_ecardPW_url = "http://ecard.njit.edu.cn/GetPW.aspx";
-    public static final String tzgg_url = "http://www.njit.edu.cn/index/tzgg.htm";
     public static final String bing_pic_api = "http://guolin.tech/api/bing_pic";
     //    网络服务登录网址
     public static final String net_login_url = "http://net.njit.edu.cn:8080/Self/LogoutAction.action";
@@ -35,8 +33,10 @@ public class Constant {
     public static final String bookUrlAfter = "&search_bar=new&doctype=ALL&with_ebook=off&match_flag=forward&showmode=list&location=ALL";
 
     public static final String gradeQueryWelcome = "欢迎使用成绩查询系统";
-    public static final String gradeQueryItem1 = "1、教务系统成绩查询";
-    public static final String gradeQueryItem2 = "2、四六级成绩查询";
+    public static final String creditQueryWelcome = "欢迎使用学分查询系统";
+    public static final String gradeQueryItem1 = "I\t学期成绩查询";
+    public static final String gradeQueryItem2 = "II\t学分查询";
+    public static final String gradeQueryItem3 = "III\t四六级查询";
 
 
     public static final String main_no_course_left_info = "今天已经没有课了, 快去休息一下吧";
@@ -82,9 +82,10 @@ public class Constant {
     public static final int CENTER_FRIEND = 104;
 
 
-    //    广播
+    //    Main广播
     public static final String ACTION1 = "com.example.lqs2.courseapp.OPEN_DIY_MAIN_BG";
-    public static final String ACTION2 = "com.example.lqs2.courseapp.CLOSE_DIY__MAIN_BG";
+    public static final String ACTION2 = "com.example.lqs2.courseapp.CLOSE_DIY_MAIN_BG";
+    public static final String ACTION3 = "com.example.lqs2.courseapp.CHANGE_COURSE";
 
 
     //    权限请求码

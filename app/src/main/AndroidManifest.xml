@@ -91,7 +91,8 @@
         <activity android:name=".activities.FriendActivity" />
         <activity android:name=".activities.ChatActivity" />
         <activity android:name=".activities.ImageBrowseActivity" />
-        <activity android:name=".activities.NoticeActivity"></activity>
+        <activity android:name=".activities.NoticeActivity" />
+        <activity android:name=".activities.CreditActivity"></activity>
     </application>
 
 </manifest>

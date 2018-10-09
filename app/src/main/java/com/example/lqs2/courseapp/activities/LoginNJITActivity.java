@@ -2,6 +2,7 @@ package com.example.lqs2.courseapp.activities;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -9,10 +10,8 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -33,6 +32,8 @@ import com.example.lqs2.courseapp.R;
 import com.example.lqs2.courseapp.utils.Constant;
 import com.example.lqs2.courseapp.utils.HttpUtil;
 import com.example.lqs2.courseapp.utils.SharedPreferenceUtil;
+import com.example.lqs2.courseapp.utils.StatusBarUtils;
+import com.example.lqs2.courseapp.utils.ToastUtils;
 import com.github.ybq.android.spinkit.style.Wave;
 
 import org.jsoup.Jsoup;
@@ -50,6 +51,27 @@ import okhttp3.Response;
 public class LoginNJITActivity extends ActivityCollector {
 
 
+    private static String VIEWSTATE;
+    //    注册广播
+    private IntentFilter intentFilter;
+    private NetworkChangeReceiver networkChangeReceiver;
+    public static boolean isOnline = false;
+
+
+    private EditText accountText;
+    private EditText passwordText;
+    private CheckBox rememberPass;
+    private Button loginButton;
+    private EditText checkCode;
+    private ImageView codeView;
+    //    private boolean isLoginSuccess = false;
+    private Context context;
+    public ProgressBar progressBar;
+
+//    private static String txtUserName;
+//    private static String TextBox2;
+
+    private static String cookie = "";
     @SuppressLint("HandlerLeak")
     private Handler handler = new Handler() {
 
@@ -57,13 +79,13 @@ public class LoginNJITActivity extends ActivityCollector {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case Constant.SERVER_ERROR:
-                    Toast.makeText(LoginNJITActivity.this, "服务器错误 " + msg.obj, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "服务器错误 " + msg.obj, Toast.LENGTH_SHORT).show();
                     progressBar.setVisibility(View.GONE);
 //                    flushCheckCode();
                     loginButton.setEnabled(true);
                     break;
                 case Constant.INFO_ERROR:
-                    Toast.makeText(LoginNJITActivity.this, (String) msg.obj, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, (String) msg.obj, Toast.LENGTH_SHORT).show();
                     flushCheckCode();
                     progressBar.setVisibility(View.GONE);
                     loginButton.setEnabled(true);
@@ -84,50 +106,31 @@ public class LoginNJITActivity extends ActivityCollector {
                     loginButton.setEnabled(true);
                     break;
                 case Constant.SHOW_TOAST:
-                    Toast.makeText(LoginNJITActivity.this, (String) msg.obj, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, (String) msg.obj, Toast.LENGTH_SHORT).show();
                 default:
                     break;
             }
         }
     };
-    //    注册广播
-    private IntentFilter intentFilter;
-    private NetworkChangeReceiver networkChangeReceiver;
-    public static boolean isOnline = false;
-
-
-    private EditText accountText;
-    private EditText passwordText;
-    private CheckBox rememberPass;
-    private Button loginButton;
-    private EditText checkCode;
-    private ImageView codeView;
-    private static  String VIEWSTATE;
-    public ProgressBar progressBar;
-
-//    private static String txtUserName;
-//    private static String TextBox2;
-
-    private static String cookie = "";
-//    private boolean isLoginSuccess = false;
-
-    private static final String TAG = "LoginNJITActivity";
+    private Activity activity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        requestWindowFeature(Window.FEATURE_NO_TITLE);
-//        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_login);
-        if (Build.VERSION.SDK_INT >= 21) {
-            View decorView = getWindow().getDecorView();
-            int option = View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                    | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                    | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
-            decorView.setSystemUiVisibility(option);
-            getWindow().setNavigationBarColor(Color.TRANSPARENT);
-            getWindow().setStatusBarColor(Color.TRANSPARENT);
-        }
+//        if (Build.VERSION.SDK_INT >= 21) {
+//            View decorView = getWindow().getDecorView();
+//            int option = View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+//                    | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+//                    | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
+//            decorView.setSystemUiVisibility(option);
+//            getWindow().setNavigationBarColor(Color.TRANSPARENT);
+//            getWindow().setStatusBarColor(Color.TRANSPARENT);
+//        }
+        context = this;
+        activity = this;
+
+        StatusBarUtils.setStatusTransparent(this);
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null)
             actionBar.hide();
@@ -144,8 +147,8 @@ public class LoginNJITActivity extends ActivityCollector {
         registerReceiver(networkChangeReceiver, intentFilter);
 
 //        申请使用网络权限
-        if (ContextCompat.checkSelfPermission(LoginNJITActivity.this, Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(LoginNJITActivity.this, new String[]{Manifest.permission.INTERNET}, 1);
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.INTERNET}, 1);
         }
 
         accountText = findViewById(R.id.xh);
@@ -170,18 +173,18 @@ public class LoginNJITActivity extends ActivityCollector {
             codeView.setScaleType(ImageView.ScaleType.FIT_XY);
         }
 
-        boolean isRemember = (boolean) SharedPreferenceUtil.get(LoginNJITActivity.this, "remember_password_jw", false);
+        boolean isRemember = (boolean) SharedPreferenceUtil.get(context, "remember_password_jw", false);
         if (isRemember) {
-            String xh = (String) SharedPreferenceUtil.get(LoginNJITActivity.this, "xh", "");
-            String xm = (String) SharedPreferenceUtil.get(LoginNJITActivity.this, "xm", "");
+            String xh = (String) SharedPreferenceUtil.get(context, "xh", "");
+            String xm = (String) SharedPreferenceUtil.get(context, "xm", "");
             accountText.setText(xh);
             passwordText.setText(xm);
             rememberPass.setChecked(true);
         }
 
-        boolean hasLogin = (boolean) SharedPreferenceUtil.get(LoginNJITActivity.this, "hasLoginJW", false);
+        boolean hasLogin = (boolean) SharedPreferenceUtil.get(context, "hasLoginJW", false);
         if (hasLogin) {
-            String xh = (String) SharedPreferenceUtil.get(LoginNJITActivity.this, "xh", "");
+            String xh = (String) SharedPreferenceUtil.get(context, "xh", "");
             accountText.setText(xh);
         }
 
@@ -235,7 +238,6 @@ public class LoginNJITActivity extends ActivityCollector {
 
                                             if (loginResponse.contains(Constant.login_jw_success)) {
                                                 HttpUtil.redirect(xh, cookie, new Callback() {
-
                                                     @Override
                                                     public void onFailure(Call call, IOException e) {
                                                         e.printStackTrace();
@@ -246,220 +248,260 @@ public class LoginNJITActivity extends ActivityCollector {
 
                                                         String redirectHtml = response.body().string();
 
-                                                        SharedPreferenceUtil.put(LoginNJITActivity.this, "xh", accountText.getText().toString());
+                                                        SharedPreferenceUtil.put(context, "xh", accountText.getText().toString());
 
                                                         if (rememberPass.isChecked()) {
-                                                            SharedPreferenceUtil.put(LoginNJITActivity.this, "xh", accountText.getText().toString());
-                                                            SharedPreferenceUtil.put(LoginNJITActivity.this, "xm", passwordText.getText().toString());
-                                                            SharedPreferenceUtil.put(LoginNJITActivity.this, "remember_password_jw", true);
+                                                            SharedPreferenceUtil.put(context, "xh", accountText.getText().toString());
+                                                            SharedPreferenceUtil.put(context, "xm", passwordText.getText().toString());
+                                                            SharedPreferenceUtil.put(context, "remember_password_jw", true);
                                                         } else {
-                                                            SharedPreferenceUtil.remove(LoginNJITActivity.this, "xm");
-                                                            SharedPreferenceUtil.put(LoginNJITActivity.this, "remember_password_jw", false);
+                                                            SharedPreferenceUtil.remove(context, "xm");
+                                                            SharedPreferenceUtil.put(context, "remember_password_jw", false);
                                                         }
-                                                        SharedPreferenceUtil.put(LoginNJITActivity.this, "hasLoginJW", true);
+                                                        SharedPreferenceUtil.put(context, "hasLoginJW", true);
 
-                                                        if ("COURSE".equals(type)) {
-
-                                                            String year = intent.getStringExtra("year");
-                                                            String team = intent.getStringExtra("team");
-                                                            Boolean isXn = intent.getBooleanExtra("isXn", false);
-
-                                                            HttpUtil.queryCourse(LoginNJITActivity.this, xh, xm, year, team, cookie, isXn, new Callback() {
-
-                                                                @Override
-                                                                public void onFailure(Call call, IOException e) {
-                                                                    e.printStackTrace();
-                                                                    sendMessage(Constant.SERVER_ERROR, "查询失败");
-                                                                }
-
-                                                                @Override
-                                                                public void onResponse(Call call, Response response) throws IOException {
-                                                                    sendMessage(Constant.TURN_PROGRESS_BAR_OFF, null);
-                                                                    String sourceCode = response.body().string();
-                                                                    System.out.println(sourceCode);
-
-                                                                    if (!sourceCode.contains(Constant.login_error_noComment)) {
-                                                                        sendMessage(Constant.SHOW_TOAST, Constant.login_success_info);
-                                                                        SharedPreferenceUtil.put(LoginNJITActivity.this, "hasGetCourse", true);
-                                                                        Document doc = Jsoup.parse(sourceCode);
-                                                                        Element xnString = doc.getElementById("xnd");
-                                                                        Element xqString = doc.getElementById("xqd");
-                                                                        Elements xns = xnString.select("option");
-                                                                        Elements xqs = xqString.select("option");
-                                                                        StringBuilder xnStrings = new StringBuilder();
-                                                                        StringBuilder xqStrings = new StringBuilder();
-                                                                        String xnText = null;
-                                                                        String xqText = null;
-                                                                        for (int i = 0; i < xns.size(); i++) {
-                                                                            Element e = xns.get(i);
-                                                                            String text = e.text();
-                                                                            if (e.hasAttr("selected")) {
-                                                                                xnText = text;
-                                                                            }
-                                                                            xnStrings.append(text).append("\t");
-                                                                        }
-                                                                        for (int i = 0; i < xqs.size(); i++) {
-                                                                            Element e = xqs.get(i);
-                                                                            String text = e.text();
-                                                                            if (e.hasAttr("selected")) {
-                                                                                xqText = text;
-                                                                            }
-                                                                            xqStrings.append(text).append("\t");
-                                                                        }
-                                                                        if (!"".equals(year) || !"".equals(team)) {
-                                                                            if (!"".equals(year)) {
-                                                                                xnText = year;
-                                                                            }
-                                                                            if (!"".equals(team)) {
-                                                                                xqText = team;
-                                                                            }
-                                                                        }
-                                                                        SharedPreferenceUtil.put(LoginNJITActivity.this, "courseSourceCode", sourceCode);
-                                                                        SharedPreferenceUtil.put(LoginNJITActivity.this, "xns", xnStrings.substring(0, xnStrings.lastIndexOf("\t")));
-                                                                        SharedPreferenceUtil.put(LoginNJITActivity.this, "xqs", xqStrings.substring(0, xqStrings.lastIndexOf("\t")));
-                                                                        Intent intent1 = new Intent(LoginNJITActivity.this, CourseActivity.class);
-//                                                            intent.putExtra("cookie", cookie);
-                                                                        intent1.putExtra("xnc", xnText);
-                                                                        intent1.putExtra("xqc", xqText);
-                                                                        intent1.putExtra("sourceCode", sourceCode);
-                                                                        SharedPreferenceUtil.put(LoginNJITActivity.this, "xnc", xnText);
-                                                                        SharedPreferenceUtil.put(LoginNJITActivity.this, "xqc", xqText);
-                                                                        if ("".equals(year) && "".equals(team)) {
-                                                                            SharedPreferenceUtil.put(LoginNJITActivity.this, "xncr", xnText);
-                                                                            SharedPreferenceUtil.put(LoginNJITActivity.this, "xqcr", xqText);
-                                                                        }
-                                                                        startActivity(intent1);
-                                                                        finish();
-                                                                    } else {
-                                                                        sendMessage(Constant.SERVER_ERROR, Constant.login_error_noComment);
+                                                        switch (type) {
+                                                            case "COURSE":
+                                                                String year = intent.getStringExtra("year");
+                                                                String team = intent.getStringExtra("team");
+                                                                Boolean isXn = intent.getBooleanExtra("isXn", false);
+                                                                HttpUtil.queryCourse(context, xh, xm, year, team, cookie, isXn, new Callback() {
+                                                                    @Override
+                                                                    public void onFailure(Call call, IOException e) {
+                                                                        e.printStackTrace();
+                                                                        sendMessage(Constant.SERVER_ERROR, "查询失败");
                                                                     }
-                                                                }
-                                                            });
-                                                        } else if ("GRADE".equals(type)) {
-                                                            HttpUtil.queryGradeInit(xh, xm, cookie, new Callback() {
-                                                                @Override
-                                                                public void onFailure(Call call, IOException e) {
-                                                                    e.printStackTrace();
-                                                                }
 
-                                                                @Override
-                                                                public void onResponse(Call call, Response response) throws IOException {
-
-                                                                    String code = response.body().string();
-//                                                            System.out.println(code);
-                                                                    if (!code.contains(Constant.login_error_noComment)) {
-                                                                        Document doc = Jsoup.parse(code);
-                                                                        String __VIEWSTATE = doc.select("input[name='__VIEWSTATE']").val();
-                                                                        Element xnString = doc.getElementById("ddlxn");
-                                                                        Element xqString = doc.getElementById("ddlxq");
-                                                                        Elements options1 = xnString.select("option");
-                                                                        Elements options2 = xqString.select("option");
-                                                                        ArrayList<String> xnList = new ArrayList<>();
-                                                                        ArrayList<String> xqList = new ArrayList<>();
-                                                                        for (int i = 0; i < options1.size(); i++) {
-                                                                            if (i == 0) {
-                                                                                xnList.add(options1.get(i).val());
-                                                                            } else {
-                                                                                xnList.add(options1.get(options1.size() - i).val());
-                                                                            }
-                                                                        }
-                                                                        for (int i = 0; i < options2.size(); i++) {
-                                                                            if (i == 0) {
-                                                                                xqList.add(options2.get(i).val());
-                                                                            } else {
-                                                                                xqList.add(options2.get(i).val());
-                                                                            }
-                                                                        }
+                                                                    @Override
+                                                                    public void onResponse(Call call, Response response) throws IOException {
                                                                         sendMessage(Constant.TURN_PROGRESS_BAR_OFF, null);
-                                                                        Intent intent1 = new Intent(LoginNJITActivity.this, GradeActivity.class);
-                                                                        intent1.putExtra("__VIEWSTATE", __VIEWSTATE);
-                                                                        intent1.putExtra("cookie", cookie);
-                                                                        intent1.putExtra("xh", xh);
-                                                                        intent1.putExtra("xm", xm);
-                                                                        intent1.putStringArrayListExtra("xnList", xnList);
-                                                                        intent1.putStringArrayListExtra("xqList", xqList);
-                                                                        startActivity(intent1);
-                                                                        finish();
-                                                                    } else {
-                                                                        sendMessage(Constant.SERVER_ERROR, Constant.login_error_noComment);
-                                                                    }
-                                                                }
-                                                            });
-                                                        } else if ("COMMENT".equals(type)) {
-                                                            System.out.println("欢迎使用评教功能");
-//                                                    System.out.println(redirectHtml);
-                                                            Document doc = Jsoup.parse(redirectHtml);
-                                                            Elements uls = doc.select("ul.sub");
-                                                            final boolean[] flag = {false};
-                                                            for (int i = 0; i < uls.size(); i++) {
-                                                                Element ul = uls.get(i);
-                                                                Elements lis = ul.select("li");
-                                                                for (int j = 0; j < lis.size(); j++) {
-                                                                    Element li = lis.get(j);
-                                                                    Elements as = li.select("a");
-                                                                    Element a = as.first();
-                                                                    String link = a.attr("href");
-                                                                    if (link.contains("N12141")) {
-                                                                        flag[0] = true;
-                                                                        System.out.println(link);
-                                                                        String abs_link = "http://jwjx.njit.edu.cn/" + link;
-                                                                        String pjkc = abs_link.substring(abs_link.indexOf("=") + 1, abs_link.indexOf("&"));
-                                                                        HttpUtil.getOneKeyComment_VIEWSTATE(abs_link, cookie, xh, new Callback() {
-                                                                            @Override
-                                                                            public void onFailure(Call call, IOException e) {
-                                                                                System.out.println("!!!!!!!!!!!!");
-                                                                                e.printStackTrace();
+                                                                        String sourceCode = response.body().string();
+                                                                        System.out.println(sourceCode);
+
+                                                                        if (!sourceCode.contains(Constant.login_error_noComment)) {
+                                                                            sendMessage(Constant.SHOW_TOAST, Constant.login_success_info);
+                                                                            SharedPreferenceUtil.put(context, "hasGetCourse", true);
+                                                                            Document doc = Jsoup.parse(sourceCode);
+                                                                            Element xnString = doc.getElementById("xnd");
+                                                                            Element xqString = doc.getElementById("xqd");
+                                                                            Elements xns = xnString.select("option");
+                                                                            Elements xqs = xqString.select("option");
+                                                                            StringBuilder xnStrings = new StringBuilder();
+                                                                            StringBuilder xqStrings = new StringBuilder();
+                                                                            String xnText = null;
+                                                                            String xqText = null;
+                                                                            for (int i = 0; i < xns.size(); i++) {
+                                                                                Element e = xns.get(i);
+                                                                                String text = e.text();
+                                                                                if (e.hasAttr("selected")) {
+                                                                                    xnText = text;
+                                                                                }
+                                                                                xnStrings.append(text).append("\t");
                                                                             }
+                                                                            for (int i = 0; i < xqs.size(); i++) {
+                                                                                Element e = xqs.get(i);
+                                                                                String text = e.text();
+                                                                                if (e.hasAttr("selected")) {
+                                                                                    xqText = text;
+                                                                                }
+                                                                                xqStrings.append(text).append("\t");
+                                                                            }
+                                                                            if (!"".equals(year) || !"".equals(team)) {
+                                                                                if (!"".equals(year)) {
+                                                                                    xnText = year;
+                                                                                }
+                                                                                if (!"".equals(team)) {
+                                                                                    xqText = team;
+                                                                                }
+                                                                            }
+                                                                            SharedPreferenceUtil.put(context, "courseSourceCode", sourceCode);
+                                                                            SharedPreferenceUtil.put(context, "xns", xnStrings.substring(0, xnStrings.lastIndexOf("\t")));
+                                                                            SharedPreferenceUtil.put(context, "xqs", xqStrings.substring(0, xqStrings.lastIndexOf("\t")));
+                                                                            Intent intent1 = new Intent(context, CourseActivity.class);
+//                                                            intent.putExtra("cookie", cookie);
+                                                                            intent1.putExtra("xnc", xnText);
+                                                                            intent1.putExtra("xqc", xqText);
+                                                                            intent1.putExtra("sourceCode", sourceCode);
+                                                                            SharedPreferenceUtil.put(context, "xnc", xnText);
+                                                                            SharedPreferenceUtil.put(context, "xqc", xqText);
+                                                                            if ("".equals(year) && "".equals(team)) {
+                                                                                SharedPreferenceUtil.put(context, "xncr", xnText);
+                                                                                SharedPreferenceUtil.put(context, "xqcr", xqText);
+                                                                            }
+                                                                            startActivity(intent1);
+                                                                            finish();
+                                                                        } else {
+                                                                            sendMessage(Constant.SERVER_ERROR, Constant.login_error_noComment);
+                                                                        }
+                                                                    }
+                                                                });
+                                                                break;
+                                                            case "GRADE":
+                                                                HttpUtil.queryGradeInit(xh, xm, cookie, new Callback() {
+                                                                    @Override
+                                                                    public void onFailure(Call call, IOException e) {
+                                                                        e.printStackTrace();
+                                                                    }
 
-                                                                            @Override
-                                                                            public void onResponse(Call call, Response response) throws IOException {
+                                                                    @Override
+                                                                    public void onResponse(Call call, Response response) throws IOException {
+                                                                        String code = response.body().string();
+                                                                        if (!code.contains(Constant.login_error_noComment)) {
+                                                                            Document doc = Jsoup.parse(code);
+                                                                            String __VIEWSTATE = doc.select("input[name='__VIEWSTATE']").val();
+                                                                            Element xnString = doc.getElementById("ddlxn");
+                                                                            Element xqString = doc.getElementById("ddlxq");
+                                                                            Elements options1 = xnString.select("option");
+                                                                            Elements options2 = xqString.select("option");
+                                                                            ArrayList<String> xnList = new ArrayList<>();
+                                                                            ArrayList<String> xqList = new ArrayList<>();
+                                                                            for (int i = 0; i < options1.size(); i++) {
+                                                                                if (i == 0) {
+                                                                                    xnList.add(options1.get(i).val());
+                                                                                } else {
+                                                                                    xnList.add(options1.get(options1.size() - i).val());
+                                                                                }
+                                                                            }
+                                                                            for (int i = 0; i < options2.size(); i++) {
+                                                                                if (i == 0) {
+                                                                                    xqList.add(options2.get(i).val());
+                                                                                } else {
+                                                                                    xqList.add(options2.get(i).val());
+                                                                                }
+                                                                            }
+                                                                            sendMessage(Constant.TURN_PROGRESS_BAR_OFF, null);
+                                                                            Intent intent1 = new Intent(context, GradeActivity.class);
+                                                                            intent1.putExtra("__VIEWSTATE", __VIEWSTATE);
+                                                                            intent1.putExtra("cookie", cookie);
+                                                                            intent1.putExtra("xh", xh);
+                                                                            intent1.putExtra("xm", xm);
+                                                                            intent1.putStringArrayListExtra("xnList", xnList);
+                                                                            intent1.putStringArrayListExtra("xqList", xqList);
+                                                                            startActivity(intent1);
+                                                                            finish();
+                                                                        } else {
+                                                                            sendMessage(Constant.SERVER_ERROR, Constant.login_error_noComment);
+                                                                        }
+                                                                    }
+                                                                });
+                                                                break;
+                                                            case "CREDIT":
+                                                                HttpUtil.queryCreditInit(xh, xm, cookie, new Callback() {
+                                                                    @Override
+                                                                    public void onFailure(Call call, IOException e) {
+                                                                        e.printStackTrace();
+                                                                    }
 
-                                                                                String s = response.body().string();
-                                                                                System.out.println(s);
-//                                                                        Document doc = Jsoup.parse(s);
-//                                                                        String __VIEWSTATE = doc.select("input[name='__VIEWSTATE']").val();
+                                                                    @Override
+                                                                    public void onResponse(Call call, Response response) throws IOException {
+                                                                        byte[] bytes = response.body().bytes();
+                                                                        String resp = new String(bytes, "gb2312");
+                                                                        // 只是一个成功的标志位
+                                                                        if (resp.contains("至今未通过课程成绩")) {
+                                                                            Document doc = Jsoup.parse(resp);
+                                                                            String __VIEWSTATE = doc.select("input[name='__VIEWSTATE']").val();
+                                                                            System.out.println("---" + __VIEWSTATE);
+                                                                            HttpUtil.queryCredit(xh, xm, __VIEWSTATE, cookie, new Callback() {
+                                                                                @Override
+                                                                                public void onFailure(Call call, IOException e) {
+                                                                                    e.printStackTrace();
+                                                                                }
 
-//                                                                        HttpUtil.OneKeyComment(abs_link, cookie, pjkc, new Callback() {
+                                                                                @Override
+                                                                                public void onResponse(Call call, Response response) throws IOException {
+                                                                                    byte[] bytes = response.body().bytes();
+                                                                                    String resp = new String(bytes, "gb2312");
+                                                                                    Intent intent1 = new Intent(context, CreditActivity.class);
+                                                                                    intent1.putExtra("html", resp);
+                                                                                    startActivity(intent1);
+                                                                                    finish();
+                                                                                }
+                                                                            });
+                                                                        } else {
+                                                                            ToastUtils.showToastOnMain(context, activity, "服务出错", Toast.LENGTH_SHORT);
+                                                                        }
+                                                                    }
+                                                                });
+                                                                break;
+
+                                                            default:
+                                                                break;
+                                                        }
+//                                                        if ("COMMENT".equals(type)) {
+//                                                            System.out.println("欢迎使用评教功能");
+////                                                    System.out.println(redirectHtml);
+//                                                            Document doc = Jsoup.parse(redirectHtml);
+//                                                            Elements uls = doc.select("ul.sub");
+//                                                            final boolean[] flag = {false};
+//                                                            for (int i = 0; i < uls.size(); i++) {
+//                                                                Element ul = uls.get(i);
+//                                                                Elements lis = ul.select("li");
+//                                                                for (int j = 0; j < lis.size(); j++) {
+//                                                                    Element li = lis.get(j);
+//                                                                    Elements as = li.select("a");
+//                                                                    Element a = as.first();
+//                                                                    String link = a.attr("href");
+//                                                                    if (link.contains("N12141")) {
+//                                                                        flag[0] = true;
+//                                                                        System.out.println(link);
+//                                                                        String abs_link = "http://jwjx.njit.edu.cn/" + link;
+//                                                                        String pjkc = abs_link.substring(abs_link.indexOf("=") + 1, abs_link.indexOf("&"));
+//                                                                        HttpUtil.getOneKeyComment_VIEWSTATE(abs_link, cookie, xh, new Callback() {
 //                                                                            @Override
 //                                                                            public void onFailure(Call call, IOException e) {
-//                                                                                System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!");
-////                                                                                e.printStackTrace();
+//                                                                                System.out.println("!!!!!!!!!!!!");
+//                                                                                e.printStackTrace();
 //                                                                            }
 //
 //                                                                            @Override
 //                                                                            public void onResponse(Call call, Response response) throws IOException {
-//                                                                                flag[0] = true;
-//                                                                                System.out.println(response.body().string());
+//
+//                                                                                String s = response.body().string();
+//                                                                                System.out.println(s);
+////                                                                        Document doc = Jsoup.parse(s);
+////                                                                        String __VIEWSTATE = doc.select("input[name='__VIEWSTATE']").val();
+//
+////                                                                        HttpUtil.OneKeyComment(abs_link, cookie, pjkc, new Callback() {
+////                                                                            @Override
+////                                                                            public void onFailure(Call call, IOException e) {
+////                                                                                System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!");
+//////                                                                                e.printStackTrace();
+////                                                                            }
+////
+////                                                                            @Override
+////                                                                            public void onResponse(Call call, Response response) throws IOException {
+////                                                                                flag[0] = true;
+////                                                                                System.out.println(response.body().string());
+////                                                                            }
+////                                                                        });
+//
+//                                                                                new Thread(() -> System.out.println(HttpUtil.oneKeyComment_unRecommended(abs_link, cookie, pjkc))).start();
 //                                                                            }
 //                                                                        });
-
-                                                                                new Thread(() -> System.out.println(HttpUtil.oneKeyComment_unRecommended(abs_link, cookie, pjkc))).start();
-                                                                            }
-                                                                        });
-//                                                    String oneKeyComment_viewstate = HttpUtil.getOneKeyComment_VIEWSTATE_unRecommended(abs_link, cookie, xh);
-//                                                    Document doc = Jsoup.parse(oneKeyComment_viewstate);
-//                                                    String __VIEWSTATE = doc.select("input[name='__VIEWSTATE']").val();
-//                                                    String pjkc2 = abs_link.substring(abs_link.indexOf("=") + 1, abs_link.indexOf("&"));
-//                                                    String s = HttpUtil.oneKeyComment_unRecommended(abs_link, cookie, pjkc2);
-//                                                    System.out.println("000000000\n"+s);
-//                                                               break;
-                                                                    }//if
-                                                                    if (flag[0]) {
-                                                                        break;
-                                                                    }
-                                                                }//for
-
-                                                                if (flag[0]) {
-                                                                    break;
-                                                                }
-                                                            }//for
-                                                            sendMessage(Constant.TURN_PROGRESS_BAR_OFF, null);
-                                                            System.out.println("平角成功");
-                                                        } else if ("NOTHING".equals(type)) {
-                                                            runOnUiThread(() -> Toast.makeText(LoginNJITActivity.this, "登录成功", Toast.LENGTH_LONG).show());
-                                                            Intent intent1 = new Intent(LoginNJITActivity.this, MainActivity.class);
-                                                            startActivity(intent1);
-                                                        }
+////                                                    String oneKeyComment_viewstate = HttpUtil.getOneKeyComment_VIEWSTATE_unRecommended(abs_link, cookie, xh);
+////                                                    Document doc = Jsoup.parse(oneKeyComment_viewstate);
+////                                                    String __VIEWSTATE = doc.select("input[name='__VIEWSTATE']").val();
+////                                                    String pjkc2 = abs_link.substring(abs_link.indexOf("=") + 1, abs_link.indexOf("&"));
+////                                                    String s = HttpUtil.oneKeyComment_unRecommended(abs_link, cookie, pjkc2);
+////                                                    System.out.println("000000000\n"+s);
+////                                                               break;
+//                                                                    }//if
+//                                                                    if (flag[0]) {
+//                                                                        break;
+//                                                                    }
+//                                                                }//for
+//
+//                                                                if (flag[0]) {
+//                                                                    break;
+//                                                                }
+//                                                            }//for
+//                                                            sendMessage(Constant.TURN_PROGRESS_BAR_OFF, null);
+//                                                            System.out.println("平角成功");
+//                                                        } else if ("NOTHING".equals(type)) {
+//                                                            runOnUiThread(() -> Toast.makeText(context, "登录成功", Toast.LENGTH_LONG).show());
+//                                                            Intent intent1 = new Intent(context, MainActivity.class);
+//                                                            startActivity(intent1);
+//                                                        }
                                                     }
                                                 });
                                             } else if (loginResponse.contains(Constant.login_error_cord)) {
@@ -475,16 +517,15 @@ public class LoginNJITActivity extends ActivityCollector {
                                         }//responseCode = 200
                                     } //onResponse
                                 });
-
                             }
                         });
 
                     } else {
-                        showToast("账户名/密码/验证码为空");
+                        showToast("账户名 | 密码 | 验证码为空");
                         sendMessage(Constant.TURN_PROGRESS_BAR_OFF, null);
                     }
                 } else {
-                    sendMessage(Constant.SERVER_ERROR, "可能开启了访问限制");
+                    sendMessage(Constant.SERVER_ERROR, "可能开启了内网访问限制");
                 }
             } else {
                 showToast("请检查网络连接");
@@ -517,7 +558,7 @@ public class LoginNJITActivity extends ActivityCollector {
     }
 
     private void showToast(String info) {
-        Toast.makeText(LoginNJITActivity.this, info, Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, info, Toast.LENGTH_SHORT).show();
     }
 
     private void flushCheckCode() {

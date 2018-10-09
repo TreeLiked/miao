@@ -183,14 +183,6 @@ public class HttpUtil {
     }
 
 
-    public static void showTG(Callback c) {
-        client = getInstance();
-        Request request = new Request.Builder()
-                .url(Constant.tzgg_url)
-                .build();
-        client.newCall(request).enqueue(c);
-    }
-
     public static void loadBingPic(Callback c) {
         client = getInstance();
         Request request = new Request.Builder()
@@ -212,7 +204,7 @@ public class HttpUtil {
 
     public static void queryGrade(String __VIEWSTATE, String xh, String xm, String cookie, String xn, String xq, Callback c) {
 
-        FormBody.Builder formBody = new FormBody.Builder();//创建表单请求体
+        FormBody.Builder formBody = new FormBody.Builder();
         formBody.add("__EVENTTARGET", "");
         formBody.add("__EVENTARGUMENT", "");
         formBody.add("__VIEWSTATE", __VIEWSTATE);
@@ -220,7 +212,6 @@ public class HttpUtil {
         formBody.add("ddlxq", xn);
         formBody.add("btnCx", " 查  询 ");
         RequestBody requestBody = formBody.build();
-        System.out.println(formBody.toString());
         client = getInstance();
         Request request = new Request.Builder()
                 .post(requestBody)
@@ -228,6 +219,43 @@ public class HttpUtil {
                 .addHeader("Referer", "http://jwjx.njit.edu.cn/xscjcx_dq.aspx?xh=" + xh + "&xm=" + xm + "&gnmkdm=N121605")
                 .addHeader("Cookie", cookie)
                 .url("http://jwjx.njit.edu.cn/xscjcx_dq.aspx?xh=" + xh + "&xm=" + xm + "&gnmkdm=N121605")
+                .build();
+        client.newCall(request).enqueue(c);
+    }
+
+    public static void queryCreditInit(String xh, String xm, String cookie, Callback c) {
+        client = getInstance();
+        Request request = new Request.Builder()
+                .addHeader("contentType", "GB2312")
+                .addHeader("Referer", Constant.forward_url + xh)
+                .addHeader("Cookie", cookie)
+                .url("http://jwjx.njit.edu.cn/xscjcx.aspx?xh=" + xh + "&xm=" + xm + "&gnmkdm=N121617")
+                .build();
+        client.newCall(request).enqueue(c);
+    }
+
+    public static void queryCredit(String xh, String xm, String viewState, String cookie, Callback c) {
+        client = getInstance();
+        RequestBody formBody = getValidationFormBody(new HashMap<String, String>() {{
+            put("__EVENTTARGET", "");
+            put("__EVENTARGUMENT", "");
+            put("__VIEWSTATE", viewState);
+            put("hidLanguage", "");
+            put("ddlXN", "");
+            put("ddlXQ", "");
+            put("ddl_kcxz", "");
+            put("Button1", "成绩统计");
+        }});
+        Request request = new Request.Builder()
+                .url("http://jwjx.njit.edu.cn/xscjcx.aspx?xh=" + xh + "&xm=" + xm + "&gnmkdm=N121617")
+                .post(formBody)
+                .addHeader("contentType", "GB2312")
+                .addHeader("Referer", "http://jwjx.njit.edu.cn/xscjcx.aspx?xh=" + xh + "&xm=" + xm + "&gnmkdm=N121617")
+                .addHeader("Host", "jwjx.njit.edu.cn")
+                .addHeader("Origin", "http://jwjx.njit.edu.cn")
+                .addHeader("Cookie", cookie)
+                .addHeader("Upgrade-Insecure-Requests", "1")
+                .addHeader("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.45 Safari/537.36")
                 .build();
         client.newCall(request).enqueue(c);
     }
@@ -568,6 +596,16 @@ public class HttpUtil {
     private static FormBody getValidationFormBody(String un, Map<String, String> extra) {
         FormBody.Builder builder = new FormBody.Builder()
                 .add("un", un);
+        if (extra != null) {
+            for (Map.Entry<String, String> entry : extra.entrySet()) {
+                builder.add(entry.getKey(), entry.getValue());
+            }
+        }
+        return builder.build();
+    }
+
+    private static FormBody getValidationFormBody(Map<String, String> extra) {
+        FormBody.Builder builder = new FormBody.Builder();
         if (extra != null) {
             for (Map.Entry<String, String> entry : extra.entrySet()) {
                 builder.add(entry.getKey(), entry.getValue());

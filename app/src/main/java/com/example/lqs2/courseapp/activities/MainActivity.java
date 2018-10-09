@@ -65,8 +65,10 @@ import com.yanzhenjie.recyclerview.swipe.SwipeMenuRecyclerView;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -99,6 +101,9 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
     private boolean initFlag = true;
     //    自己写的也忘了
     public boolean flag2 = true;
+
+    List<Course> dayCourseList = new LinkedList<>();
+
     //    flag3, 是否还需要显示今日课程
     public static boolean flag3 = true;
     boolean hasGetCourse;
@@ -114,31 +119,17 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
     public static Context context;
 
 
-    //    @BindView(R.id.drawer_layout)
     DrawerLayout drawerLayout;
-    //    @BindView(R.id.nav_view)
     NavigationView navigationView;
-    //    @BindView(R.id.main_pic)
     ImageView bing_main_pic;
-    //    @BindView(R.id.main_course_name)
     TextView main_course_name;
-    //    @BindView(R.id.main_course_location)
     TextView main_course_location;
-    //    @BindView(R.id.main_course_state)
     TextView main_course_state;
-
-    //    @BindView(R.id.main_recycle_view)
-//    RecyclerView recyclerView;
     private SwipeRefreshLayout recyclerView_layout;
     private SwipeMenuRecyclerView recyclerView;
-
-    //    @BindView(R.id.main_swipe_flush)
-//    SwipeRefreshLayout swipeRefreshLayout;
-    //    @BindView(R.id.main_course_layout)
     RelativeLayout layout;
     private TweetAdapter tweetAdapter;
-
-    List<Course> dayCourseList;
+    private Calendar calendar;
     private List<Tweet> tweetList = new ArrayList<>();
     private static Gson gson = new Gson();
     public static int TWEET_START_POSITION = 0;
@@ -199,7 +190,6 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
         }
     };
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -223,6 +213,7 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
         IntentFilter intentFilter1 = new IntentFilter();
         intentFilter1.addAction(Constant.ACTION1);
         intentFilter1.addAction(Constant.ACTION2);
+        intentFilter1.addAction(Constant.ACTION3);
         localBroadcastManager.registerReceiver(bgChangedReceiver, intentFilter1);
 
 
@@ -382,15 +373,24 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
                 case R.id.nav_grade:
                     final MaterialDialog dialog[] = new MaterialDialog[1];
                     dialog[0] = MaterialDialogUtils.getItemListDialog(this, "查询选项", (parent, view, position, id) -> {
+                        dialog[0].dismiss();
                         switch (position) {
                             case 0:
                                 Toast.makeText(MainActivity.this, Constant.gradeQueryWelcome, Toast.LENGTH_SHORT).show();
-                                Intent intent = new Intent(MainActivity.this, LoginNJITActivity.class);
-                                intent.putExtra("TODO", "GRADE");
-                                startActivity(intent);
-                                dialog[0].dismiss();
+                                goActivity(LoginNJITActivity.class, new HashMap<String, String>() {{
+                                    put("TODO", "GRADE");
+                                }});
+//                                Intent intent = new Intent(MainActivity.this, LoginNJITActivity.class);
+//                                intent.putExtra("TODO", "GRADE");
+//                                startActivity(intent);
                                 break;
                             case 1:
+                                Toast.makeText(MainActivity.this, Constant.creditQueryWelcome, Toast.LENGTH_SHORT).show();
+                                goActivity(LoginNJITActivity.class, new HashMap<String, String>() {{
+                                    put("TODO", "CREDIT");
+                                }});
+                                break;
+                            case 2:
                                 break;
                             default:
                                 break;
@@ -398,6 +398,7 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
                     }, new ArrayList<String>() {{
                         add(Constant.gradeQueryItem1);
                         add(Constant.gradeQueryItem2);
+                        add(Constant.gradeQueryItem3);
                     }});
                     dialog[0].show();
                     break;
@@ -857,18 +858,15 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
         if (hasGetCourse) {
             new Thread(() -> {
                 weekNow = (int) SharedPreferenceUtil.get(MainActivity.this, "weekNow", 0);
+                weatherAddWeek();
                 data = (String) SharedPreferenceUtil.get(this, "courseSourceCode", "");
-                if (dayCourseList != null) {
-                    dayCourseList.clear();
-                }
+                dayCourseList.clear();
                 dayCourseList = HtmlCodeExtractUtil.getCourseList(data, weekNow, weekToday);
                 if (dayCourseList.size() > 0) {
                     sortCourseList(dayCourseList);
-                    Log.d(TAG, dayCourseList.toString());
                     showNowCourse();
                 } else {
                     runOnUiThread(() -> {
-                        Log.d(TAG, "weatherToShowCourse: 没有课");
                         setCourseAreaContent("", "今天没有课，快去休息一下吧", "", true);
                     });
                 }
@@ -878,6 +876,18 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
         }
     }
 
+    private void weatherAddWeek() {
+        int weekToday = Tools.getWeek();
+        Calendar cal = Calendar.getInstance();
+        String key = cal.get(Calendar.YEAR) + "" + (cal.get(Calendar.MONTH) + 1) + "" + cal.get(Calendar.DAY_OF_MONTH);
+        if (weekToday == 1) {
+            boolean added = (boolean) SharedPreferenceUtil.get(this, key, false);
+            if (!added) {
+                SharedPreferenceUtil.put(this, key, true);
+                weekNow++;
+            }
+        }
+    }
 
     private void goFileActivity(String un) {
         Intent intent = new Intent(MainActivity.this, FileActivity.class);
@@ -955,14 +965,11 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
         if (checkHandoffFun()) {
             checkHandoffText(true);
         }
-//        if (!TextUtils.isEmpty(UsualSharedPreferenceUtil.getNjitAccount(this))) {
-//            showNowCourse();
-//        }
         Intent intent = getIntent();
         String toDo = intent.getStringExtra("TODO");
-        if ("UPDATE_COURSE".equals(toDo)) {
-            weatherToShowCourse();
-        }
+//        if ("UPDATE_COURSE".equals(toDo)) {
+//            weatherToShowCourse();
+//        }
 //        } else if ("FLUSH_TWEETS".equals(toDo)) {
 //            String result = intent.getStringExtra("RESULT");
 //            if ("1".equals(result)) {
@@ -1016,7 +1023,6 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
                                     @Override
                                     public void onError(Throwable e) {
                                         // 压缩过程中出现异常
-//                                        Toast.makeText(MainActivity.this, "丫的，翻车了" + e.getMessage(), Toast.LENGTH_SHORT).show();
                                     }
                                 }).launch(); // 启动压缩
 
@@ -1292,65 +1298,57 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
 
 
     private void showNowCourse() {
-        new Thread(new Runnable() {
-            boolean flag = true;
+        new Thread(() -> {
+            if (hasGetCourse) {
+                if (null != dayCourseList && dayCourseList.size() > 0) {
+                    calendar = Calendar.getInstance();
+                    int hour = calendar.get(Calendar.HOUR_OF_DAY);
+                    int minute = calendar.get(Calendar.MINUTE);
+                    int dayOfMinute = hour * 60 + minute;
 
-            @SuppressLint("SetTextI18n")
-            @Override
-            public void run() {
-                if (flag) {
-                    if (hasGetCourse) {
-                        if (null != dayCourseList && dayCourseList.size() > 0 && flag2) {
-                            Calendar calendar = Calendar.getInstance();
-                            int hour = calendar.get(Calendar.HOUR_OF_DAY);
-                            int minute = calendar.get(Calendar.MINUTE);
-                            int dayOfMinute = hour * 60 + minute;
-
-                            final Course course = dayCourseList.get(0);
-                            int[] times = decideWhatToShow(course.getClsNum());
-
-                            final StringBuffer state = new StringBuffer();
-
-                            if (dayOfMinute < times[0]) {
-                                state.append("状态：未开始, 距离上课: ").append((times[0] - dayOfMinute) / 60).append(" h ").append((times[0] - dayOfMinute) % 60).append(" min");
-                            } else if (dayOfMinute < times[1]) {
-                                state.append("状态：进行第-1-节课, 距离下课: ").append(times[1] - dayOfMinute).append(" min");
-                            } else if (dayOfMinute < times[2]) {
-                                state.append("状态：课间休息, 距离上课: ").append(times[2] - dayOfMinute).append(" min");
-                            } else if (dayOfMinute < times[3]) {
-                                state.append("状态：进行第-2-节课, 距离下课: ").append(times[3] - dayOfMinute).append(" min");
-                            } else if (times[4] == 0) {
-                                dayCourseList.remove(0);
-                                if (dayCourseList.size() > 0) {
-                                    showNowCourse();
-                                } else {
-                                    Thread.interrupted();
-                                    setCourseAreaContent("", Constant.main_no_course_left_info, "", true);
-                                    flag3 = false;
-                                    return;
-                                }
-                            } else if (dayOfMinute >= times[3] && dayOfMinute < times[4]) {
-                                state.append("状态：课间休息, 距离上课：").append(times[4] - dayOfMinute).append(" min");
-                            } else if (dayOfMinute >= times[4] && dayOfMinute < times[5]) {
-                                state.append("状态：进行第-3-节课, 距离下课: ").append(times[5] - dayOfMinute).append(" min");
-                            } else if (dayOfMinute >= times[5]) {
-                                dayCourseList.remove(0);
-                                if (dayCourseList.size() > 0) {
-                                    showNowCourse();
-                                } else {
-                                    setCourseAreaContent("", Constant.main_no_course_left_info, "", true);
-                                    return;
-                                }
-                            }
-                            setCourseAreaContent("名称：" + course.getDialog_name(), "地点：" + course.getDialog_location(), state.toString(), false);
+                    final Course course = dayCourseList.get(0);
+                    int[] times = decideWhatToShow(course.getClsNum());
+                    System.out.println(Arrays.toString(times));
+                    System.out.println(dayOfMinute);
+                    final StringBuilder state = new StringBuilder();
+                    if (dayOfMinute < times[0]) {
+                        state.append("状态：未开始, 距离上课: ").append((times[0] - dayOfMinute) / 60).append(" h ").append((times[0] - dayOfMinute) % 60).append(" min");
+                    } else if (dayOfMinute < times[1]) {
+                        state.append("状态：进行第-1-节课, 距离下课: ").append(times[1] - dayOfMinute).append(" min");
+                    } else if (dayOfMinute < times[2]) {
+                        state.append("状态：课间休息, 距离上课: ").append(times[2] - dayOfMinute).append(" min");
+                    } else if (dayOfMinute < times[3]) {
+                        state.append("状态：进行第-2-节课, 距离下课: ").append(times[3] - dayOfMinute).append(" min");
+                    } else if (times[4] == 0) {
+                        dayCourseList.remove(0);
+                        if (dayCourseList.size() > 0) {
+                            showNowCourse();
                         } else {
-                            flag2 = false;
+                            Thread.interrupted();
                             setCourseAreaContent("", Constant.main_no_course_left_info, "", true);
                             flag3 = false;
+                            return;
+                        }
+                    } else if (dayOfMinute >= times[3] && dayOfMinute < times[4]) {
+                        state.append("状态：课间休息, 距离上课：").append(times[4] - dayOfMinute).append(" min");
+                    } else if (dayOfMinute >= times[4] && dayOfMinute < times[5]) {
+                        state.append("状态：进行第-3-节课, 距离下课: ").append(times[5] - dayOfMinute).append(" min");
+                    } else if (dayOfMinute >= times[5]) {
+                        dayCourseList.remove(0);
+                        if (dayCourseList.size() > 0) {
+                            showNowCourse();
+                        } else {
+                            setCourseAreaContent("", Constant.main_no_course_left_info, "", true);
+                            return;
                         }
                     }
+                    setCourseAreaContent("名称：" + course.getDialog_name(), "地点：" + course.getDialog_location(), state.toString(), false);
+                } else {
+                    setCourseAreaContent("", Constant.main_no_course_left_info, "", true);
+                    flag3 = false;
                 }
             }
+
         }).start();
     }
 
@@ -1431,7 +1429,6 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
         }, true);
 
         new Thread(() -> HttpUtil.haveReceivedHandOffText(darkme_un)).start();
-
     }
 
     class TimeChangeReceiver extends BroadcastReceiver {
@@ -1476,6 +1473,12 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
             if (action.equals(Constant.ACTION2)) {
 //                SharedPreferenceUtil.put(MainActivity.this, "main_bg", null);
                 runOnUiThread(MainActivity.this::showDefaultBg);
+            }
+
+            if (action.equals(Constant.ACTION3)) {
+//                SharedPreferenceUtil.put(MainActivity.this, "main_bg", null);
+                flag3 = true;
+                weatherToShowCourse();
             }
         }
     }

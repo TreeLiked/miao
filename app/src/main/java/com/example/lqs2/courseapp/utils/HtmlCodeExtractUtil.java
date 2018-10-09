@@ -2,6 +2,7 @@ package com.example.lqs2.courseapp.utils;
 
 import com.example.lqs2.courseapp.MyApplication;
 import com.example.lqs2.courseapp.activities.NoticeActivity;
+import com.example.lqs2.courseapp.common.StringUtils;
 import com.example.lqs2.courseapp.entity.Book;
 import com.example.lqs2.courseapp.entity.BookLoc;
 import com.example.lqs2.courseapp.entity.Course;
@@ -415,5 +416,69 @@ public class HtmlCodeExtractUtil {
             locs.add(loc);
         }
         book.setLocs(locs);
+    }
+
+    public static Map<String, String> parseHtmlForCredit(String resp) {
+        Map<String, String> info = new HashMap<>();
+        try {
+            Document doc = Jsoup.parse(resp);
+
+//            第一部分 个人信息
+
+            String xueHao = doc.select("#lbl_xh").first().text();
+            String xingMing = doc.select("#lbl_xm").first().text();
+            String xueYuan = doc.select("#lbl_xy").first().text();
+            String zhuanYe = doc.select("#lbl_zymc").first().text();
+            String xingZhengBan = doc.select("#lbl_xzb").first().text();
+
+            info.put("xueHao", !StringUtils.isEmpty(xueHao) ? xueHao.substring(0, xueHao.indexOf("：") + 1) + "\t" + xueHao.substring(xueHao.indexOf("：") + 1) : "null");
+            info.put("xingMing", !StringUtils.isEmpty(xingMing) ? xingMing.substring(0, xingMing.indexOf("：") + 1) + "\t" + xingMing.substring(xingMing.indexOf("：") + 1) : "null");
+            info.put("xueYuan", !StringUtils.isEmpty(xueYuan) ? xueYuan.substring(0, xueYuan.indexOf("：") + 1) + "\t" + xueYuan.substring(xueYuan.indexOf("：") + 1) : "null");
+            info.put("zhuanYe", !StringUtils.isEmpty(zhuanYe) ? zhuanYe : "null");
+            info.put("xingZhengBan", !StringUtils.isEmpty(xingZhengBan) ? xingZhengBan.substring(0, xingZhengBan.indexOf("：") + 1) + "\t" + xingZhengBan.substring(xingZhengBan.indexOf("：") + 1) : "null");
+
+
+//            第二部分 学分总览
+
+//            <span id="xftj"><b>所选学分113.50；获得学分113.50；重修学分0；正考未通过学分 0。<br></b></span>
+            String creditBanner = doc.select("#xftj").first().text();
+            if (!StringUtils.isEmpty(creditBanner)) {
+                String[] strings = creditBanner.split("；");
+                info.put("choose_credit", strings[0].trim().substring(4).trim());
+                info.put("achieve_credit", strings[1].trim().substring(4).trim());
+                info.put("rehearsal_credit", strings[2].trim().substring(4).trim());
+                info.put("failed_credit", strings[3].trim().substring(7, strings[3].lastIndexOf("。")).trim());
+
+            } else {
+                info.put("choose_credit", "null");
+                info.put("achieve_credit", "null");
+                info.put("rehearsal_credit", "null");
+                info.put("failed_credit", "null");
+            }
+
+
+//            第三部分  3 table
+
+            Elements tables = doc.select("table[class='datelist']");
+            for (int i = 0; i < tables.size(); i++) {
+                parseCreditTable(info, tables.get(i), i);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return info;
+    }
+
+    private static void parseCreditTable(Map<String, String> map, Element table, int no) {
+        Elements trs = table.select("tr");
+        for (int i = 0; i < trs.size(); i++) {
+            Element tr = trs.get(i);
+            Elements tds = tr.select("td");
+            for (int j = 0; j < tds.size(); j++) {
+                String text = tds.get(j).text();
+                map.put(no + "" + i + "" + j, text);
+            }
+        }
     }
 }

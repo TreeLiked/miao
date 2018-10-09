@@ -139,6 +139,7 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> 
         holder.goodView.setText(String.valueOf(tweet.getGood()));
         ImageAdapter adapter = new ImageAdapter(mContext, activity);
         adapter.setDataB(ImageAdapter.getImagePathList(tweet));
+
         holder.recyclerView.setAdapter(adapter);
 
         holder.cardView.setOnClickListener(v -> showTweetDetail(tweet));
