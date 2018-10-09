@@ -1,9 +1,7 @@
 # MiaoApp
 ## 安卓课程表 "喵" 南京工程学院专版
 
-![喵](./app/src/main/res/drawable/default_head.png "miao-logo")
-
-点击这里 [下载最新版本](http://darkme.cn:8880/android/miao/apk "V 0.1.7")
+### 点击这里 [下载最新版本](http://darkme.cn:8880/android/miao/apk "V 0.1.7")
 
 ### 功能介绍
 #### 课程表
@@ -38,4 +36,6 @@
 - 壁纸切换
 - 在线更新
 - 有时间写个ios的
+- 下面是一个巨大的logo
+![喵](./app/src/main/res/drawable/default_head.png "miao-logo")
 
