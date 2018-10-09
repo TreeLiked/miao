@@ -37,7 +37,8 @@
 #### 其他
 - 壁纸切换
 - 在线更新
-- 不满意可以发送邮件至1172714116@qq.com、im.lqs2@icloud.com、im.lqs2@gmail.com进行投诉
+- 不满意的可以发送邮件至1172714116@qq.com、im.lqs2@icloud.com、im.lqs2@gmail.com进行投诉
+- 真好
 - 有时间写个ios的
 - 下面是一个巨大的logo
 
