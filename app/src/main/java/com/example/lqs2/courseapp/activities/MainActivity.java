@@ -20,7 +20,6 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -44,6 +43,7 @@ import com.example.lqs2.courseapp.R;
 import com.example.lqs2.courseapp.adapters.TweetAdapter;
 import com.example.lqs2.courseapp.entity.Course;
 import com.example.lqs2.courseapp.entity.Tweet;
+import com.example.lqs2.courseapp.global.ThreadPoolExecutorFactory;
 import com.example.lqs2.courseapp.utils.Base64ImageUtils;
 import com.example.lqs2.courseapp.utils.Constant;
 import com.example.lqs2.courseapp.utils.CropUtils;
@@ -65,8 +65,8 @@ import com.yanzhenjie.recyclerview.swipe.SwipeMenuRecyclerView;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -86,6 +86,12 @@ import top.zibin.luban.OnCompressListener;
 
 import static com.example.lqs2.courseapp.MyApplication.getContext;
 
+/**
+ * 主页
+ *
+ * @author lqs2
+ */
+@SuppressWarnings("AlibabaUndefineMagicConstant")
 public class MainActivity extends ActivityCollector implements View.OnClickListener {
 
 
@@ -95,70 +101,60 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
     public int weekNow;
 
 
-    //    是否用户修改了信息
+    /**
+     * 是否用户修改了信息
+     */
     public static boolean userInfoChangeFlag = false;
-    //    drawer第一次打开查找view
-    private boolean initFlag = true;
-    //    自己写的也忘了
-    public boolean flag2 = true;
-
-    List<Course> dayCourseList = new LinkedList<>();
-
-    //    flag3, 是否还需要显示今日课程
+    /**
+     * 是否还需要显示今日课程
+     */
     public static boolean flag3 = true;
-    boolean hasGetCourse;
+    List<Course> dayCourseList = new LinkedList<>();
+    /**
+     * 当前动态的起始位置
+     */
+    public static int TWEET_START_POSITION = 0;
+    /**
+     * 广播
+     */
+    public static LocalBroadcastManager localBroadcastManager;
+    /**
+     * 背景的类型，是否切换暗色系列
+     */
+    public static int bgType = 0;
+    /**
+     * drawer第一次打开查找view
+     */
+    private boolean initFlag = true;
+    private boolean hasGetCourse;
     private String data;
     private Toast toast;
-
-
-    private TextView whole_id;
-    private CircleImageView whole_head_image;
-    private ImageView head_image_bg;
+    private TextView wholeId;
+    private CircleImageView wholeHeadImage;
 
     public static MainActivity activity;
     public static Context context;
 
 
-    DrawerLayout drawerLayout;
-    NavigationView navigationView;
-    ImageView bing_main_pic;
-    TextView main_course_name;
-    TextView main_course_location;
-    TextView main_course_state;
-    private SwipeRefreshLayout recyclerView_layout;
+    private DrawerLayout drawerLayout;
+    private ImageView bingMainPic;
+    private TextView mainCourseName;
+    private TextView mainCourseLocation;
+    private TextView mainCourseState;
+    private SwipeRefreshLayout recyclerViewLayout;
     private SwipeMenuRecyclerView recyclerView;
-    RelativeLayout layout;
     private TweetAdapter tweetAdapter;
     private Calendar calendar;
     private List<Tweet> tweetList = new ArrayList<>();
     private static Gson gson = new Gson();
-    public static int TWEET_START_POSITION = 0;
-
-    private MainBgChangedReceiver bgChangedReceiver;
-    public static LocalBroadcastManager localBroadcastManager;
-
-    public static int bgType = 0;
 
 
-//    private DownloadService.DownloadBinder downloadBinder;
-
-
-    private String darkme_un = "";
-//    private ServiceConnection connection = new ServiceConnection() {
-//        @Override
-//        public void onServiceConnected(ComponentName name, IBinder service) {
-//            downloadBinder = (DownloadService.DownloadBinder) service;
-//        }
-//
-//        @Override
-//        public void onServiceDisconnected(ComponentName name) {
-//
-//        }
-//    };
+    private String darkmeUn = "";
 
     @SuppressLint("HandlerLeak")
     private Handler handler = new Handler() {
 
+        @SuppressLint("ShowToast")
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
@@ -169,19 +165,12 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
                     toast.setText((String) msg.obj);
                     toast.setDuration(msg.arg1);
                     toast.show();
-//                    refreshLayout.setRefreshing(false);
                     break;
-
                 case 0:
-//                    recyclerView_layout.endRefreshing();
-                    recyclerView_layout.setRefreshing(false);
+                    recyclerViewLayout.setRefreshing(false);
                     Toast.makeText(MainActivity.this, "Failed to load tweets", Toast.LENGTH_LONG).show();
                     break;
                 case 1:
-//                    swipeRefreshLayout.setRefreshing(false);
-//                    tweetAdapter = new TweetAdapter(newsMainList);
-//                    recyclerView.setAdapter(tweetAdapter);
-//                    tweetAdapter.notifyDataSetChanged();
                     Toast.makeText(MainActivity.this, "喵～", Toast.LENGTH_LONG).show();
                     break;
                 default:
@@ -190,6 +179,7 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
         }
     };
 
+    @SuppressLint("InflateParams")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -199,7 +189,6 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
         StatusBarUtils.setStatusTransparent(this);
         context = this;
         activity = this;
-//        StatusBarUtils.setStatusBarTransparentAndTextColorBlack(this);
 
         IntentFilter intentFilter = new IntentFilter();
         //每分钟变化
@@ -209,7 +198,7 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
 
 
         localBroadcastManager = LocalBroadcastManager.getInstance(MainActivity.this);
-        bgChangedReceiver = new MainBgChangedReceiver();
+        MainBgChangedReceiver bgChangedReceiver = new MainBgChangedReceiver();
         IntentFilter intentFilter1 = new IntentFilter();
         intentFilter1.addAction(Constant.ACTION1);
         intentFilter1.addAction(Constant.ACTION2);
@@ -218,12 +207,12 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
 
 
         drawerLayout = findViewById(R.id.drawer_layout);
-        navigationView = findViewById(R.id.nav_view);
-        bing_main_pic = findViewById(R.id.main_pic);
-        main_course_name = findViewById(R.id.main_course_name);
-        main_course_location = findViewById(R.id.main_course_location);
-        main_course_state = findViewById(R.id.main_course_state);
-        layout = findViewById(R.id.main_course_layout);
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        bingMainPic = findViewById(R.id.main_pic);
+        mainCourseName = findViewById(R.id.main_course_name);
+        mainCourseLocation = findViewById(R.id.main_course_location);
+        mainCourseState = findViewById(R.id.main_course_state);
+        RelativeLayout layout = findViewById(R.id.main_course_layout);
 
 
         showBg();
@@ -231,8 +220,7 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
         checkUpdate();
 
 
-        darkme_un = (String) SharedPreferenceUtil.get(MainActivity.this, "darkme_un", "");
-
+        darkmeUn = (String) SharedPreferenceUtil.get(MainActivity.this, "darkme_un", "");
 
         initRefreshLayout();
 
@@ -240,13 +228,6 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
         displayTweets(TWEET_START_POSITION, false, false);
 
 
-        final ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-
-        }
-
-//        单定义
         navigationView.setCheckedItem(R.id.nav_course);
         final com.getbase.floatingactionbutton.FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(this);
@@ -256,7 +237,7 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
                 switch (position) {
                     case 0:
                         dialog[0].dismiss();
-                        if (!TextUtils.isEmpty(darkme_un)) {
+                        if (!TextUtils.isEmpty(darkmeUn)) {
                             if (checkHandoffFun()) {
                                 checkHandoffText(false);
                             } else {
@@ -268,14 +249,14 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
                         break;
                     case 1:
                         dialog[0].dismiss();
-                        if (!TextUtils.isEmpty(darkme_un)) {
+                        if (!TextUtils.isEmpty(darkmeUn)) {
                             if ((boolean) SharedPreferenceUtil.get(this, "toggle_handoff", false)) {
                                 String clipText = getTextFromClipboard();
                                 if (!TextUtils.isEmpty(clipText)) {
-                                    MaterialDialogUtils.showYesOrNoDialogWithBothSthTodo(this, new String[]{"检测到文本", clipText, "直接推送", "打开推送页面"}, new MaterialDialogUtils.DialogBothDoSthOnClickListener() {
+                                    MaterialDialogUtils.showYesOrNoDialogWithBothSthTodo(this, new String[]{"检测到文本", clipText, "直接推送", "打开推送页面"}, new MaterialDialogUtils.AbstractDialogBothDoSthOnClickListener() {
                                         @Override
                                         public void onConfirmButtonClick() {
-                                            pushHandoffText(darkme_un, clipText);
+                                            pushHandoffText(darkmeUn, clipText);
                                         }
 
                                         @Override
@@ -289,9 +270,7 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
                             } else {
                                 ToastUtils.showToast(this, "请在设置里开启此功能", Toast.LENGTH_SHORT);
                             }
-
                         } else {
-//                            ToastUtils.showToast(MainActivity.this, "您还没有登录[darkme.cn]", Toast.LENGTH_SHORT);
                             showNoLoginDarkmeInfo(true, "，无法使用此功能");
                         }
                         break;
@@ -319,19 +298,18 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
                 if (initFlag || userInfoChangeFlag) {
                     initFlag = false;
                     userInfoChangeFlag = false;
-                    whole_id = findViewById(R.id.whole_id);
-                    whole_head_image = findViewById(R.id.whole_head_image);
-                    head_image_bg = findViewById(R.id.head_image_background);
+                    wholeId = findViewById(R.id.whole_id);
+                    wholeHeadImage = findViewById(R.id.whole_head_image);
                     displayUserInfo(3);
-                    whole_head_image.setOnClickListener(v -> {
-                        darkme_un = (String) SharedPreferenceUtil.get(MainActivity.this, "darkme_un", "");
-                        if (!TextUtils.isEmpty(darkme_un)) {
+                    wholeHeadImage.setOnClickListener(v -> {
+                        darkmeUn = (String) SharedPreferenceUtil.get(MainActivity.this, "darkme_un", "");
+                        if (!TextUtils.isEmpty(darkmeUn)) {
                             CropUtils.openAlbumAndCrop(MainActivity.this);
                         } else {
                             showNoLoginDarkmeInfo(false, "，无法上传头像");
                         }
                     });
-                    whole_id.setOnClickListener(v -> {
+                    wholeId.setOnClickListener(v -> {
                         Intent intent = new Intent(MainActivity.this, SettingActivity.class);
                         startActivity(intent);
                     });
@@ -353,16 +331,6 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
                 case R.id.nav_course:
                     goCourseActivity();
                     break;
-//                case R.id.nav_e_card:
-//                    boolean hasLogin_ECARD = (boolean) SharedPreferenceUtil.get(MainActivity.this, "hasLoginECARD", false);
-//                    boolean hasRememberPW_ECARED = (boolean) SharedPreferenceUtil.get(MainActivity.this, "remember_password_ecard", false);
-//                    if (!hasLogin_ECARD) {
-//                        Intent intent = new Intent(MainActivity.this, Login_ECARD_Activity.class);
-//                        startActivity(intent);
-//                    } else if (!hasRememberPW_ECARED) {
-//                        //TODO
-//                    }
-//                    break;
                 case R.id.nav_school_notice:
                     goActivity(NoticeActivity.class, null);
                     break;
@@ -371,22 +339,19 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
                     goActivity(LibraryActivity.class, null);
                     break;
                 case R.id.nav_grade:
-                    final MaterialDialog dialog[] = new MaterialDialog[1];
+                    final MaterialDialog[] dialog = new MaterialDialog[1];
                     dialog[0] = MaterialDialogUtils.getItemListDialog(this, "查询选项", (parent, view, position, id) -> {
                         dialog[0].dismiss();
                         switch (position) {
                             case 0:
-                                Toast.makeText(MainActivity.this, Constant.gradeQueryWelcome, Toast.LENGTH_SHORT).show();
-                                goActivity(LoginNJITActivity.class, new HashMap<String, String>() {{
+                                Toast.makeText(MainActivity.this, Constant.GRADE_QUERY_WELCOME, Toast.LENGTH_SHORT).show();
+                                goActivity(LoginNjitActivity.class, new HashMap<String, String>() {{
                                     put("TODO", "GRADE");
                                 }});
-//                                Intent intent = new Intent(MainActivity.this, LoginNJITActivity.class);
-//                                intent.putExtra("TODO", "GRADE");
-//                                startActivity(intent);
                                 break;
                             case 1:
-                                Toast.makeText(MainActivity.this, Constant.creditQueryWelcome, Toast.LENGTH_SHORT).show();
-                                goActivity(LoginNJITActivity.class, new HashMap<String, String>() {{
+                                Toast.makeText(MainActivity.this, Constant.CREDIT_QUERY_WELCOME, Toast.LENGTH_SHORT).show();
+                                goActivity(LoginNjitActivity.class, new HashMap<String, String>() {{
                                     put("TODO", "CREDIT");
                                 }});
                                 break;
@@ -396,39 +361,19 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
                                 break;
                         }
                     }, new ArrayList<String>() {{
-                        add(Constant.gradeQueryItem1);
-                        add(Constant.gradeQueryItem2);
-                        add(Constant.gradeQueryItem3);
+                        add(Constant.GRADE_QUERY_ITEM1);
+                        add(Constant.GRADE_QUERY_ITEM2);
+                        add(Constant.GRADE_QUERY_ITEM3);
                     }});
                     dialog[0].show();
                     break;
-//                case R.id.nav_comment:
-//                    Intent intent2 = new Intent(MainActivity.this, LoginNJITActivity.class);
-//                    intent2.putExtra("TODO", "COMMENT");
-//                    startActivity(intent2);
-//                    break;
-//                case R.id.nav_network:
-//                    @SuppressWarnings("ConstantConditions")
-//                    boolean hasSavePwd = (Boolean) SharedPreferenceUtil.get(MainActivity.this, "remember_password_jw", false);
-//                    if (!hasSavePwd) {
-//                        Intent intent = new Intent(MainActivity.this, LoginNJITActivity.class);
-//                        intent.putExtra("TODO", "NETWORK");
-//                        startActivity(intent);
-//                    } else {
-//                        Intent intent = new Intent(MainActivity.this, NetworkActivity.class);
-//                        startActivity(intent);
-//                    }
-//                    break;
-
-
                 case R.id.nav_cloud_file:
 
                     if (checkHasLoginDarkme()) {
-                        goFileActivity(darkme_un);
+                        goFileActivity(darkmeUn);
                     } else {
                         showNoLoginDarkmeInfo(false, "");
                     }
-
                     break;
                 case R.id.nav_friends:
                     if (checkHasLoginDarkme()) {
@@ -439,149 +384,140 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
                     break;
                 case R.id.nav_home:
                     if (!checkHasLoginDarkme()) {
-                        boolean isRemember = (boolean) SharedPreferenceUtil.get(MainActivity.this, "remember_password_darkme", false);
-                        if (isRemember) {
-                            String un = (String) SharedPreferenceUtil.get(MainActivity.this, "darkme_un", "");
-                            String pwd = (String) SharedPreferenceUtil.get(MainActivity.this, "darkme_pwd", "");
-//                        goFileActivity(un, pwd);
-                        } else {
-                            View view = null;
-                            try {
-                                LayoutInflater inflater = LayoutInflater.from(this);
-                                view = inflater.inflate(R.layout.darkme_login, null);
-                            } catch (InflateException e) {
-                                e.printStackTrace();
-                            }
-                            View finalView = view;
-                            assert finalView != null;
-                            CheckBox rem = finalView.findViewById(R.id.darkme_rememberme);
-                            EditText e_text1 = finalView.findViewById(R.id.darkme_login_un);
-                            EditText e_text2 = finalView.findViewById(R.id.darkme_login_pwd);
-                            e_text1.setText((String) SharedPreferenceUtil.get(this, "darkme_un", ""));
-
-                            new com.afollestad.materialdialogs.MaterialDialog.Builder(this)
-                                    .title("登录 [ darkme.cn ] ")
-                                    .customView(view, true)
-                                    .positiveColor(getResources().getColor(R.color.r4))
-                                    .positiveText("登录")
-                                    .negativeColor(getResources().getColor(R.color.r7))
-                                    .negativeText("注册")
-                                    .onAny((dialog1, which) -> {
-                                        if (which == DialogAction.POSITIVE) {
-                                            String t1 = e_text1.getText().toString();
-                                            String t2 = e_text2.getText().toString();
-                                            if (!TextUtils.isEmpty(t1)) {
-                                                try {
-                                                    HttpUtil.userValidateDarkMe(t1, t2, new Callback() {
-                                                        @Override
-                                                        public void onFailure(Call call, IOException e) {
-                                                            dialog1.dismiss();
-                                                            showToast("服务异常", Toast.LENGTH_SHORT);
-                                                            e.printStackTrace();
-                                                        }
-
-                                                        @Override
-                                                        public void onResponse(Call call, Response response) throws IOException {
-                                                            if ("1".equals(response.body().string())) {
-                                                                SharedPreferenceUtil.put(MainActivity.this, "darkme_un", t1);
-                                                                if (rem.isChecked()) {
-                                                                    SharedPreferenceUtil.put(MainActivity.this, "darkme_pwd", t2);
-                                                                    SharedPreferenceUtil.put(MainActivity.this, "remember_password_darkme", true);
-                                                                }
-                                                                userInfoChangeFlag = true;
-                                                                showToast("登录成功，开启精彩之旅吧", Toast.LENGTH_SHORT);
-
-                                                                dialog1.dismiss();
-                                                            } else {
-                                                                showToast("用户名【 " + t1 + " 】不存在或密码错误", Toast.LENGTH_SHORT);
-                                                            }
-                                                        }
-                                                    });
-                                                } catch (IOException e) {
-                                                    e.printStackTrace();
-                                                }
-                                            } else {
-                                                dialog1.dismiss();
-                                            }
-                                        } else if (which == DialogAction.NEGATIVE) {
-                                            dialog1.dismiss();
-                                            View view1;
-                                            LayoutInflater inflater = LayoutInflater.from(this);
-                                            view1 = inflater.inflate(R.layout.darkme_register, null);
-                                            EditText e1 = view1.findViewById(R.id.darkme_register_un);
-                                            EditText e2 = view1.findViewById(R.id.darkme_register_pwd);
-                                            EditText e3 = view1.findViewById(R.id.darkme_register_mailbox);
-                                            final String[] isMan = {"1"};
-                                            RadioGroup sexGroup = view1.findViewById(R.id.darkme_register_radio_group_sex);
-                                            sexGroup.setOnCheckedChangeListener((group, checkedId) -> {
-                                                switch (checkedId) {
-                                                    case R.id.darkme_register_male:
-                                                        isMan[0] = "1";
-                                                        break;
-                                                    case R.id.darkme_register_female:
-                                                        isMan[0] = "0";
-                                                        break;
-                                                }
-                                            });
-                                            final MaterialDialog[] dialog2 = new MaterialDialog[1];
-                                            dialog2[0] = MaterialDialogUtils.showYesOrNoDialogWithAll(this, new String[]{"注册 [ darkme.cn ] ", "", "注册", "取消"}, view1, -1, new MaterialDialogUtils.DialogBothDoSthOnClickListener() {
-                                                @Override
-                                                public void onConfirmButtonClick() {
-
-                                                    String t1 = e1.getText().toString();
-                                                    String t2 = e2.getText().toString();
-                                                    String t3 = e3.getText().toString();
-                                                    if (!TextUtils.isEmpty(t1) && !TextUtils.isEmpty(t2)) {
-
-                                                        if (t1.length() <= 15 && !t1.contains("@") && t2.length() <= 16) {
-                                                            new Thread(() -> {
-                                                                try {
-                                                                    Response response = HttpUtil.userRegisterDarkMe(t1, t2, t3, isMan[0]);
-                                                                    String resp = response.body().string();
-                                                                    if (!TextUtils.isEmpty(resp)) {
-                                                                        if ("1".equals(resp)) {
-                                                                            dialog2[0].dismiss();
-                                                                            runOnUiThread(() -> {
-                                                                                ToastUtils.showToast(MainActivity.this, "注册成功[" + t1 + "]", Toast.LENGTH_LONG);
-                                                                            });
-                                                                        } else if ("0".equals(resp)) {
-                                                                            runOnUiThread(() -> {
-                                                                                ToastUtils.showToast(MainActivity.this, "[" + t1 + "]已经被使用", Toast.LENGTH_LONG);
-                                                                            });
-                                                                        } else {
-                                                                            runOnUiThread(() -> {
-                                                                                ToastUtils.showToast(MainActivity.this, "服务器发生异常", Toast.LENGTH_SHORT);
-
-                                                                            });
-                                                                        }
-                                                                    }
-                                                                } catch (IOException e) {
-                                                                    e.printStackTrace();
-                                                                    ToastUtils.showToast(MainActivity.this, "异常终止", Toast.LENGTH_SHORT);
-                                                                }
-                                                            }).start();
-                                                        } else {
-                                                            ToastUtils.showToast(MainActivity.this, "用户名和密码参数不正确", Toast.LENGTH_LONG);
-                                                        }
-
-                                                    } else {
-                                                        ToastUtils.showToast(MainActivity.this, "用户名和密码都不用填的么", Toast.LENGTH_SHORT);
-                                                    }
-                                                }
-
-                                                @Override
-                                                public void onCancelButtonClick() {
-                                                    dialog2[0].dismiss();
-                                                }
-                                            }, false);
-
-                                        }
-                                    })
-                                    .autoDismiss(false)
-                                    .show();
+                        View view = null;
+                        try {
+                            LayoutInflater inflater = LayoutInflater.from(this);
+                            view = inflater.inflate(R.layout.darkme_login, null);
+                        } catch (InflateException e) {
+                            e.printStackTrace();
                         }
+                        View finalView = view;
+                        assert finalView != null;
+                        CheckBox rem = finalView.findViewById(R.id.darkme_rememberme);
+                        EditText eText1 = finalView.findViewById(R.id.darkme_login_un);
+                        EditText eText2 = finalView.findViewById(R.id.darkme_login_pwd);
+                        eText1.setText((String) SharedPreferenceUtil.get(this, "darkme_un", ""));
+
+                        new com.afollestad.materialdialogs.MaterialDialog.Builder(this)
+                                .title("登录 [ darkme.cn ] ")
+                                .customView(view, true)
+                                .positiveColor(getResources().getColor(R.color.r4))
+                                .positiveText("登录")
+                                .negativeColor(getResources().getColor(R.color.r7))
+                                .negativeText("注册")
+                                .onAny((dialog1, which) -> {
+                                    if (which == DialogAction.POSITIVE) {
+                                        String t1 = eText1.getText().toString();
+                                        String t2 = eText2.getText().toString();
+                                        if (!TextUtils.isEmpty(t1)) {
+                                            try {
+                                                HttpUtil.userValidateDarkMe(t1, t2, new Callback() {
+                                                    @Override
+                                                    public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                                                        dialog1.dismiss();
+                                                        showToast("服务异常", Toast.LENGTH_SHORT);
+                                                        e.printStackTrace();
+                                                    }
+
+                                                    @Override
+                                                    public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                                                        assert response.body() != null;
+                                                        if ("1".equals(response.body().string())) {
+                                                            SharedPreferenceUtil.put(MainActivity.this, "darkme_un", t1);
+                                                            if (rem.isChecked()) {
+                                                                SharedPreferenceUtil.put(MainActivity.this, "darkme_pwd", t2);
+                                                                SharedPreferenceUtil.put(MainActivity.this, "remember_password_darkme", true);
+                                                            }
+                                                            userInfoChangeFlag = true;
+                                                            showToast("登录成功，开启精彩之旅吧", Toast.LENGTH_SHORT);
+
+                                                            dialog1.dismiss();
+                                                        } else {
+                                                            showToast("用户名【 " + t1 + " 】不存在或密码错误", Toast.LENGTH_SHORT);
+                                                        }
+                                                    }
+                                                });
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                            }
+                                        } else {
+                                            dialog1.dismiss();
+                                        }
+                                    } else if (which == DialogAction.NEGATIVE) {
+                                        dialog1.dismiss();
+                                        View view1;
+                                        LayoutInflater inflater = LayoutInflater.from(this);
+                                        view1 = inflater.inflate(R.layout.darkme_register, null);
+                                        EditText e1 = view1.findViewById(R.id.darkme_register_un);
+                                        EditText e2 = view1.findViewById(R.id.darkme_register_pwd);
+                                        EditText e3 = view1.findViewById(R.id.darkme_register_mailbox);
+                                        final String[] isMan = {"1"};
+                                        RadioGroup sexGroup = view1.findViewById(R.id.darkme_register_radio_group_sex);
+                                        sexGroup.setOnCheckedChangeListener((group, checkedId) -> {
+                                            switch (checkedId) {
+                                                case R.id.darkme_register_male:
+                                                    isMan[0] = "1";
+                                                    break;
+                                                case R.id.darkme_register_female:
+                                                    isMan[0] = "0";
+                                                    break;
+                                                default:
+                                                    break;
+                                            }
+                                        });
+                                        final MaterialDialog[] dialog2 = new MaterialDialog[1];
+                                        dialog2[0] = MaterialDialogUtils.showYesOrNoDialogWithAll(this, new String[]{"注册 [ darkme.cn ] ", "", "注册", "取消"}, view1, -1, new MaterialDialogUtils.AbstractDialogBothDoSthOnClickListener() {
+                                            @Override
+                                            public void onConfirmButtonClick() {
+
+                                                String t1 = e1.getText().toString();
+                                                String t2 = e2.getText().toString();
+                                                String t3 = e3.getText().toString();
+                                                if (!TextUtils.isEmpty(t1) && !TextUtils.isEmpty(t2)) {
+
+                                                    if (t1.length() <= 15 && !t1.contains("@") && t2.length() <= 16) {
+                                                        new Thread(() -> {
+                                                            try {
+                                                                Response response = HttpUtil.userRegisterDarkMe(t1, t2, t3, isMan[0]);
+                                                                assert response.body() != null;
+                                                                String resp = response.body().string();
+                                                                if (!TextUtils.isEmpty(resp)) {
+                                                                    if ("1".equals(resp)) {
+                                                                        dialog2[0].dismiss();
+                                                                        runOnUiThread(() -> ToastUtils.showToast(MainActivity.this, "注册成功[" + t1 + "]", Toast.LENGTH_LONG));
+                                                                    } else if ("0".equals(resp)) {
+                                                                        runOnUiThread(() -> ToastUtils.showToast(MainActivity.this, "[" + t1 + "]已经被使用", Toast.LENGTH_LONG));
+                                                                    } else {
+                                                                        runOnUiThread(() -> ToastUtils.showToast(MainActivity.this, "服务器发生异常", Toast.LENGTH_SHORT));
+                                                                    }
+                                                                }
+                                                            } catch (IOException e) {
+                                                                e.printStackTrace();
+                                                                ToastUtils.showToast(MainActivity.this, "异常终止", Toast.LENGTH_SHORT);
+                                                            }
+                                                        }).start();
+                                                    } else {
+                                                        ToastUtils.showToast(MainActivity.this, "用户名和密码参数不正确", Toast.LENGTH_LONG);
+                                                    }
+
+                                                } else {
+                                                    ToastUtils.showToast(MainActivity.this, "用户名和密码都不用填的么", Toast.LENGTH_SHORT);
+                                                }
+                                            }
+
+                                            @Override
+                                            public void onCancelButtonClick() {
+                                                dialog2[0].dismiss();
+                                            }
+                                        }, false);
+
+                                    }
+                                })
+                                .autoDismiss(false)
+                                .show();
+
                     } else {
-                        MaterialDialogUtils.showYesOrNoDialogWithBothSthTodo(this, new String[]{"已经登录的账号", "[" + darkme_un + "]", "关闭", "注销登录"}, new MaterialDialogUtils.DialogBothDoSthOnClickListener() {
+                        MaterialDialogUtils.showYesOrNoDialogWithBothSthTodo(this, new String[]{"已经登录的账号", "[" + darkmeUn + "]", "关闭", "注销登录"}, new MaterialDialogUtils.AbstractDialogBothDoSthOnClickListener() {
                             @Override
                             public void onConfirmButtonClick() {
 
@@ -599,7 +535,7 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
                 case R.id.nav_addNews:
                     if (checkHasLoginDarkme()) {
                         Intent intent3 = new Intent(MainActivity.this, NewTweetActivity.class);
-                        intent3.putExtra("darkme_un", darkme_un);
+                        intent3.putExtra("darkme_un", darkmeUn);
                         startActivity(intent3);
                     } else {
                         showNoLoginDarkmeInfo(false, "，暂时不能发布");
@@ -612,7 +548,7 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
                 case R.id.nav_should_do:
                     if (checkHasLoginDarkme()) {
                         Intent intent1 = new Intent(MainActivity.this, MemoActivity.class);
-                        intent1.putExtra("darkme_un", darkme_un);
+                        intent1.putExtra("darkme_un", darkmeUn);
                         startActivity(intent1);
                     } else {
                         showNoLoginDarkmeInfo(false, "，无法使用备忘录功能");
@@ -620,92 +556,95 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
                     break;
 
                 case R.id.nav_settings:
-                    Intent set_intent = new Intent(MainActivity.this, SettingActivity.class);
-                    startActivity(set_intent);
+                    Intent setIntent = new Intent(MainActivity.this, SettingActivity.class);
+                    startActivity(setIntent);
                     break;
-//                case R.id.nav_login_out:
-//                    final MaterialDialog mMaterialDialog = new MaterialDialog(MainActivity.this);
-//                    mMaterialDialog
-//                            .setTitle("确认登出")
-//                            .setMessage("此操作不可撤销")
-//                            .setPositiveButton("确认", v -> {
-////                                deleteFileNow("courseSourceCode");
-//                                SharedPreferenceUtil.clear(MainActivity.this);
-//                                Snackbar.make(navigationView, "已清除所有信息", Snackbar.LENGTH_LONG).show();
-//                                mMaterialDialog.dismiss();
-//                                finish();
-//                                finishAll();
-//                            })
-//                            .setNegativeButton("取消", v -> mMaterialDialog.dismiss());
-//                    mMaterialDialog.show();
-//                    break;
                 default:
                     break;
             }
             drawerLayout.closeDrawers();
             return true;
         });
-//        swipeRefreshLayout.setOnRefreshListener(this::showMainNews);
 
     }
 
+    /**
+     * 打开handoff功能页面
+     */
     private void openPushHandoffTextPage() {
         View view1;
         LayoutInflater inflater = LayoutInflater.from(this);
         view1 = inflater.inflate(R.layout.darkme_post_handoff_text, null);
         EditText editText = view1.findViewById(R.id.darkme_post_handoff_text_edit);
-        MaterialDialogUtils.showYesOrNoDialogWithCustomView(MainActivity.this, new String[]{"推送文本到[darkme.cn]", "", "确认", "退出"}, view1, new MaterialDialogUtils.DialogOnConfirmClickListener() {
+        MaterialDialogUtils.showYesOrNoDialogWithCustomView(MainActivity.this, new String[]{"推送文本到[darkme.cn]", "", "确认", "退出"}, view1, new MaterialDialogUtils.AbstractDialogOnConfirmClickListener() {
             @Override
             public void onConfirmButtonClick() {
                 String str = editText.getText().toString();
-                if (!TextUtils.isEmpty(str)) {
-
-                } else {
+                if (TextUtils.isEmpty(str)) {
                     ToastUtils.showToast(MainActivity.this, "未检测到文本" + str, Toast.LENGTH_LONG);
                 }
             }
         }, true);
     }
 
+    /**
+     * 推送handoff文本
+     *
+     * @param un   账户名
+     * @param text 需要推送的文本
+     */
     private void pushHandoffText(String un, String text) {
         HttpUtil.setUserHandoffText(un, text, new Callback() {
             @Override
-            public void onFailure(Call call, IOException e) {
-                showToastOnMainThread("连接错误", Toast.LENGTH_SHORT);
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                showToast("连接错误", Toast.LENGTH_SHORT);
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                assert response.body() != null;
                 String resp = response.body().string();
                 if ("1".equals(resp)) {
-                    showToastOnMainThread("推送成功", Toast.LENGTH_LONG);
+                    showToast("推送成功", Toast.LENGTH_LONG);
                 } else if ("0".equals(resp)) {
-                    showToastOnMainThread("用户身份异常", Toast.LENGTH_SHORT);
+                    showToast("用户身份异常", Toast.LENGTH_SHORT);
                 } else if ("-1".equals(resp)) {
-                    showToastOnMainThread("服务器发生异常", Toast.LENGTH_SHORT);
+                    showToast("服务器发生异常", Toast.LENGTH_SHORT);
                 } else {
-                    showToastOnMainThread("未知错误", Toast.LENGTH_SHORT);
+                    showToast("未知错误", Toast.LENGTH_SHORT);
                 }
             }
         });
 
     }
 
+    /**
+     * 检查更新
+     */
     private void checkUpdate() {
         if ((boolean) SharedPreferenceUtil.get(this, "toggle_auto_detect_update", false)) {
-            VersionUtils.checkUpdate(this, this, true, main_course_state);
+            VersionUtils.checkUpdate(this, this, true, mainCourseState);
         }
     }
 
+    /**
+     * 检查是否开启了黑暗模式
+     */
     private void checkDarkMode() {
 
         toggleDarkMode(UsualSharedPreferenceUtil.isDarkModeOn(this));
     }
 
+    /**
+     * 显示未登录darkme toast
+     *
+     * @param onMainThread 是否切换到主线程
+     * @param extra        附加信息
+     */
     public void showNoLoginDarkmeInfo(boolean onMainThread, String extra) {
         String str = "您还没有登录[darkme.cn]" + extra;
         if (onMainThread) {
-//            showToastOnMainThread(str, Toast.LENGTH_SHORT);
+//            showToast(str, Toast.LENGTH_SHORT);
             ToastUtils.showToastOnMain(this, MainActivity.this, str, Toast.LENGTH_SHORT);
         } else {
             Toast.makeText(MainActivity.this, str, Toast.LENGTH_SHORT).show();
@@ -713,6 +652,12 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
         }
     }
 
+    /**
+     * 前往指定的活动
+     *
+     * @param destClass 目的活动
+     * @param extraData intent中需要携带的数据
+     */
     private void goActivity(Class destClass, HashMap<String, String> extraData) {
         Intent intent = new Intent(MainActivity.this, destClass);
         if (extraData != null) {
@@ -723,65 +668,89 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
         startActivity(intent);
     }
 
+    /**
+     * 检查是否登录了darkme
+     *
+     * @return 是/否
+     */
     public boolean checkHasLoginDarkme() {
-        darkme_un = (String) SharedPreferenceUtil.get(MainActivity.this, "darkme_un", "");
-        return !TextUtils.isEmpty(darkme_un);
+        darkmeUn = (String) SharedPreferenceUtil.get(MainActivity.this, "darkme_un", "");
+        return !TextUtils.isEmpty(darkmeUn);
     }
 
+    /**
+     * 如果打开了handoff功能，则检查是否有推送到手机的文本
+     *
+     * @param autoDetect 是否自动/手动，如果true，则显示toast
+     */
     private void checkHandoffText(boolean autoDetect) {
-        HttpUtil.getUserHandoffText(darkme_un, new Callback() {
+        HttpUtil.getUserHandoffText(darkmeUn, new Callback() {
             @Override
-            public void onFailure(Call call, IOException e) {
-                showToastOnMainThread("连接异常", Toast.LENGTH_SHORT);
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                showToast("连接异常", Toast.LENGTH_SHORT);
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                assert response.body() != null;
                 String resp = response.body().string();
                 if (!TextUtils.isEmpty(resp)) {
                     if (!"-1".equals(resp)) {
                         showUserHandoffTextOnMain(resp);
                     } else {
                         if (!autoDetect) {
-                            showToastOnMainThread("未检测到推送文本", Toast.LENGTH_SHORT);
+                            showToast("未检测到推送文本", Toast.LENGTH_SHORT);
                         }
                     }
                 } else {
-                    showToastOnMainThread("数据返回异常", Toast.LENGTH_SHORT);
+                    showToast("数据返回异常", Toast.LENGTH_SHORT);
                 }
             }
         });
     }
 
+    /**
+     * 复制文本到粘贴板
+     *
+     * @param text 所复制的文本
+     */
     private void copyTextToClipboard(String text) {
 
         runOnUiThread(() -> {
             ClipboardManager cm = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-            ClipData mClipData = ClipData.newPlainText("handoff_text", text);         //‘Label’这是任意文字标签
+            ClipData mClipData = ClipData.newPlainText("handoff_text", text);
             assert cm != null;
             cm.setPrimaryClip(mClipData);
         });
     }
 
+    /**
+     * 从粘贴板获取文本
+     *
+     * @return 粘贴板的文本
+     */
     private String getTextFromClipboard() {
         ClipboardManager cm = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
         assert cm != null;
         if (cm.hasPrimaryClip()) {
             ClipData data = cm.getPrimaryClip();
+            assert data != null;
             ClipData.Item item = data.getItemAt(0);
             return item.getText().toString();
         }
         return null;
     }
 
+    /**
+     * 初始化recyclerView的外层布局
+     */
     private void initRefreshLayout() {
 
 
         tweetAdapter = new TweetAdapter(this, this);
-        recyclerView_layout = findViewById(R.id.main_recycle_view_refresh_layout);
+        recyclerViewLayout = findViewById(R.id.main_recycle_view_refresh_layout);
 
         recyclerView = findViewById(R.id.main_recycle_view);
-//        recyclerView.addItemDecoration(new DividerItemDecoration(this, LinearLayout.HORIZONTAL));
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(layoutManager);
 
@@ -790,26 +759,24 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
             Tweet tweet = tweetList.get(position);
             tweetAdapter.showTweetDetail(tweet);
         });
-        recyclerView_layout.setOnRefreshListener(() -> {
+        recyclerViewLayout.setOnRefreshListener(() -> {
             TWEET_START_POSITION = 0;
             displayTweets(0, true, false);
         });
         recyclerView.useDefaultLoadMore();
-//            recyclerView.setAutoLoadMore(true);
         recyclerView.setLoadMoreListener(() -> {
             TWEET_START_POSITION += 5;
             displayTweets(TWEET_START_POSITION, false, true);
         });
-//
-//
-//
-//        GridLayoutManager layoutManager = new GridLayoutManager(this, 1);
-//        recyclerView.setLayoutManager(layoutManager);
-
 
         recyclerView.setAdapter(tweetAdapter);
     }
 
+    /**
+     * 用户修改信息后调用
+     *
+     * @param type 信息的类型
+     */
     private void displayUserInfo(int type) {
         switch (type) {
             case 1:
@@ -841,41 +808,39 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
         }
     }
 
-//    @Override
-//    public void onBGARefreshLayoutBeginRefreshing(BGARefreshLayout refreshLayout) {
-//        displayTweets(0);
-//    }
-//
-//    @Override
-//    public boolean onBGARefreshLayoutBeginLoadingMore(BGARefreshLayout refreshLayout) {
-//        displayTweets(TWEET_START_POSITION);
-//        return true;
-//    }
 
-
+    /**
+     * 是否需要展示课程
+     */
     private void weatherToShowCourse() {
         hasGetCourse = (boolean) SharedPreferenceUtil.get(MainActivity.this, "hasGetCourse", false);
         if (hasGetCourse) {
-            new Thread(() -> {
-                weekNow = (int) SharedPreferenceUtil.get(MainActivity.this, "weekNow", 0);
-                weatherAddWeek();
-                data = (String) SharedPreferenceUtil.get(this, "courseSourceCode", "");
-                dayCourseList.clear();
-                dayCourseList = HtmlCodeExtractUtil.getCourseList(data, weekNow, weekToday);
-                if (dayCourseList.size() > 0) {
-                    sortCourseList(dayCourseList);
-                    showNowCourse();
-                } else {
-                    runOnUiThread(() -> {
-                        setCourseAreaContent("", "今天没有课，快去休息一下吧", "", true);
-                    });
+            ThreadPoolExecutorFactory.getThreadPoolExecutor().execute(new Runnable() {
+                @Override
+                public void run() {
+                    weekNow = (int) SharedPreferenceUtil.get(MainActivity.this, "weekNow", 0);
+                    weatherAddWeek();
+                    data = (String) SharedPreferenceUtil.get(MainActivity.this, "courseSourceCode", "");
+                    dayCourseList.clear();
+                    dayCourseList = HtmlCodeExtractUtil.getCourseList(data, weekNow, weekToday);
+                    if (dayCourseList.size() > 0) {
+                        sortCourseList(dayCourseList);
+                        showNowCourse();
+                    } else {
+                        runOnUiThread(() -> {
+                            setCourseAreaContent("", "今天没有课，快去休息一下吧", "", true);
+                        });
+                    }
                 }
-            }).start();
+            });
         } else {
-            setCourseAreaContent("", "NO NJIT LOGIN DETECTED", "", true);
+            setCourseAreaContent("", "No Njit Login Detected", "", true);
         }
     }
 
+    /**
+     * 如果周一则增加课程
+     */
     private void weatherAddWeek() {
         int weekToday = Tools.getWeek();
         Calendar cal = Calendar.getInstance();
@@ -885,20 +850,38 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
             if (!added) {
                 SharedPreferenceUtil.put(this, key, true);
                 weekNow++;
+                SharedPreferenceUtil.put(this, "weekNow", weekNow);
+            }
+        } else {
+            Date weekMonday = Tools.getThisWeekMonday(new Date());
+            cal.setTime(weekMonday);
+            String key1 = cal.get(Calendar.YEAR) + "" + (cal.get(Calendar.MONTH) + 1) + "" + cal.get(Calendar.DAY_OF_MONTH);
+            boolean added = (boolean) SharedPreferenceUtil.get(this, key1, false);
+            if (!added) {
+                SharedPreferenceUtil.put(this, key1, true);
+                weekNow++;
+                SharedPreferenceUtil.put(this, "weekNow", weekNow);
             }
         }
     }
 
+    /**
+     * 前往文件活动
+     *
+     * @param un 账户名
+     */
     private void goFileActivity(String un) {
         Intent intent = new Intent(MainActivity.this, FileActivity.class);
         intent.putExtra("darkme_un", un);
-//        intent.putExtra("darkme_pwd", pwd);
         startActivity(intent);
     }
 
+    /**
+     * 前往课程
+     */
     private void goCourseActivity() {
         if (!hasGetCourse) {
-            Intent intent = new Intent(MainActivity.this, LoginNJITActivity.class);
+            Intent intent = new Intent(MainActivity.this, LoginNjitActivity.class);
             intent.putExtra("TODO", "COURSE");
             intent.putExtra("year", "");
             intent.putExtra("team", "");
@@ -910,10 +893,8 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
         }
     }
 
-    //    对HomeAsUp按钮增加监听
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-//        return super.onOptionsItemSelected(item);
         switch (item.getItemId()) {
             case android.R.id.home:
                 drawerLayout.openDrawer(GravityCompat.START);
@@ -936,13 +917,9 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
     }
 
 
-    //    加载toolbar.xml
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.toolbar, menu);
-//        if (checkHasLoginDarkme()) {
-//            menu.findItem(R.id.nav_home).setVisible(false);
-//        }
         return true;
     }
 
@@ -961,28 +938,9 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
     @Override
     protected void onResume() {
         super.onResume();
-
         if (checkHandoffFun()) {
             checkHandoffText(true);
         }
-        Intent intent = getIntent();
-        String toDo = intent.getStringExtra("TODO");
-//        if ("UPDATE_COURSE".equals(toDo)) {
-//            weatherToShowCourse();
-//        }
-//        } else if ("FLUSH_TWEETS".equals(toDo)) {
-//            String result = intent.getStringExtra("RESULT");
-//            if ("1".equals(result)) {
-//                showToast("发布成功", Toast.LENGTH_LONG);
-//                displayTweets();
-//            } else if ("0".equals(result)) {
-//                showToast("发布失败，服务器异常", Toast.LENGTH_LONG);
-//            } else if ("-1".equals(result)) {
-//                showToast("网络错误，请稍后重试", Toast.LENGTH_LONG);
-//            } else {
-//                showToast("未知错误", Toast.LENGTH_LONG);
-//            }
-//        }
     }
 
     @Override
@@ -994,7 +952,6 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
         if (resultCode == RESULT_OK) {
             switch (requestCode) {
                 case Constant.IMAGE_REQUEST_CODE_CROP:
@@ -1004,8 +961,8 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
                     Uri uri = UCrop.getOutput(data);
                     try {
 
-                        Luban.with(this) // 初始化
-                                .load(uri) // 要压缩的图片
+                        Luban.with(this)
+                                .load(uri)
                                 .setCompressListener(new OnCompressListener() {
                                     @Override
                                     public void onStart() {
@@ -1016,71 +973,78 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
                                     public void onSuccess(File file) {
                                         // 压缩成功后调用，返回压缩后的图片文件
                                         Bitmap bitmap = ImageTools.getSmallBitmap(file.getAbsolutePath(), true);
-                                        Glide.with(MainActivity.this).load(bitmap).into(whole_head_image);
-                                        saveAndUploadUserHeadImage(bitmap, darkme_un);
+                                        Glide.with(MainActivity.this).load(bitmap).into(wholeHeadImage);
+                                        saveAndUploadUserHeadImage(bitmap, darkmeUn);
                                     }
 
                                     @Override
                                     public void onError(Throwable e) {
                                         // 压缩过程中出现异常
                                     }
-                                }).launch(); // 启动压缩
-
-
+                                }).launch();
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
+                    break;
+                default:
                     break;
             }
         }
     }
 
 
+    /**
+     * 展示用户头像
+     */
     private void showUserProfilePicture() {
-        darkme_un = (String) SharedPreferenceUtil.get(MainActivity.this, "darkme_un", "");
-        if (!"".equals(darkme_un)) {
-//            Bitmap bitmap = SharedPreferenceUtil.getImage(this, "profilePic");
-//            Glide.with(MainActivity.this).load(ImageTools.compressImage(bitmap)).into(whole_head_image);
-            HttpUtil.getUserProfilePicture(darkme_un, new Callback() {
+        darkmeUn = (String) SharedPreferenceUtil.get(MainActivity.this, "darkme_un", "");
+        if (!"".equals(darkmeUn)) {
+            HttpUtil.getUserProfilePicture(darkmeUn, new Callback() {
                 @Override
-                public void onFailure(Call call, IOException e) {
+                public void onFailure(@NonNull Call call, @NonNull IOException e) {
                     e.printStackTrace();
                 }
 
                 @Override
-                public void onResponse(Call call, Response response) throws IOException {
+                public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                    assert response.body() != null;
                     String resp = response.body().string();
 //                    response.
                     if (!TextUtils.isEmpty(resp)) {
                         if (!"0".equals(resp)) {
                             Bitmap bitmap = ImageTools.compressImage(Base64ImageUtils.base64StrToBitmap(resp));
                             runOnUiThread(() -> {
-                                Glide.with(MainActivity.this).load(bitmap).into(whole_head_image);
-//                                Dali.create(MainActivity.this).load(bitmap).blurRadius(5).into(head_image_bg);
+                                Glide.with(MainActivity.this).load(bitmap).into(wholeHeadImage);
                             });
                         } else {
-                            runOnUiThread(() -> Glide.with(MainActivity.this).load(R.drawable.default_head).into(whole_head_image));
-
+                            runOnUiThread(() -> Glide.with(MainActivity.this).load(R.drawable.default_head).into(wholeHeadImage));
                         }
                     }
                 }
             });
         } else {
-            Glide.with(MainActivity.this).load(R.drawable.default_head).into(whole_head_image);
+            Glide.with(MainActivity.this).load(R.drawable.default_head).into(wholeHeadImage);
         }
     }
 
-    private void saveAndUploadUserHeadImage(Bitmap bitmap, String darkme_un) {
+    /**
+     * 保存并且上传用户头像
+     *
+     * @param bitmap   头像位图
+     * @param darkmeUn 账户名
+     */
+    private void saveAndUploadUserHeadImage(Bitmap bitmap, String darkmeUn) {
         SharedPreferenceUtil.put(MainActivity.this, "diy_head_image", true);
         SharedPreferenceUtil.putImage(MainActivity.this, "profilePic", Objects.requireNonNull(bitmap));
-        HttpUtil.setUserProfilePicture(darkme_un, bitmap, new Callback() {
+        HttpUtil.setUserProfilePicture(darkmeUn, bitmap, new Callback() {
             @Override
-            public void onFailure(Call call, IOException e) {
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 e.printStackTrace();
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                assert response.body() != null;
                 String resp = response.body().string();
                 if ("1".equals(resp)) {
                     showToast("头像更新成功", Toast.LENGTH_LONG);
@@ -1092,24 +1056,35 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
         });
     }
 
+    /**
+     * 显示用户签名
+     */
     private void showUserProfileSig() {
 //        userInfoChangeFlag = true;
         String sig = (String) SharedPreferenceUtil.get(MainActivity.this, "signature", "");
         if (!"".equals(sig)) {
-            whole_id.setText(sig);
+            wholeId.setText(sig);
         } else {
-            whole_id.setText(Constant.no_sig_info);
-            whole_id.setTextColor(Color.BLACK);
+            wholeId.setText(Constant.NO_SIG_INFO);
+            wholeId.setTextColor(Color.BLACK);
         }
     }
 
 
+    /**
+     * 检查handoff功能是否打开
+     *
+     * @return 是/否
+     */
     private boolean checkHandoffFun() {
         return checkHasLoginDarkme() && (boolean) SharedPreferenceUtil.get(this, "toggle_handoff", false);
     }
 
+    /**
+     * 显示主页背景
+     */
     private void showBg() {
-        new Thread(() -> {
+        ThreadPoolExecutorFactory.getThreadPoolExecutor().execute(() -> {
             if (!(boolean) SharedPreferenceUtil.get(MainActivity.this, "toggle_diy_main_bg", false)) {
                 showDefaultBg();
             } else {
@@ -1117,9 +1092,9 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
                 if (bitmap != null) {
                     Bitmap bitmap1 = ImageTools.compressImage(bitmap);
                     if ((boolean) SharedPreferenceUtil.get(MainActivity.this, "blurBackground", false)) {
-                        runOnUiThread(() -> Dali.create(MainActivity.this).load(bitmap1).blurRadius(8).into(bing_main_pic));
+                        runOnUiThread(() -> Dali.create(MainActivity.this).load(bitmap1).blurRadius(8).into(bingMainPic));
                     } else {
-                        runOnUiThread(() -> Glide.with(MainActivity.this).load(bitmap1).into(bing_main_pic));
+                        runOnUiThread(() -> Glide.with(MainActivity.this).load(bitmap1).into(bingMainPic));
                     }
                 } else {
                     runOnUiThread(() -> {
@@ -1129,33 +1104,39 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
                     });
                 }
             }
-        }).start();
+        });
     }
 
 
+    /**
+     * 是否打开暗色系列
+     *
+     * @param on 打开/不打开
+     */
     private void toggleDarkMode(boolean on) {
         TextView tweetTitle = findViewById(R.id.main_tweet_title);
         TextView courseTitle = findViewById(R.id.main_course_title);
         RelativeLayout courseLayout = findViewById(R.id.course_recent);
-
         if (on) {
-
             tweetTitle.setTextColor(getResources().getColor(R.color.white));
             courseTitle.setTextColor(getResources().getColor(R.color.white));
             courseLayout.setBackgroundResource(0);
             courseTitle.setBackgroundResource(0);
-
-            main_course_name.setTextColor(getResources().getColor(R.color.white));
-            main_course_location.setTextColor(getResources().getColor(R.color.white));
-            main_course_state.setTextColor(getResources().getColor(R.color.white));
-
-        } else {
+            mainCourseName.setTextColor(getResources().getColor(R.color.white));
+            mainCourseLocation.setTextColor(getResources().getColor(R.color.white));
+            mainCourseState.setTextColor(getResources().getColor(R.color.white));
 
         }
 
     }
 
 
+    /**
+     * 显示toast
+     *
+     * @param c 内容
+     * @param t 时长
+     */
     public void showToast(String c, int t) {
         Message msg = new Message();
         msg.what = Constant.SHOW_TOAST;
@@ -1164,59 +1145,63 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
         handler.sendMessage(msg);
     }
 
+    /**
+     * 显示默认的壁纸
+     */
     public void showDefaultBg() {
         AtomicInteger blurDegree = new AtomicInteger();
         AtomicBoolean useGlideFlag = new AtomicBoolean(false);
         AtomicBoolean loadDirectly = new AtomicBoolean(false);
-        new Thread(() -> {
-            Bitmap mainBit = null;
-            int type = (int) SharedPreferenceUtil.get(MainActivity.this, "default_main_bg_num", 0);
-            switch (type) {
-                case 0:
-                    blurDegree.set(7);
-                    mainBit = ImageTools.srcPicToBitmap(getResources(), R.drawable.main_bg0, false);
-                    break;
-                case 1:
-                    loadDirectly.set(true);
-                    runOnUiThread(() -> Glide.with(MainActivity.this).load(R.drawable.main_bg1).into(bing_main_pic));
-                    break;
-                case 2:
-                    useGlideFlag.set(true);
-                    mainBit = ImageTools.srcPicToBitmap(getResources(), R.drawable.main_bg2, true);
-                    break;
-                case 3:
-                    blurDegree.set(8);
-                    mainBit = ImageTools.srcPicToBitmap(getResources(), R.drawable.main_bg3, false);
-//                    loadDirectly.set(true);
-//                    runOnUiThread(() -> Glide.with(MainActivity.this).load(R.drawable.main_bg3).into(bing_main_pic));
-                    break;
-                case 4:
-//                    blurDegree.set(8);
-                    useGlideFlag.set(true);
-                    mainBit = ImageTools.srcPicToBitmap(getResources(), R.drawable.main_bg4, false);
-                    break;
-                default:
-                    blurDegree.set(8);
-//                    useGlideFlag.set(true);
-                    mainBit = ImageTools.srcPicToBitmap(getResources(), R.drawable.main_bg0, false);
-                    break;
-            }
-            Bitmap finalMainBit = mainBit;
-            runOnUiThread(() -> {
-                if (!loadDirectly.get()) {
-                    if (!useGlideFlag.get()) {
-                        Blurry.with(MainActivity.this).radius(blurDegree.get()).from(finalMainBit).into(bing_main_pic);
-                    } else {
-                        Glide.with(MainActivity.this).load(finalMainBit).into(bing_main_pic);
-                    }
-                }
-            });
 
-        }).start();
+        ThreadPoolExecutorFactory.getThreadPoolExecutor().execute(() -> {
+                    Bitmap mainBit = null;
+                    int type = (int) SharedPreferenceUtil.get(MainActivity.this, "default_main_bg_num", 0);
+                    switch (type) {
+                        case 0:
+                            blurDegree.set(7);
+                            mainBit = ImageTools.srcPicToBitmap(getResources(), R.drawable.main_bg3, false);
+                            break;
+                        case 1:
+                            loadDirectly.set(true);
+                            runOnUiThread(() -> Glide.with(MainActivity.this).load(R.drawable.main_bg1).into(bingMainPic));
+                            break;
+                        case 2:
+                            useGlideFlag.set(true);
+                            mainBit = ImageTools.srcPicToBitmap(getResources(), R.drawable.main_bg2, true);
+                            break;
+                        case 3:
+                            blurDegree.set(8);
+                            mainBit = ImageTools.srcPicToBitmap(getResources(), R.drawable.main_bg0, false);
+                            break;
+                        case 4:
+                            useGlideFlag.set(true);
+                            mainBit = ImageTools.srcPicToBitmap(getResources(), R.drawable.main_bg4, false);
+                            break;
+                        default:
+                            blurDegree.set(8);
+                            mainBit = ImageTools.srcPicToBitmap(getResources(), R.drawable.main_bg3, false);
+                            break;
+                    }
+                    Bitmap finalMainBit = mainBit;
+                    runOnUiThread(() -> {
+                        if (!loadDirectly.get()) {
+                            if (!useGlideFlag.get()) {
+                                Blurry.with(MainActivity.this).radius(blurDegree.get()).from(finalMainBit).into(bingMainPic);
+                            } else {
+                                Glide.with(MainActivity.this).load(finalMainBit).into(bingMainPic);
+                            }
+                        }
+                    });
+                }
+        );
     }
 
 
-    //    按照课程顺序冒泡排序
+    /**
+     * 课程冒泡排序
+     *
+     * @param list 课程list
+     */
     private void sortCourseList(List<Course> list) {
         for (int i = 0; i < list.size() - 1; i++) {
             for (int j = 0; j < list.size() - 1; j++) {
@@ -1229,35 +1214,50 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
         }
     }
 
+    /**
+     * 显示课程去的文本
+     *
+     * @param s1       当前textView
+     * @param s2       地点textView
+     * @param s3       状态textView
+     * @param isCenter 是否居中显示
+     */
     private void setCourseAreaContent(String s1, String s2, String s3, boolean isCenter) {
 
         runOnUiThread(() -> {
             if (isCenter) {
-                main_course_name.setGravity(Gravity.CENTER);
-                main_course_location.setGravity(Gravity.CENTER);
-                main_course_state.setGravity(Gravity.CENTER);
-                main_course_name.setPadding(0, 0, 0, 0);
-                main_course_location.setPadding(0, 0, 0, 0);
-                main_course_state.setPadding(0, 0, 0, 0);
+                mainCourseName.setGravity(Gravity.CENTER);
+                mainCourseLocation.setGravity(Gravity.CENTER);
+                mainCourseState.setGravity(Gravity.CENTER);
+                mainCourseName.setPadding(0, 0, 0, 0);
+                mainCourseLocation.setPadding(0, 0, 0, 0);
+                mainCourseState.setPadding(0, 0, 0, 0);
             } else {
-                main_course_name.setGravity(Gravity.LEFT);
-                main_course_location.setGravity(Gravity.LEFT);
-                main_course_state.setGravity(Gravity.LEFT);
+                mainCourseName.setGravity(Gravity.LEFT);
+                mainCourseLocation.setGravity(Gravity.LEFT);
+                mainCourseState.setGravity(Gravity.LEFT);
 
-                main_course_name.setPadding(30, 0, 0, 0);
-                main_course_name.setPadding(30, 0, 0, 0);
-                main_course_location.setPadding(30, 0, 0, 0);
-                main_course_state.setPadding(30, 0, 0, 0);
+                mainCourseName.setPadding(30, 0, 0, 0);
+                mainCourseName.setPadding(30, 0, 0, 0);
+                mainCourseLocation.setPadding(30, 0, 0, 0);
+                mainCourseState.setPadding(30, 0, 0, 0);
             }
-            main_course_name.setText(s1);
-            main_course_location.setText(s2);
-            main_course_state.setText(s3);
+            mainCourseName.setText(s1);
+            mainCourseLocation.setText(s2);
+            mainCourseState.setText(s3);
         });
     }
 
+    /**
+     * 加载动态
+     *
+     * @param startPosition adapter起始位置
+     * @param refresh       是否刷新
+     * @param loadMore      是否加载更多
+     */
     private void displayTweets(int startPosition, boolean refresh, boolean loadMore) {
         if (refresh) {
-            recyclerView_layout.setRefreshing(true);
+            recyclerViewLayout.setRefreshing(true);
         }
         HttpUtil.getAllTweets(startPosition, new Callback() {
             @Override
@@ -1270,6 +1270,7 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
 
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                assert response.body() != null;
                 String data = response.body().string();
                 if (!"0".equals(data)) {
                     List<Tweet> tweets = gson.fromJson(data, new TypeToken<List<Tweet>>() {
@@ -1289,7 +1290,7 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
                 }
                 runOnUiThread(() -> {
                     if (refresh) {
-                        recyclerView_layout.setRefreshing(false);
+                        recyclerViewLayout.setRefreshing(false);
                     }
                 });
             }
@@ -1297,61 +1298,72 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
     }
 
 
+    /**
+     * 显示当前课程
+     */
     private void showNowCourse() {
-        new Thread(() -> {
-            if (hasGetCourse) {
-                if (null != dayCourseList && dayCourseList.size() > 0) {
-                    calendar = Calendar.getInstance();
-                    int hour = calendar.get(Calendar.HOUR_OF_DAY);
-                    int minute = calendar.get(Calendar.MINUTE);
-                    int dayOfMinute = hour * 60 + minute;
+        ThreadPoolExecutorFactory.getThreadPoolExecutor().execute(new Runnable() {
+            @Override
+            public void run() {
+                if (hasGetCourse) {
+                    if (null != dayCourseList && dayCourseList.size() > 0) {
+                        calendar = Calendar.getInstance();
+                        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+                        int minute = calendar.get(Calendar.MINUTE);
+                        int dayOfMinute = hour * 60 + minute;
 
-                    final Course course = dayCourseList.get(0);
-                    int[] times = decideWhatToShow(course.getClsNum());
-                    System.out.println(Arrays.toString(times));
-                    System.out.println(dayOfMinute);
-                    final StringBuilder state = new StringBuilder();
-                    if (dayOfMinute < times[0]) {
-                        state.append("状态：未开始, 距离上课: ").append((times[0] - dayOfMinute) / 60).append(" h ").append((times[0] - dayOfMinute) % 60).append(" min");
-                    } else if (dayOfMinute < times[1]) {
-                        state.append("状态：进行第-1-节课, 距离下课: ").append(times[1] - dayOfMinute).append(" min");
-                    } else if (dayOfMinute < times[2]) {
-                        state.append("状态：课间休息, 距离上课: ").append(times[2] - dayOfMinute).append(" min");
-                    } else if (dayOfMinute < times[3]) {
-                        state.append("状态：进行第-2-节课, 距离下课: ").append(times[3] - dayOfMinute).append(" min");
-                    } else if (times[4] == 0) {
-                        dayCourseList.remove(0);
-                        if (dayCourseList.size() > 0) {
-                            showNowCourse();
-                        } else {
-                            Thread.interrupted();
-                            setCourseAreaContent("", Constant.main_no_course_left_info, "", true);
-                            flag3 = false;
-                            return;
+                        final Course course = dayCourseList.get(0);
+                        int[] times = decideWhatToShow(course.getClsNum());
+                        final StringBuilder state = new StringBuilder();
+                        if (dayOfMinute < times[0]) {
+                            state.append("状态：未开始, 距离上课: ").append((times[0] - dayOfMinute) / 60).append(" h ").append((times[0] - dayOfMinute) % 60).append(" min");
+                        } else if (dayOfMinute < times[1]) {
+                            state.append("状态：进行第-1-节课, 距离下课: ").append(times[1] - dayOfMinute).append(" min");
+                        } else if (dayOfMinute < times[2]) {
+                            state.append("状态：课间休息, 距离上课: ").append(times[2] - dayOfMinute).append(" min");
+                        } else if (dayOfMinute < times[3]) {
+                            state.append("状态：进行第-2-节课, 距离下课: ").append(times[3] - dayOfMinute).append(" min");
+                        } else if (times[4] == 0) {
+                            dayCourseList.remove(0);
+                            if (dayCourseList.size() > 0) {
+                                showNowCourse();
+                            } else {
+                                Thread.interrupted();
+                                setCourseAreaContent("", Constant.MAIN_NO_COURSE_LEFT_INFO, "", true);
+                                flag3 = false;
+                                return;
+                            }
+                        } else if (dayOfMinute >= times[3] && dayOfMinute < times[4]) {
+                            state.append("状态：课间休息, 距离上课：").append(times[4] - dayOfMinute).append(" min");
+                        } else if (dayOfMinute >= times[4] && dayOfMinute < times[5]) {
+                            state.append("状态：进行第-3-节课, 距离下课: ").append(times[5] - dayOfMinute).append(" min");
+                        } else if (dayOfMinute >= times[5]) {
+                            dayCourseList.remove(0);
+                            if (dayCourseList.size() > 0) {
+                                showNowCourse();
+                            } else {
+                                setCourseAreaContent("", Constant.MAIN_NO_COURSE_LEFT_INFO, "", true);
+                                return;
+                            }
                         }
-                    } else if (dayOfMinute >= times[3] && dayOfMinute < times[4]) {
-                        state.append("状态：课间休息, 距离上课：").append(times[4] - dayOfMinute).append(" min");
-                    } else if (dayOfMinute >= times[4] && dayOfMinute < times[5]) {
-                        state.append("状态：进行第-3-节课, 距离下课: ").append(times[5] - dayOfMinute).append(" min");
-                    } else if (dayOfMinute >= times[5]) {
-                        dayCourseList.remove(0);
-                        if (dayCourseList.size() > 0) {
-                            showNowCourse();
-                        } else {
-                            setCourseAreaContent("", Constant.main_no_course_left_info, "", true);
-                            return;
-                        }
+                        setCourseAreaContent("名称：" + course.getDialogName(), "地点：" + course.getDialogLocation(), state.toString(), false);
+                    } else {
+                        setCourseAreaContent("", Constant.MAIN_NO_COURSE_LEFT_INFO, "", true);
+                        flag3 = false;
                     }
-                    setCourseAreaContent("名称：" + course.getDialog_name(), "地点：" + course.getDialog_location(), state.toString(), false);
-                } else {
-                    setCourseAreaContent("", Constant.main_no_course_left_info, "", true);
-                    flag3 = false;
                 }
             }
+        });
 
-        }).start();
+
     }
 
+    /**
+     * 计算当前的课程时间的区间
+     *
+     * @param when 第几节课
+     * @return 时间区间
+     */
     private int[] decideWhatToShow(int when) {
 
         int[] time = new int[6];
@@ -1402,21 +1414,23 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
         return time;
     }
 
-//    public void beginRefreshing() {
-//        recyclerView_layout.beginRefreshing();
-//    }
-//
-//    // 通过代码方式控制进入加载更多状态
-//    public void beginLoadingMore() {
-//        recyclerView_layout.beginLoadingMore();
-//    }
 
+    /**
+     * 在主线程显示handoff文本
+     *
+     * @param text 内容
+     */
     private void showUserHandoffTextOnMain(String text) {
         runOnUiThread(() -> showUserHandoffText(text));
     }
 
+    /**
+     * 显示handoff文本
+     *
+     * @param text 文本
+     */
     private void showUserHandoffText(String text) {
-        MaterialDialogUtils.showYesOrNoDialogWithBothSthTodo(this, new String[]{"连续互通", "来自darkme.cn[ user: " + darkme_un + " ]\n" + text, "复制到粘贴板", "忽略"}, new MaterialDialogUtils.DialogBothDoSthOnClickListener() {
+        MaterialDialogUtils.showYesOrNoDialogWithBothSthTodo(this, new String[]{"连续互通", "来自darkme.cn[ user: " + darkmeUn + " ]\n" + text, "复制到粘贴板", "忽略"}, new MaterialDialogUtils.AbstractDialogBothDoSthOnClickListener() {
             @Override
             public void onConfirmButtonClick() {
                 copyTextToClipboard(text);
@@ -1428,9 +1442,14 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
             }
         }, true);
 
-        new Thread(() -> HttpUtil.haveReceivedHandOffText(darkme_un)).start();
+        ThreadPoolExecutorFactory.getThreadPoolExecutor().execute(() -> HttpUtil.haveReceivedHandOffText(darkmeUn));
     }
 
+    /**
+     * 时间变化接收广播
+     *
+     * @author lqs2
+     */
     class TimeChangeReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -1439,7 +1458,7 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
                     if (flag3) {
                         showNowCourse();
                     }
-                    if (!TextUtils.isEmpty(darkme_un) && checkHandoffFun()) {
+                    if (!TextUtils.isEmpty(darkmeUn) && checkHandoffFun()) {
                         checkHandoffText(true);
                     }
                     break;
@@ -1449,20 +1468,26 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
         }
     }
 
+
+    /**
+     * 首页背景变化接收广播
+     *
+     * @author lqs2
+     */
     class MainBgChangedReceiver extends BroadcastReceiver {
-        //        各种操作
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
+            assert action != null;
             if (action.equals(Constant.ACTION1)) {
                 SharedPreferenceUtil.put(MainActivity.this, "diy_main_bg", true);
                 runOnUiThread(() -> {
                     Bitmap bitmap = SharedPreferenceUtil.getImage(MainActivity.this, "main_bg");
                     if (bitmap != null) {
                         if ((boolean) SharedPreferenceUtil.get(MainActivity.this, "blurBackground", false)) {
-                            Dali.create(MainActivity.this).load(bitmap).blurRadius(6).into(bing_main_pic);
+                            Dali.create(MainActivity.this).load(bitmap).blurRadius(6).into(bingMainPic);
                         } else {
-                            bing_main_pic.setImageBitmap(bitmap);
+                            bingMainPic.setImageBitmap(bitmap);
                         }
                         Toast.makeText(MainActivity.this, "更换成功", Toast.LENGTH_SHORT).show();
                     } else {
@@ -1471,20 +1496,12 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
                 });
             }
             if (action.equals(Constant.ACTION2)) {
-//                SharedPreferenceUtil.put(MainActivity.this, "main_bg", null);
                 runOnUiThread(MainActivity.this::showDefaultBg);
             }
-
             if (action.equals(Constant.ACTION3)) {
-//                SharedPreferenceUtil.put(MainActivity.this, "main_bg", null);
                 flag3 = true;
                 weatherToShowCourse();
             }
         }
     }
-
-    public void showToastOnMainThread(String text, int t) {
-        runOnUiThread(() -> ToastUtils.showToast(MainActivity.this, text, t));
-    }
-
 }

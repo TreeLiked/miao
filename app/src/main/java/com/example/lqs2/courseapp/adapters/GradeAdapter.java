@@ -9,14 +9,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.example.lqs2.courseapp.entity.Grade;
 import com.example.lqs2.courseapp.R;
+import com.example.lqs2.courseapp.entity.Grade;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import me.drakeet.materialdialog.MaterialDialog;
 
+/**
+ * 教务系统成绩适配器
+ *
+ * @author lqs2
+ */
 public class GradeAdapter extends RecyclerView.Adapter<GradeAdapter.ViewHolder> {
 
     private Context mContext;
@@ -24,40 +29,22 @@ public class GradeAdapter extends RecyclerView.Adapter<GradeAdapter.ViewHolder> 
     public static boolean isAllPassed;
 
 
-    static class ViewHolder extends RecyclerView.ViewHolder {
-        CardView cardView;
-        TextView grade_name;
-        TextView grade_no;
-        TextView grade_credit;
-        TextView grade_grade;
-
-        ViewHolder(View view) {
-            super(view);
-            cardView = (CardView) view;
-            grade_name = view.findViewById(R.id.grade_name);
-            grade_no = view.findViewById(R.id.grade_no);
-            grade_credit = view.findViewById(R.id.grade_credit);
-            grade_grade = view.findViewById(R.id.grade_grade);
-        }
-    }
-
-
-    public GradeAdapter(List<Grade> mGradeList, String school_year, String team) {
+    public GradeAdapter(List<Grade> mGradeList, String schoolYear, String team) {
         isAllPassed = true;
-        if (team.equals("全部")) {
+        if ("全部".equals(team)) {
             for (int i = 0; i < mGradeList.size(); i++) {
                 Grade grade = mGradeList.get(i);
-                String text = grade.getCourse_grade();
-                try{
+                String text = grade.getCourseGrade();
+                try {
                     if (Float.parseFloat(text) < 60) {
                         isAllPassed = false;
                     }
                 } catch (NumberFormatException e) {
-                    if (text.equals("不合格")){
+                    if ("不合格".equals(text)) {
                         isAllPassed = false;
                     }
                 }
-                if (grade.getSchool_year().equals(school_year)) {
+                if (grade.getSchoolYear().equals(schoolYear)) {
                     this.mGradeList.add(grade);
                 }
             }
@@ -65,17 +52,17 @@ public class GradeAdapter extends RecyclerView.Adapter<GradeAdapter.ViewHolder> 
             int which = Integer.parseInt(team);
             for (int i = 0; i < mGradeList.size(); i++) {
                 Grade grade = mGradeList.get(i);
-                String text = grade.getCourse_grade();
-                try{
+                String text = grade.getCourseGrade();
+                try {
                     if (Float.parseFloat(text) < 60) {
                         isAllPassed = false;
                     }
                 } catch (NumberFormatException e) {
-                    if (text.equals("不合格")){
+                    if ("不合格".equals(text)) {
                         isAllPassed = false;
                     }
                 }
-                if (grade.getSchool_year().equals(school_year) && grade.getTeam() == which) {
+                if (grade.getSchoolYear().equals(schoolYear) && grade.getTeam() == which) {
                     this.mGradeList.add(grade);
                 }
             }
@@ -96,23 +83,22 @@ public class GradeAdapter extends RecyclerView.Adapter<GradeAdapter.ViewHolder> 
             Grade grade = mGradeList.get(position);
             final MaterialDialog mMaterialDialog = new MaterialDialog(mContext);
             mMaterialDialog
-                    .setTitle(grade.getCourse_name())
-                    .setMessage("学       年:  " + grade.getSchool_year()
+                    .setTitle(grade.getCourseName())
+                    .setMessage("学       年:  " + grade.getSchoolYear()
                             + "\n学       期:  " + grade.getTeam()
-                            + "\n代       码:  " + grade.getCourse_no()
-                            + "\n课程性质:  " + grade.getCourse_nature()
-                            + "\n课程归属:  " + grade.getCourse_attr()
-                            + "\n学       分:  " + grade.getCourse_credit()
-//                            + "\n平时成绩:  " + grade.getCourse_usual_grade()
-                            + "\n期中成绩:  " + grade.getCourse_middle_garde()
-                            + "\n期末成绩:  " + grade.getCourse_final_grade()
-                            + "\n实验成绩:  " + grade.getCourse_exp_grade()
-                            + "\n成       绩:  " + grade.getCourse_grade()
-                            + "\n补考成绩:  " + grade.getRetest_grade()
+                            + "\n代       码:  " + grade.getCourseNo()
+                            + "\n课程性质:  " + grade.getCourseNature()
+                            + "\n课程归属:  " + grade.getCourseAttr()
+                            + "\n学       分:  " + grade.getCourseCredit()
+                            + "\n期中成绩:  " + grade.getCourseMiddleGarde()
+                            + "\n期末成绩:  " + grade.getCourseFinalGrade()
+                            + "\n实验成绩:  " + grade.getCourseExpGrade()
+                            + "\n成       绩:  " + grade.getCourseGrade()
+                            + "\n补考成绩:  " + grade.getRetestGrade()
                             + "\n是否重修:  " + grade.getIsReconstruct()
-                            + "\n开课学院:  " + grade.getCourse_belong()
+                            + "\n开课学院:  " + grade.getCourseBelong()
                             + "\n备       注:  " + grade.getMore()
-                            + "\n补考备注:  " + grade.getRetest_more())
+                            + "\n补考备注:  " + grade.getRetestMore())
                     .setPositiveButton("确认", v1 -> mMaterialDialog.dismiss())
                     .setCanceledOnTouchOutside(true);
             mMaterialDialog.show();
@@ -125,23 +111,43 @@ public class GradeAdapter extends RecyclerView.Adapter<GradeAdapter.ViewHolder> 
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         System.out.println("onBIndView");
         Grade grade = mGradeList.get(position);
-        holder.grade_name.setText(String.format("课程名称: %s", grade.getCourse_name()));
-        holder.grade_no.setText(String.format("课程代码: %s", grade.getCourse_no()));
-        holder.grade_credit.setText(String.format("学  分: %s", grade.getCourse_credit()));
-        holder.grade_grade.setText(String.format("成  绩: %s", grade.getCourse_grade()));
+        holder.gradeName.setText(String.format("课程名称: %s", grade.getCourseName()));
+        holder.gradeNo.setText(String.format("课程代码: %s", grade.getCourseNo()));
+        holder.gradeCredit.setText(String.format("学  分: %s", grade.getCourseCredit()));
+        holder.gradeGrade.setText(String.format("成  绩: %s", grade.getCourseGrade()));
 
     }
 
-    
+    /**
+     * 清楚成绩list
+     */
+    public void clear() {
+        if (mGradeList != null) {
+            mGradeList.clear();
+            notifyDataSetChanged();
+        }
+    }
+
+
     @Override
     public int getItemCount() {
         return mGradeList.size();
     }
 
-    public void clear() {
-        if (mGradeList != null) {
-            mGradeList.clear();
-            notifyDataSetChanged();
+    static class ViewHolder extends RecyclerView.ViewHolder {
+        CardView cardView;
+        TextView gradeName;
+        TextView gradeNo;
+        TextView gradeCredit;
+        TextView gradeGrade;
+
+        ViewHolder(View view) {
+            super(view);
+            cardView = (CardView) view;
+            gradeName = view.findViewById(R.id.grade_name);
+            gradeNo = view.findViewById(R.id.grade_no);
+            gradeCredit = view.findViewById(R.id.grade_credit);
+            gradeGrade = view.findViewById(R.id.grade_grade);
         }
     }
 }

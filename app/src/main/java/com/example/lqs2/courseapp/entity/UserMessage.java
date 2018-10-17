@@ -1,5 +1,10 @@
 package com.example.lqs2.courseapp.entity;
 
+/**
+ * user message
+ *
+ * @author lqs2
+ */
 public class UserMessage {
     private String id;
     private String msgFrom;

@@ -1,22 +1,47 @@
 package com.example.lqs2.courseapp.entity;
 
+
+/**
+ * course model
+ *
+ * @author lqs2
+ */
 public class Course {
-//    星期几:周一到周日
+
+
+    /**
+     * 星期几:周一到周日
+     */
     private int day;
-//    第几节课：总共12节
+
+    /**
+     * 第几节课：总共12节
+     */
     private int clsNum;
-//    每节课的长度
+
+    /**
+     * 每节课的长度
+     */
     private int clsCount;
-//    随机的颜色
+
+    /**
+     * 随机的颜色
+     */
     private int color;
-//    课程名
+
+    /**
+     * 课程名
+     */
     private String clsName;
-//    显示在dialog框中的信息
-    private String dialog_name;
-    private String dialog_location;
-    private String dialog_teacher;
-    private String dialog_weeks;
-    private String dialog_times;
+
+    /**
+     * 显示在dialog框中的信息
+     */
+    private String dialogName;
+    private String dialogLocation;
+    private String dialogTeacher;
+    private String dialogWeeks;
+    private String dialogTimes;
 
     public int getDay() {
         return day;
@@ -58,44 +83,44 @@ public class Course {
         this.clsName = clsName;
     }
 
-    public String getDialog_name() {
-        return dialog_name;
+    public String getDialogName() {
+        return dialogName;
     }
 
-    public void setDialog_name(String dialog_name) {
-        this.dialog_name = dialog_name;
+    public void setDialogName(String dialogName) {
+        this.dialogName = dialogName;
     }
 
-    public String getDialog_location() {
-        return dialog_location;
+    public String getDialogLocation() {
+        return dialogLocation;
     }
 
-    public void setDialog_location(String dialog_location) {
-        this.dialog_location = dialog_location;
+    public void setDialogLocation(String dialogLocation) {
+        this.dialogLocation = dialogLocation;
     }
 
-    public String getDialog_teacher() {
-        return dialog_teacher;
+    public String getDialogTeacher() {
+        return dialogTeacher;
     }
 
-    public void setDialog_teacher(String dialog_teacher) {
-        this.dialog_teacher = dialog_teacher;
+    public void setDialogTeacher(String dialogTeacher) {
+        this.dialogTeacher = dialogTeacher;
     }
 
-    public String getDialog_weeks() {
-        return dialog_weeks;
+    public String getDialogWeeks() {
+        return dialogWeeks;
     }
 
-    public void setDialog_weeks(String dialog_weeks) {
-        this.dialog_weeks = dialog_weeks;
+    public void setDialogWeeks(String dialogWeeks) {
+        this.dialogWeeks = dialogWeeks;
     }
 
-    public String getDialog_times() {
-        return dialog_times;
+    public String getDialogTimes() {
+        return dialogTimes;
     }
 
-    public void setDialog_times(String dialog_times) {
-        this.dialog_times = dialog_times;
+    public void setDialogTimes(String dialogTimes) {
+        this.dialogTimes = dialogTimes;
     }
 
 
@@ -107,11 +132,11 @@ public class Course {
                 ", clsCount=" + clsCount +
                 ", color=" + color +
                 ", clsName='" + clsName + '\'' +
-                ", dialog_name='" + dialog_name + '\'' +
-                ", dialog_location='" + dialog_location + '\'' +
-                ", dialog_teacher='" + dialog_teacher + '\'' +
-                ", dialog_weeks='" + dialog_weeks + '\'' +
-                ", dialog_times='" + dialog_times + '\'' +
+                ", dialogName='" + dialogName + '\'' +
+                ", dialogLocation='" + dialogLocation + '\'' +
+                ", dialogTeacher='" + dialogTeacher + '\'' +
+                ", dialogWeeks='" + dialogWeeks + '\'' +
+                ", dialogTimes='" + dialogTimes + '\'' +
                 '}';
     }
 }

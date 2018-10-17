@@ -2,9 +2,9 @@ package com.example.lqs2.courseapp.utils;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -13,7 +13,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.annotation.DrawableRes;
 import android.util.DisplayMetrics;
 import android.widget.Toast;
 
@@ -24,14 +23,25 @@ import com.yalantis.ucrop.UCropActivity;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * 图片工具类
+ *
+ * @author lqs2
+ */
 public class ImageTools {
 
 
+    /**
+     * 将bit存储到相册
+     *
+     * @param bmp     位图
+     * @param picName 图像名称
+     * @param context 上下文
+     */
     public static void saveBmp2Gallery(Bitmap bmp, String picName, Context context) {
         String fileName = null;
         //系统相册目录
@@ -44,12 +54,10 @@ public class ImageTools {
         try {
             // 如果有目标文件，直接获得文件对象，否则创建一个以filename为名称的文件
             file = new File(galleryPath, picName + ".jpg");
-
             // 获得文件相对路径
             fileName = file.toString();
             // 获得输出流，如果文件中有内容，追加内容
             outStream = new FileOutputStream(fileName);
-
         } catch (Exception e) {
             e.getStackTrace();
         } finally {
@@ -70,6 +78,14 @@ public class ImageTools {
         Toast.makeText(context, "图片保存在相册了QAQ", Toast.LENGTH_LONG).show();
     }
 
+    /**
+     * 裁剪图片
+     *
+     * @param uri             图片uri
+     * @param context         上下文
+     * @param activity        当前活动
+     * @param needCircleImage 是否需要圆角图片
+     */
     public static void cropRawPhoto(Uri uri, Context context, Activity activity, boolean needCircleImage) {
 
         int scaleX = 9;
@@ -118,78 +134,92 @@ public class ImageTools {
     /**
      * 通过uri获取图片并进行压缩
      *
-     * @param uri
+     * @param uri 图片uri
      */
-    public static Bitmap getBitmapFormUri(Activity ac, Uri uri) throws FileNotFoundException, IOException {
+    public static Bitmap getBitmapFormUri(Activity ac, Uri uri) throws IOException {
         InputStream input = ac.getContentResolver().openInputStream(uri);
         BitmapFactory.Options onlyBoundsOptions = new BitmapFactory.Options();
         onlyBoundsOptions.inJustDecodeBounds = true;
-        onlyBoundsOptions.inDither = true;//optional
-        onlyBoundsOptions.inPreferredConfig = Bitmap.Config.ARGB_8888;//optional
+        onlyBoundsOptions.inDither = true;
+        onlyBoundsOptions.inPreferredConfig = Bitmap.Config.ARGB_8888;
         BitmapFactory.decodeStream(input, null, onlyBoundsOptions);
+        assert input != null;
         input.close();
         int originalWidth = onlyBoundsOptions.outWidth;
         int originalHeight = onlyBoundsOptions.outHeight;
-        if ((originalWidth == -1) || (originalHeight == -1))
+        if ((originalWidth == -1) || (originalHeight == -1)) {
             return null;
+        }
         //图片分辨率以480x800为标准
-        float hh = 800f;//这里设置高度为800f
-        float ww = 480f;//这里设置宽度为480f
+        float hh = 800f;
+        float ww = 480f;
         //缩放比。由于是固定比例缩放，只用高或者宽其中一个数据进行计算即可
-        int be = 1;//be=1表示不缩放
-        if (originalWidth > originalHeight && originalWidth > ww) {//如果宽度大的话根据宽度固定大小缩放
+        //be=1表示不缩放
+        int be = 1;
+        if (originalWidth > originalHeight && originalWidth > ww) {
+            //如果宽度大的话根据宽度固定大小缩放
             be = (int) (originalWidth / ww);
-        } else if (originalWidth < originalHeight && originalHeight > hh) {//如果高度高的话根据宽度固定大小缩放
+        } else if (originalWidth < originalHeight && originalHeight > hh) {
+            //如果高度高的话根据宽度固定大小缩放
             be = (int) (originalHeight / hh);
         }
-        if (be <= 0)
+        if (be <= 0) {
             be = 1;
+        }
         //比例压缩
         BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
-        bitmapOptions.inSampleSize = be;//设置缩放比例
-        bitmapOptions.inDither = true;//optional
-        bitmapOptions.inPreferredConfig = Bitmap.Config.ARGB_8888;//optional
+        //设置缩放比例
+        bitmapOptions.inSampleSize = be;
+        bitmapOptions.inDither = true;
+        bitmapOptions.inPreferredConfig = Bitmap.Config.ARGB_8888;
         input = ac.getContentResolver().openInputStream(uri);
         Bitmap bitmap = BitmapFactory.decodeStream(input, null, bitmapOptions);
+        assert input != null;
         input.close();
-
-        return compressImage(bitmap);//再进行质量压缩
+        //再进行质量压缩
+        assert bitmap != null;
+        return compressImage(bitmap);
     }
 
     /**
      * 质量压缩
      *
-     * @param image
-     * @return
+     * @param image 图像位图
+     * @return 压缩后的位图
      */
     public static Bitmap compressImage(Bitmap image) {
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        image.compress(Bitmap.CompressFormat.JPEG, 100, baos);//质量压缩方法，这里100表示不压缩，把压缩后的数据存放到baos中
+        //质量压缩方法，这里100表示不压缩，把压缩后的数据存放到baos中
+        image.compress(Bitmap.CompressFormat.JPEG, 100, baos);
         int options = 100;
-        while (baos.toByteArray().length / 1024 > 100) {  //循环判断如果压缩后图片是否大于100kb,大于继续压缩
+        while (baos.toByteArray().length / 1024 > 100) {
+            //循环判断如果压缩后图片是否大于100kb,大于继续压缩
             if (options == 0) {
                 break;
             }
-            baos.reset();//重置baos即清空baos
+            //重置baos即清空baos
+            baos.reset();
             //第一个参数 ：图片格式 ，第二个参数： 图片质量，100为最高，0为最差  ，第三个参数：保存压缩后的数据的流
-            image.compress(Bitmap.CompressFormat.JPEG, options, baos);//这里压缩options%，把压缩后的数据存放到baos中
-            options -= 10;//每次都减少10
+            //这里压缩options%，把压缩后的数据存放到baos中
+            image.compress(Bitmap.CompressFormat.JPEG, options, baos);
+            options -= 10;
         }
-        ByteArrayInputStream isBm = new ByteArrayInputStream(baos.toByteArray());//把压缩后的数据baos存放到ByteArrayInputStream中
-        Bitmap bitmap = BitmapFactory.decodeStream(isBm, null, null);//把ByteArrayInputStream数据生成图片
-        return bitmap;
+        //把压缩后的数据baos存放到ByteArrayInputStream中
+        ByteArrayInputStream isBm = new ByteArrayInputStream(baos.toByteArray());
+        //把ByteArrayInputStream数据生成图片
+        return BitmapFactory.decodeStream(isBm, null, null);
     }
 
     /**
      * 不进行质量压缩，进行分辨率压缩
      *
-     * @param sourceBm
-     * @param targetWidth
-     * @param targetHeight
-     * @return
+     * @param sourceBm     原图像
+     * @param targetWidth  目标宽度
+     * @param targetHeight 目标高度
+     * @return 压缩后的图像
      */
-    public static Bitmap zipPicWithoutCompress(Bitmap sourceBm, float targetWidth, float targetHeight) {
+    private static Bitmap zipPicWithoutCompress(Bitmap sourceBm, float targetWidth, float targetHeight) {
         BitmapFactory.Options newOpts = new BitmapFactory.Options();
         // 开始读入图片，此时把options.inJustDecodeBounds 设回true了
         newOpts.inJustDecodeBounds = true;
@@ -207,17 +237,15 @@ public class ImageTools {
         int w = newOpts.outWidth;
         int h = newOpts.outHeight;
         // 现在主流手机比较多是800*480分辨率，所以高和宽我们设置为
-        float hh = targetHeight;
-        float ww = targetWidth;
         // 缩放比。由于是固定比例缩放，只用高或者宽其中一个数据进行计算即可
         // be=1表示不缩放
         int be = 1;
-        if (w > h && w > ww) {
+        if (w > h && w > targetWidth) {
             // 如果宽度大的话根据宽度固定大小缩放
-            be = (int) (newOpts.outWidth / ww);
-        } else if (w < h && h > hh) {
+            be = (int) (newOpts.outWidth / targetWidth);
+        } else if (w < h && h > targetHeight) {
             // 如果高度高的话根据宽度固定大小缩放
-            be = (int) (newOpts.outHeight / hh);
+            be = (int) (newOpts.outHeight / targetHeight);
         }
         if (be <= 0) {
             be = 1;
@@ -232,6 +260,13 @@ public class ImageTools {
     }
 
 
+    /**
+     * 压缩图片到当前屏幕的大小
+     *
+     * @param activity 当前活动
+     * @param bitmap   要压缩的图像
+     * @return 压缩后的图像
+     */
     public static Bitmap zipToScreenSize(Activity activity, Bitmap bitmap) {
 
         DisplayMetrics metrics = new DisplayMetrics();
@@ -248,33 +283,37 @@ public class ImageTools {
 
     }
 
+    /**
+     * resource中的图像到位图
+     *
+     * @param r          资源
+     * @param resId      资源id
+     * @param isCompress 是否开启压缩
+     * @return 结果位图
+     */
     public static Bitmap srcPicToBitmap(Resources r, int resId, boolean isCompress) {
         @SuppressLint("ResourceType") InputStream is = r.openRawResource(resId);
         BitmapDrawable bmpDraw = new BitmapDrawable(is);
         Bitmap bmp = bmpDraw.getBitmap();
         if (isCompress) {
-            Bitmap bitmap = ImageTools.compressImage(bmp);
-            return bitmap;
+            return ImageTools.compressImage(bmp);
         } else {
             return bmp;
         }
     }
 
 
-    public static String getResourcesUri(Context context, @DrawableRes int id) {
-        Resources resources = context.getResources();
-        String uriPath = ContentResolver.SCHEME_ANDROID_RESOURCE + "://" +
-                resources.getResourcePackageName(id) + "/" +
-                resources.getResourceTypeName(id) + "/" +
-                resources.getResourceEntryName(id);
-        return uriPath;
-    }
-
+    /**
+     * 存储图像到相册
+     *
+     * @param context  上下文
+     * @param activity 活动上下文
+     * @param imgBit   图像
+     */
     public static void saveImgToGallery(Context context, Activity activity, Bitmap imgBit) {
         boolean flag = true;
         if (PermissionUtils.checkWriteExtraStoragePermission(context)) {
             String storePath = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator;
-            System.out.println(storePath + "---------------------");
             File appDir = new File(storePath);
             if (!appDir.exists()) {
                 appDir.mkdir();
@@ -307,7 +346,13 @@ public class ImageTools {
     }
 
 
-    // 根据路径获得图片并压缩，返回bitmap用于显示
+    /**
+     * 根据路径获得图片并压缩，返回bitmap用于显示
+     *
+     * @param filePath   图片路径
+     * @param profilePic 是否是头像
+     * @return 压缩后的图像
+     */
     public static Bitmap getSmallBitmap(String filePath, boolean profilePic) {
         final BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
@@ -325,19 +370,52 @@ public class ImageTools {
         return BitmapFactory.decodeFile(filePath, options);
     }
 
-    //计算图片的缩放值
-    public static int calculateInSampleSize(BitmapFactory.Options options,int reqWidth, int reqHeight) {
+    /**
+     * 计算图片的缩放值
+     *
+     * @param options   不知道
+     * @param reqWidth  目标宽度
+     * @param reqHeight 目标高度
+     * @return 不知道
+     */
+    public static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
         final int height = options.outHeight;
         final int width = options.outWidth;
         int inSampleSize = 1;
 
         if (height > reqHeight || width > reqWidth) {
-            final int heightRatio = Math.round((float) height/ (float) reqHeight);
+            final int heightRatio = Math.round((float) height / (float) reqHeight);
             final int widthRatio = Math.round((float) width / (float) reqWidth);
             inSampleSize = heightRatio < widthRatio ? heightRatio : widthRatio;
         }
         return inSampleSize;
     }
 
+
+    /**
+     * 从assets文件夹中获取图像
+     *
+     * @param context  上下文
+     * @param subDir   子目录
+     * @param fileName 文件名
+     * @return 图像
+     */
+    public static Bitmap getImageFromAssetsFile(Context context, String subDir, String fileName) {
+        Bitmap image = null;
+        AssetManager am = context.getAssets();
+        try {
+            InputStream is = am.open(subDir + java.io.File.separator + fileName);
+            image = BitmapFactory.decodeStream(is);
+            is.close();
+        } catch (IOException e) {
+//            e.printStackTrace();
+            try {
+                return BitmapFactory.decodeStream(am.open(subDir + File.separator + "default.png"));
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+        }
+        return image;
+    }
 
 }

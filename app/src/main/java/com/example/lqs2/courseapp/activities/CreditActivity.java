@@ -3,31 +3,44 @@ package com.example.lqs2.courseapp.activities;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 
 import com.example.lqs2.courseapp.R;
+import com.example.lqs2.courseapp.global.ThreadPoolExecutorFactory;
 import com.example.lqs2.courseapp.utils.HtmlCodeExtractUtil;
 import com.example.lqs2.courseapp.utils.StatusBarUtils;
 
 import java.util.Map;
 
-public class CreditActivity extends AppCompatActivity {
+/**
+ * 查询学分活动
+ *
+ * @author lqs2
+ */
+public class CreditActivity extends ActivityCollector {
 
     @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_credit);
-
         StatusBarUtils.setStatusTransparent(this);
 
         Intent intent = getIntent();
         String html = intent.getStringExtra("html");
-        new Thread(() -> {
+
+        showCredit(html);
+    }
+
+    /**
+     * 显示学分
+     */
+    @SuppressLint("SetTextI18n")
+    private void showCredit(String html) {
+        ThreadPoolExecutorFactory.getThreadPoolExecutor().execute(() -> {
+//            异步解析html
             Map<String, String> info = HtmlCodeExtractUtil.parseHtmlForCredit(html);
             runOnUiThread(() -> {
-
                 ((TextView) findViewById(R.id.credit_xthk_text_view)).setText(info.get("xueHao"));
                 ((TextView) findViewById(R.id.credit_xymy_text_view)).setText(info.get("xingMing"));
                 ((TextView) findViewById(R.id.credit_xtyr_text_view)).setText(info.get("xueYuan"));
@@ -108,6 +121,6 @@ public class CreditActivity extends AppCompatActivity {
                 ((TextView) findViewById(R.id.t_214_text_view)).setText(info.get("214"));
                 ((TextView) findViewById(R.id.t_215_text_view)).setText(info.get("215"));
             });
-        }).start();
+        });
     }
 }

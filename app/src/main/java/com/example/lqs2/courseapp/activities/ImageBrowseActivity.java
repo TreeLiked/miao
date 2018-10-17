@@ -6,7 +6,6 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -21,7 +20,12 @@ import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import com.github.chrisbanes.photoview.PhotoView;
 
-public class ImageBrowseActivity extends AppCompatActivity {
+/**
+ * 图片浏览活动，可以复用
+ *
+ * @author lqs2
+ */
+public class ImageBrowseActivity extends ActivityCollector {
 
 
     private Bitmap imgBit;
@@ -30,13 +34,13 @@ public class ImageBrowseActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image_browse);
-
         StatusBarUtils.setStatusTransparent(this);
+
         PhotoView photoView = findViewById(R.id.photo_view);
 
         FloatingActionsMenu menu = findViewById(R.id.image_browse_menu);
-        FloatingActionButton download_btn = findViewById(R.id.image_browse_download);
-        download_btn.setOnClickListener(v -> {
+        FloatingActionButton downloadBtn = findViewById(R.id.image_browse_download);
+        downloadBtn.setOnClickListener(v -> {
             menu.collapseImmediately();
             ImageTools.saveImgToGallery(this, this, imgBit);
         });
@@ -59,7 +63,6 @@ public class ImageBrowseActivity extends AppCompatActivity {
                     break;
                 case 2:
                     break;
-
                 case 3:
                     break;
                 case 4:

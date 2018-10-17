@@ -12,32 +12,22 @@ import java.util.List;
 
 import me.drakeet.materialdialog.MaterialDialog;
 
+/**
+ * material dialog 工具类
+ *
+ * @author lqs2
+ */
 public class MaterialDialogUtils {
 
-    public static abstract class DialogOnConfirmClickListener extends DialogBothDoSthOnClickListener {
-        public abstract void onConfirmButtonClick();
-
-        public void onCancelButtonClick() {
-
-        }
-
-    }
-
-    public static abstract class DialogOnCancelClickListener extends DialogBothDoSthOnClickListener {
-        public void onConfirmButtonClick() {
-
-        }
-
-        public abstract void onCancelButtonClick();
-
-    }
-
-    public static abstract class DialogBothDoSthOnClickListener {
-        public abstract void onConfirmButtonClick();
-
-        public abstract void onCancelButtonClick();
-    }
-
+    /**
+     * 生成list型的对话框
+     *
+     * @param context  上下文
+     * @param title    对话框标题
+     * @param listener 按钮监听
+     * @param items    选项
+     * @return 对话框
+     */
     public static MaterialDialog getItemListDialog(Context context, String title, ListView.OnItemClickListener listener, List<String> items) {
         final ArrayAdapter<String> adapter
                 = new ArrayAdapter<>(context,
@@ -63,8 +53,15 @@ public class MaterialDialogUtils {
         return alert;
     }
 
-
-    public static void showYesOrNoDialogWithBothSthTodo(Context context, String[] config, DialogBothDoSthOnClickListener listener, boolean dismissOnClick) {
+    /**
+     * 显示yes/no风格对话框
+     *
+     * @param context        上下文
+     * @param config         配置信息包括0：标题，1：内容，2：确认文字，3：取消文字
+     * @param listener       按钮监听
+     * @param dismissOnClick 是否点击空白可以取消
+     */
+    public static void showYesOrNoDialogWithBothSthTodo(Context context, String[] config, AbstractDialogBothDoSthOnClickListener listener, boolean dismissOnClick) {
         if (config.length == 4) {
             final MaterialDialog dialog = new MaterialDialog(context);
             dialog
@@ -87,7 +84,15 @@ public class MaterialDialogUtils {
         }
     }
 
-    public static void showYesOrNoDialog(Context context, String[] config, DialogOnConfirmClickListener listener, boolean dismissOnClick) {
+    /**
+     * 显示yes/no风格对话框
+     *
+     * @param context        上下文
+     * @param config         配置信息包括0：标题，1：内容，2：确认文字，3：取消文字
+     * @param listener       按钮监听
+     * @param dismissOnClick 是否点击空白可以取消
+     */
+    public static void showYesOrNoDialog(Context context, String[] config, AbstractDialogOnConfirmClickListener listener, boolean dismissOnClick) {
         if (config.length == 4) {
             final MaterialDialog dialog = new MaterialDialog(context);
             dialog
@@ -106,24 +111,55 @@ public class MaterialDialogUtils {
         }
     }
 
-
-
-
+    /**
+     * 显示简单confirm风格对话框
+     *
+     * @param context 上下文
+     * @param config  配置信息包括0：标题，1：内容，2：确认文字，3：取消文字
+     */
     public static void showSimpleConfirmDialog(Context context, String[] config) {
         showYesOrNoDialog(context, config, null, true);
     }
 
-    public static MaterialDialog showYesOrNoDialogWithCustomView(Context context, String[] config, View view, DialogOnConfirmClickListener listener, boolean dismissOnClick) {
+    /**
+     * 显示自定义视图风格对话框
+     *
+     * @param context        上下文
+     * @param view           加载指定视图
+     * @param config         配置信息包括0：标题，1：内容，2：确认文字，3：取消文字
+     * @param listener       按钮监听
+     * @param dismissOnClick 是否点击空白可以取消
+     */
+    public static MaterialDialog showYesOrNoDialogWithCustomView(Context context, String[] config, View view, AbstractDialogOnConfirmClickListener listener, boolean dismissOnClick) {
         return showYesOrNoDialogWithAll(context, config, view, -1, listener, dismissOnClick);
     }
 
-
-    public static MaterialDialog showYesOrNoDialogWithBackground(Context context, String[] config, int resId, DialogOnConfirmClickListener listener, boolean dismissOnClick) {
+    /**
+     * 显示带背景的对话框
+     *
+     * @param context        上下文
+     * @param config         配置
+     * @param resId          资源id
+     * @param listener       动作监听
+     * @param dismissOnClick 空白取消
+     * @return 对话框啊哦
+     */
+    public static MaterialDialog showYesOrNoDialogWithBackground(Context context, String[] config, int resId, AbstractDialogOnConfirmClickListener listener, boolean dismissOnClick) {
         return showYesOrNoDialogWithAll(context, config, null, resId, listener, dismissOnClick);
     }
 
-
-    public static MaterialDialog showYesOrNoDialogWithAll(Context context, String[] config, View view, int resId, DialogBothDoSthOnClickListener listener, boolean dismissOnClick) {
+    /**
+     * 功能超全的对话框
+     *
+     * @param context        上下文
+     * @param config         配置
+     * @param view           视图
+     * @param resId          背景色
+     * @param listener       监听
+     * @param dismissOnClick 空白取消
+     * @return 对话框啊哦
+     */
+    public static MaterialDialog showYesOrNoDialogWithAll(Context context, String[] config, View view, int resId, AbstractDialogBothDoSthOnClickListener listener, boolean dismissOnClick) {
         if (config.length == 4) {
             final MaterialDialog dialog = new MaterialDialog(context);
             if (null != view) {
@@ -155,5 +191,44 @@ public class MaterialDialogUtils {
         return null;
     }
 
+    public static abstract class AbstractDialogOnConfirmClickListener extends AbstractDialogBothDoSthOnClickListener {
 
+        /**
+         * 确认按钮触发事件
+         */
+        @Override
+        public abstract void onConfirmButtonClick();
+
+        @Override
+        public void onCancelButtonClick() {
+
+        }
+
+    }
+
+    public static abstract class AbstractDialogOnCancelClickListener extends AbstractDialogBothDoSthOnClickListener {
+        @Override
+        public void onConfirmButtonClick() {
+
+        }
+
+        /**
+         * 取消按钮触发事件
+         */
+        @Override
+        public abstract void onCancelButtonClick();
+
+    }
+
+    public static abstract class AbstractDialogBothDoSthOnClickListener {
+        /**
+         * 确认按钮触发事件
+         */
+        public abstract void onConfirmButtonClick();
+
+        /**
+         * 取消按钮触发事件
+         */
+        public abstract void onCancelButtonClick();
+    }
 }

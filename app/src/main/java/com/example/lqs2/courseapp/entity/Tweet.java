@@ -3,7 +3,12 @@ package com.example.lqs2.courseapp.entity;
 
 import java.io.Serializable;
 
-public class Tweet implements Serializable{
+/**
+ * tweet model
+ *
+ * @author lqs2
+ */
+public class Tweet implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -25,9 +30,6 @@ public class Tweet implements Serializable{
     private String postTime;
 
 
-    public static long getSerialVersionUID() {
-        return serialVersionUID;
-    }
 
     public String getId() {
         return id;

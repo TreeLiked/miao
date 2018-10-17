@@ -1,6 +1,11 @@
 package com.example.lqs2.courseapp.entity;
 
 
+/**
+ * card item model
+ *
+ * @author lqs2
+ */
 public class CardItem {
 
     private int id;

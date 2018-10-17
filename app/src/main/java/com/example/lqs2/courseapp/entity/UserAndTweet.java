@@ -1,5 +1,10 @@
 package com.example.lqs2.courseapp.entity;
 
+/**
+ * user & tweet
+ *
+ * @author lqs2
+ */
 public class UserAndTweet {
 
 

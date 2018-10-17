@@ -2,8 +2,7 @@ package com.example.lqs2.courseapp.activities;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.DividerItemDecoration;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
@@ -24,74 +23,86 @@ import com.yanzhenjie.recyclerview.swipe.SwipeMenuRecyclerView;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
-public class LibraryActivity extends AppCompatActivity {
+/**
+ * 图书馆图书检索活动
+ *
+ * @author lqs2
+ */
+public class LibraryActivity extends ActivityCollector {
 
 
     private SwipeMenuRecyclerView recyclerView;
     private EditText searchEdit;
 
     private BookAdapter adapter;
-
-
     private List<Book> bookList = new ArrayList<>();
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_library);
         StatusBarUtils.setStatusBarTransparentAndTextColorBlack(this);
-
         bindViews();
         init();
 
     }
 
+    /**
+     * 初始化组件
+     */
     private void init() {
-
         adapter = new BookAdapter(this, this);
         LinearLayoutManager manager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(manager);
-        recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         recyclerView.setAdapter(adapter);
 
 
         searchEdit.setOnEditorActionListener((v, actionId, event) -> {
-            if (actionId == EditorInfo.IME_ACTION_SEND
+            boolean done = actionId == EditorInfo.IME_ACTION_SEND
                     || actionId == EditorInfo.IME_ACTION_DONE
-                    || (event != null && KeyEvent.KEYCODE_ENTER == event.getKeyCode() && KeyEvent.ACTION_DOWN == event.getAction())) {
-
+                    || (event != null && KeyEvent.KEYCODE_ENTER == event.getKeyCode() && KeyEvent.ACTION_DOWN == event.getAction());
+            if (done) {
                 String key = searchEdit.getText().toString();
                 if (!StringUtils.isEmpty(key)) {
                     searchBook(key);
                 }
-                ((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(LibraryActivity.this.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+                ((InputMethodManager) Objects.requireNonNull(getSystemService(Context.INPUT_METHOD_SERVICE))).hideSoftInputFromWindow(Objects.requireNonNull(LibraryActivity.this.getCurrentFocus()).getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
             }
             return true;
         });
     }
 
+    /**
+     * 绑定视图
+     */
     private void bindViews() {
         recyclerView = findViewById(R.id.library_recycle_view);
         searchEdit = findViewById(R.id.library_search_edit);
 
     }
 
+    /**
+     * 查询图书
+     *
+     * @param key 图书关键字
+     */
     private void searchBook(String key) {
         HttpUtil.searchBookByKey(key, new Callback() {
             @Override
-            public void onFailure(Call call, IOException e) {
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 ToastUtils.showConnectErrorOnMain(LibraryActivity.this, LibraryActivity.this);
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                assert response.body() != null;
                 String resp = response.body().string();
                 runOnUiThread(() -> {
                     if (!StringUtils.isEmpty(resp) && !resp.contains("本馆没有您检索的图书")) {
@@ -103,25 +114,5 @@ public class LibraryActivity extends AppCompatActivity {
                 });
             }
         });
-//        HttpUtil.pushSchoolNotice(new Callback() {
-//            @Override
-//            public void onFailure(Call call, IOException e) {
-//                runOnUiThread(() -> layout.setRefreshing(false));
-//                ToastUtils.showConnectErrorOnMain(LibraryActivity.this, LibraryActivity.this);
-//            }
-//
-//            @Override
-//            public void onResponse(Call call, Response response) throws IOException {
-//                String resp = response.body().string();
-//
-//                runOnUiThread(() -> {
-//                    layout.setRefreshing(false);
-//                    if (!StringUtils.isEmpty(resp) && !resp.contains("本馆没有您检索的图书")) {
-//                        bookList.addAll(HtmlCodeExtractUtil.parseHtmlForBook(resp));
-//                        adapter.setData(bookList);
-//                    }
-//                });
-//            }
-//        });
     }
 }

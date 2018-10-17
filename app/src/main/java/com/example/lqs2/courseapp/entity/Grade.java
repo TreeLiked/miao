@@ -1,47 +1,89 @@
 package com.example.lqs2.courseapp.entity;
 
+/**
+ * grade model
+ *
+ * @author lqs2
+ */
 public class Grade {
-//    学年
-    String school_year;
-//    学期
-    int team;
-//    课程代码
-    String course_no;
-//    课程名称
-    String course_name;
-//    课程性质
-    String course_nature;
-//    课程归属
-    String course_attr;
-//    学分
-    String course_credit;
-//    平时成绩
-    String course_usual_grade;
-//    期中成绩
-    String course_middle_garde;
-//    期末成绩
-    String course_final_grade;
-//    实验成绩
-    String course_exp_grade;
-//    成绩
-    String course_grade;
-//    补考成绩
-    String retest_grade;
-//    是否重修
-    String isReconstruct;
-//    开课学院
-    String course_belong;
-//    备注
-    String more;
-//    补考备注
-    String retest_more;
 
-    public String getSchool_year() {
-        return school_year;
+    /**
+     * 学年
+     */
+    private String schoolYear;
+
+    /**
+     * 学期
+     */
+    private int team;
+
+    /**
+     * 课程代码
+     */
+    private String courseNo;
+    /**
+     * 课程名称
+     */
+    private String courseName;
+    /**
+     * 课程性质
+     */
+    private String courseNature;
+    /**
+     * 课程归属
+     */
+    private String courseAttr;
+    /**
+     * 学分
+     */
+    private String courseCredit;
+    /**
+     * 平时成绩
+     */
+    private String courseUsualGrade;
+    /**
+     * 期中成绩
+     */
+    private String courseMiddleGarde;
+    /**
+     * 期末成绩
+     */
+    private String courseFinalGrade;
+    /**
+     * 实验成绩
+     */
+    private String courseExpGrade;
+    /**
+     * 成绩
+     */
+    private String courseGrade;
+    /**
+     * 补考成绩
+     */
+    private String retestGrade;
+    /**
+     * 是否重修
+     */
+    private String isReconstruct;
+    /**
+     * 开课学院
+     */
+    private String courseBelong;
+    /**
+     * 备注
+     */
+    private String more;
+    /**
+     * 补考备注
+     */
+    private String retestMore;
+
+    public String getSchoolYear() {
+        return schoolYear;
     }
 
-    public void setSchool_year(String school_year) {
-        this.school_year = school_year;
+    public void setSchoolYear(String schoolYear) {
+        this.schoolYear = schoolYear;
     }
 
     public int getTeam() {
@@ -52,92 +94,92 @@ public class Grade {
         this.team = team;
     }
 
-    public String getCourse_no() {
-        return course_no;
+    public String getCourseNo() {
+        return courseNo;
     }
 
-    public void setCourse_no(String course_no) {
-        this.course_no = course_no;
+    public void setCourseNo(String courseNo) {
+        this.courseNo = courseNo;
     }
 
-    public String getCourse_name() {
-        return course_name;
+    public String getCourseName() {
+        return courseName;
     }
 
-    public void setCourse_name(String course_name) {
-        this.course_name = course_name;
+    public void setCourseName(String courseName) {
+        this.courseName = courseName;
     }
 
-    public String getCourse_nature() {
-        return course_nature;
+    public String getCourseNature() {
+        return courseNature;
     }
 
-    public void setCourse_nature(String course_nature) {
-        this.course_nature = course_nature;
+    public void setCourseNature(String courseNature) {
+        this.courseNature = courseNature;
     }
 
-    public String getCourse_attr() {
-        return course_attr;
+    public String getCourseAttr() {
+        return courseAttr;
     }
 
-    public void setCourse_attr(String course_attr) {
-        this.course_attr = course_attr;
+    public void setCourseAttr(String courseAttr) {
+        this.courseAttr = courseAttr;
     }
 
-    public String getCourse_credit() {
-        return course_credit;
+    public String getCourseCredit() {
+        return courseCredit;
     }
 
-    public void setCourse_credit(String course_credit) {
-        this.course_credit = course_credit;
+    public void setCourseCredit(String courseCredit) {
+        this.courseCredit = courseCredit;
     }
 
-    public String getCourse_usual_grade() {
-        return course_usual_grade;
+    public String getCourseUsualGrade() {
+        return courseUsualGrade;
     }
 
-    public void setCourse_usual_grade(String course_usual_grade) {
-        this.course_usual_grade = course_usual_grade;
+    public void setCourseUsualGrade(String courseUsualGrade) {
+        this.courseUsualGrade = courseUsualGrade;
     }
 
-    public String getCourse_middle_garde() {
-        return course_middle_garde;
+    public String getCourseMiddleGarde() {
+        return courseMiddleGarde;
     }
 
-    public void setCourse_middle_garde(String course_middle_garde) {
-        this.course_middle_garde = course_middle_garde;
+    public void setCourseMiddleGarde(String courseMiddleGarde) {
+        this.courseMiddleGarde = courseMiddleGarde;
     }
 
-    public String getCourse_final_grade() {
-        return course_final_grade;
+    public String getCourseFinalGrade() {
+        return courseFinalGrade;
     }
 
-    public void setCourse_final_grade(String course_final_grade) {
-        this.course_final_grade = course_final_grade;
+    public void setCourseFinalGrade(String courseFinalGrade) {
+        this.courseFinalGrade = courseFinalGrade;
     }
 
-    public String getCourse_exp_grade() {
-        return course_exp_grade;
+    public String getCourseExpGrade() {
+        return courseExpGrade;
     }
 
-    public void setCourse_exp_grade(String course_exp_grade) {
-        this.course_exp_grade = course_exp_grade;
+    public void setCourseExpGrade(String courseExpGrade) {
+        this.courseExpGrade = courseExpGrade;
     }
 
-    public String getCourse_grade() {
-        return course_grade;
+    public String getCourseGrade() {
+        return courseGrade;
     }
 
-    public void setCourse_grade(String course_grade) {
-        this.course_grade = course_grade;
+    public void setCourseGrade(String courseGrade) {
+        this.courseGrade = courseGrade;
     }
 
-    public String getRetest_grade() {
-        return retest_grade;
+    public String getRetestGrade() {
+        return retestGrade;
     }
 
-    public void setRetest_grade(String retest_grade) {
-        this.retest_grade = retest_grade;
+    public void setRetestGrade(String retestGrade) {
+        this.retestGrade = retestGrade;
     }
 
     public String getIsReconstruct() {
@@ -148,12 +190,12 @@ public class Grade {
         this.isReconstruct = isReconstruct;
     }
 
-    public String getCourse_belong() {
-        return course_belong;
+    public String getCourseBelong() {
+        return courseBelong;
     }
 
-    public void setCourse_belong(String course_belong) {
-        this.course_belong = course_belong;
+    public void setCourseBelong(String courseBelong) {
+        this.courseBelong = courseBelong;
     }
 
     public String getMore() {
@@ -164,11 +206,11 @@ public class Grade {
         this.more = more;
     }
 
-    public String getRetest_more() {
-        return retest_more;
+    public String getRetestMore() {
+        return retestMore;
     }
 
-    public void setRetest_more(String retest_more) {
-        this.retest_more = retest_more;
+    public void setRetestMore(String retestMore) {
+        this.retestMore = retestMore;
     }
 }

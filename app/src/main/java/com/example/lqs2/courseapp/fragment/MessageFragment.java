@@ -4,6 +4,7 @@ package com.example.lqs2.courseapp.fragment;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -33,6 +34,8 @@ import okhttp3.Response;
 
 /**
  * A simple {@link Fragment} subclass.
+ *
+ * @author lqs2
  */
 public class MessageFragment extends Fragment {
 
@@ -56,7 +59,7 @@ public class MessageFragment extends Fragment {
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_message, container, false);
         recyclerView = view.findViewById(R.id.fri_msg_all);
@@ -81,8 +84,6 @@ public class MessageFragment extends Fragment {
         adapter = new FriMsgAdapter(context, activity);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(layoutManager);
-//        recyclerView.setAdapter(adapter);
-
         recyclerView.setSwipeMenuCreator((swipeLeftMenu, swipeRightMenu, viewType) -> {
             int width = getResources().getDimensionPixelSize(R.dimen.dp_70);
             int height = ViewGroup.LayoutParams.MATCH_PARENT;
@@ -104,9 +105,10 @@ public class MessageFragment extends Fragment {
             menuBridge.closeMenu();
             // -1 为右侧菜单， 0为菜单的第一项
             int direction = menuBridge.getDirection();
-
-            int adapterPosition = menuBridge.getAdapterPosition(); // RecyclerView的Item的position。
-            int menuPosition = menuBridge.getPosition(); // 菜单在RecyclerView的Item中的Position。
+            // RecyclerView的Item的position
+            int adapterPosition = menuBridge.getAdapterPosition();
+            // 菜单在RecyclerView的Item中的Position
+            int menuPosition = menuBridge.getPosition();
             if (0 == menuPosition) {
                 UserMessage msg = messages.get(adapterPosition);
                 String msgId = msg.getId();
@@ -126,7 +128,7 @@ public class MessageFragment extends Fragment {
     private void loadUserMessage(boolean init) {
         HttpUtil.getUserMessage(un, new Callback() {
             @Override
-            public void onFailure(Call call, IOException e) {
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 String str = "消息拉取失败";
                 if (!init) {
                     str = "刷新错误";
@@ -135,7 +137,8 @@ public class MessageFragment extends Fragment {
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                assert response.body() != null;
                 String resp = response.body().string();
                 if (!TextUtils.isEmpty(resp)) {
                     if (!"-1".equals(resp)) {

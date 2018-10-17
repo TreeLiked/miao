@@ -1,11 +1,11 @@
 package com.example.lqs2.courseapp.entity;
 
-/**
- * @Author lqs2
- * @Description TODO
- * @Date 2018/7/27, Fri
- */
 
+/**
+ * user & friend
+ *
+ * @author lqs2
+ */
 public class UserFriend {
 
     private String id;

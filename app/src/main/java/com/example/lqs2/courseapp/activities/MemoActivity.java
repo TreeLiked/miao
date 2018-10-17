@@ -1,15 +1,14 @@
 package com.example.lqs2.courseapp.activities;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
 import android.text.TextUtils;
 import android.view.InflateException;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -33,61 +32,51 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
+
+/**
+ * 便签活动
+ *
+ * @author lqs2
+ */
 public class MemoActivity extends ActivityCollector implements View.OnClickListener, CompoundButton.OnCheckedChangeListener {
-
-
-    private List<Memo> memoList;
-    private List<CardItem> cardItemList = new ArrayList<>();
-    private Gson gson = new Gson();
-    private String un;
-    private ViewPager mViewPager;
-
-
-    private CardPagerAdapter mCardAdapter;
-    private ShadowTransformer mCardShadowTransformer;
-    private ImageView bgView;
-
-    private FloatingActionsMenu menu;
-    private TextView title;
 
     public static TextView currentPositionView;
 
-    private String darkme_un = "";
+
+    private List<Memo> memoList;
+    private Gson gson = new Gson();
+    private ViewPager mViewPager;
+    private CardPagerAdapter mCardAdapter;
+    private ShadowTransformer mCardShadowTransformer;
+
+    private FloatingActionsMenu menu;
+    private TextView title;
+    private String darkmeUn = "";
     public ProgressBar loadBar;
-//    private CardFragmentPagerAdapter mFragmentCardAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_memo);
 
-        darkme_un = getIntent().getStringExtra("darkme_un");
+        darkmeUn = getIntent().getStringExtra("darkme_un");
 
         mViewPager = findViewById(R.id.view_pager_memo);
-        bgView = findViewById(R.id.memo_bg_view);
         menu = findViewById(R.id.memo_float_menu);
         title = findViewById(R.id.memo_page_title);
         currentPositionView = findViewById(R.id.memo_current_num);
         loadBar = findViewById(R.id.memo_load_progress_bar);
         loadBar.setVisibility(View.GONE);
 
-
         StatusBarUtils.setStatusTransparent(this);
-        final ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-//            actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
-        }
 
         mCardAdapter = new CardPagerAdapter(this, this, 0);
-        FloatingActionsMenu menu = findViewById(R.id.memo_float_menu);
         FloatingActionButton showFinishedTask = findViewById(R.id.memo_choice_finished);
         FloatingActionButton showUnfinishedTask = findViewById(R.id.memo_choice_unfinished);
         FloatingActionButton createTask = findViewById(R.id.memo_choice_create);
@@ -99,40 +88,19 @@ public class MemoActivity extends ActivityCollector implements View.OnClickListe
 
 
         mCardShadowTransformer = new ShadowTransformer(mViewPager, mCardAdapter);
-//        mCardShadowTransformer.enableScaling(true);
         mViewPager.setPageTransformer(false, mCardShadowTransformer);
         mViewPager.setOffscreenPageLimit(1);
 
 
         initMemo();
-//        recyclerView = findViewById(R.id.month_record_recycler_view);
-//
-//
-//        layoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-//        recyclerView.setLayoutManager(layoutManager);
-//        recyclerView.setItemAnimator(new DefaultItemAnimator());
-//        recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-//        recordAdapter = new RecordAdapter(getApplicationContext(), this, mRecordList);
-//        recyclerView.setAdapter(recordAdapter);
     }
 
-//    private void testData() {
-//        getUserMemoByState(false, false);
-//    }
 
-
+    /**
+     * 初始化加载便签
+     */
     private void initMemo() {
         getUserMemoByState(false, false);
-    }
-
-    private void displayBackground() {
-//        new Thread(() -> {
-//            Bitmap bitmap = ImageTools.compressImage(BitmapFactory.decodeResource(getResources(), R.drawable.mh6));
-//            runOnUiThread(() -> {
-//                Dali.create(MemoActivity.this).load(bitmap).blurRadius(1).into(bgView);
-//            });
-//        }).start();
-//        Glide.with(MemoActivity.this).load(R.drawable.mh6).into(bgView);
     }
 
 
@@ -157,6 +125,9 @@ public class MemoActivity extends ActivityCollector implements View.OnClickListe
         }
     }
 
+    /**
+     * 显示新便签对话框
+     */
     private void showNewMemoDialog() {
         View view = null;
         try {
@@ -167,6 +138,7 @@ public class MemoActivity extends ActivityCollector implements View.OnClickListe
         }
         View finalView = view;
         int[] type = {0};
+        assert finalView != null;
         RadioGroup sexGroup = finalView.findViewById(R.id.new_memo_type);
         sexGroup.setOnCheckedChangeListener((group, checkedId) -> {
             RadioButton r = finalView.findViewById(checkedId);
@@ -184,7 +156,7 @@ public class MemoActivity extends ActivityCollector implements View.OnClickListe
                     break;
             }
         });
-        MaterialDialogUtils.showYesOrNoDialogWithCustomView(this, new String[]{"创建新备忘录", "", "创建", "取消"}, view, new MaterialDialogUtils.DialogOnConfirmClickListener() {
+        MaterialDialogUtils.showYesOrNoDialogWithCustomView(this, new String[]{"创建新备忘录", "", "创建", "取消"}, view, new MaterialDialogUtils.AbstractDialogOnConfirmClickListener() {
             @Override
             public void onConfirmButtonClick() {
                 EditText e0 = finalView.findViewById(R.id.new_memo_title);
@@ -193,15 +165,15 @@ public class MemoActivity extends ActivityCollector implements View.OnClickListe
                 String c = e1.getText().toString();
                 String checkRes = checkIsIllegalMemo(t, c);
                 if ("1".equals(checkRes)) {
-                    HttpUtil.newUserMemo(darkme_un, t, c, type[0], new Callback() {
+                    HttpUtil.newUserMemo(darkmeUn, t, c, type[0], new Callback() {
                         @Override
-                        public void onFailure(Call call, IOException e) {
+                        public void onFailure(@NonNull Call call, @NonNull IOException e) {
                             ToastUtils.showToastOnMain(MemoActivity.this, MemoActivity.this, "服务错误", Toast.LENGTH_SHORT);
                         }
 
                         @Override
-                        public void onResponse(Call call, Response response) throws IOException {
-
+                        public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                            assert response.body() != null;
                             String resp = response.body().string();
                             if (!TextUtils.isEmpty(resp)) {
                                 if ("1".equals(resp)) {
@@ -239,6 +211,12 @@ public class MemoActivity extends ActivityCollector implements View.OnClickListe
         mCardShadowTransformer.enableScaling(isChecked);
     }
 
+    /**
+     * 筛选用户便签
+     *
+     * @param isFinished  已/未完成
+     * @param onSubThread 是否在子线程
+     */
     public void getUserMemoByState(boolean isFinished, boolean onSubThread) {
         if (onSubThread) {
             runOnUiThread(() -> {
@@ -249,48 +227,48 @@ public class MemoActivity extends ActivityCollector implements View.OnClickListe
             loadBar.setVisibility(View.VISIBLE);
             changeTitle(isFinished);
         }
-        HttpUtil.getUserMemoByState(darkme_un, isFinished, new Callback() {
+        HttpUtil.getUserMemoByState(darkmeUn, isFinished, new Callback() {
             @Override
-            public void onFailure(Call call, IOException e) {
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 ToastUtils.showToastOnMain(MemoActivity.this, MemoActivity.this, "服务错误", Toast.LENGTH_SHORT);
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
-
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                assert response.body() != null;
                 String resp = response.body().string();
                 if (!TextUtils.isEmpty(resp)) {
+                    if (memoList != null) {
+                        memoList.clear();
+                    }
                     memoList = gson.fromJson(resp, new TypeToken<List<Memo>>() {
                     }.getType());
-                    if (null != memoList) {
-                        cardItemList.clear();
 
-                        if (memoList.size() > 0) {
-                            mCardAdapter = new CardPagerAdapter(MemoActivity.this, MemoActivity.this, memoList.size());
-                            for (int i = 0; i < memoList.size(); i++) {
-                                Memo m = memoList.get(i);
-                                mCardAdapter.addCardItem(new CardItem(m.getId(), m.getMemo_title(), m.getMemo_content(), String.valueOf(m.getMemo_state()), String.valueOf(m.getMemo_type()), TimeUtils.tweetPostTimeConvert(m.getMemo_post_date())));
-                            }
-                            runOnUiThread(() -> {
-                                mViewPager.setAdapter(mCardAdapter);
-                                loadBar.setVisibility(View.GONE);
-                            });
-                        } else {
-                            runOnUiThread(() -> {
-                                cardItemList.clear();
-                                mCardAdapter = new CardPagerAdapter(MemoActivity.this, MemoActivity.this, 0);
-                                mViewPager.setAdapter(mCardAdapter);
-                                mViewPager.setPageTransformer(false, mCardShadowTransformer);
-                                mViewPager.setOffscreenPageLimit(3);
-                                loadBar.setVisibility(View.GONE);
-                                if (isFinished) {
-                                    ToastUtils.showToast(MemoActivity.this, "没有已经完成的任务哦，快去添加一个吧", Toast.LENGTH_SHORT);
-                                } else {
-                                    ToastUtils.showToast(MemoActivity.this, "任务全部完成了，喵～", Toast.LENGTH_SHORT);
-                                }
-                            });
+                    if (memoList.size() > 0) {
+                        mCardAdapter = new CardPagerAdapter(MemoActivity.this, MemoActivity.this, memoList.size());
+                        for (int i = 0; i < memoList.size(); i++) {
+                            Memo m = memoList.get(i);
+                            mCardAdapter.addCardItem(new CardItem(m.getId(), m.getMemoTitle(), m.getMemoContent(), String.valueOf(m.getMemoState()), String.valueOf(m.getMemoType()), TimeUtils.tweetPostTimeConvert(m.getMemoPostDate())));
                         }
+                        runOnUiThread(() -> {
+                            mViewPager.setAdapter(mCardAdapter);
+                            loadBar.setVisibility(View.GONE);
+                        });
+                    } else {
+                        runOnUiThread(() -> {
+                            mCardAdapter = new CardPagerAdapter(MemoActivity.this, MemoActivity.this, 0);
+                            mViewPager.setAdapter(mCardAdapter);
+                            mViewPager.setPageTransformer(false, mCardShadowTransformer);
+                            mViewPager.setOffscreenPageLimit(3);
+                            loadBar.setVisibility(View.GONE);
+                            if (isFinished) {
+                                ToastUtils.showToast(MemoActivity.this, "没有已经完成的任务哦，快去添加一个吧", Toast.LENGTH_SHORT);
+                            } else {
+                                ToastUtils.showToast(MemoActivity.this, "任务全部完成了，喵～", Toast.LENGTH_SHORT);
+                            }
+                        });
                     }
+
                 } else {
                     ToastUtils.showToastOnMain(MemoActivity.this, MemoActivity.this, "服务异常", Toast.LENGTH_SHORT);
                 }
@@ -298,7 +276,11 @@ public class MemoActivity extends ActivityCollector implements View.OnClickListe
         });
     }
 
-
+    /**
+     * 显示标题
+     *
+     * @param isFinished 是否已完成
+     */
     private void changeTitle(boolean isFinished) {
         if (isFinished) {
             title.setText("已完成的事项");
@@ -308,19 +290,4 @@ public class MemoActivity extends ActivityCollector implements View.OnClickListe
             title.setTextColor(getResources().getColor(R.color.r1));
         }
     }
-
-
-//    private void testInsert() {
-//        Calendar calendar = Calendar.getInstance();
-//        int m = calendar.get(Calendar.DAY_OF_MONTH);
-////        Calendar c = Calendar.getInstance();//
-////        mYear = c.get(Calendar.YEAR); // 获取当前年份
-////        mMonth = c.get(Calendar.MONTH) + 1;// 获取当前月份
-////        mDay = c.get(Calendar.DAY_OF_MONTH);// 获取当日期
-//        for (int i = m ; i >=1; i-- ){
-//            mRecordList.add(i);
-//        }
-//    }
-
-
 }

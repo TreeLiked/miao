@@ -5,14 +5,21 @@ import android.text.TextUtils;
 import java.io.File;
 import java.text.DecimalFormat;
 
+/**
+ * 文件工具类
+ *
+ * @author lqs2
+ */
 public class FileUtils {
 
 
     /**
      * 将文件大小转换成字节
+     *
+     * @param fileS file len
+     * @return 带单位
      */
-
-    public static String FormetFileSize(long fileS) {
+    public static String formatFileSize(long fileS) {
         DecimalFormat df = new DecimalFormat("#.00");
         String fileSizeString;
         String wrongSize = "0B";
@@ -31,11 +38,19 @@ public class FileUtils {
         return fileSizeString;
     }
 
-    public static boolean renameFile(String bucket_id, String filename, String downloadDir) {
-        if (TextUtils.isEmpty(downloadDir) || TextUtils.isEmpty(bucket_id) || TextUtils.isEmpty(filename)) {
+    /**
+     * 重命名文件
+     *
+     * @param bucketId    bucket编号
+     * @param filename    文件名
+     * @param downloadDir 下载路径
+     * @return 成功 / 失败
+     */
+    public static boolean renameFile(String bucketId, String filename, String downloadDir) {
+        if (TextUtils.isEmpty(downloadDir) || TextUtils.isEmpty(bucketId) || TextUtils.isEmpty(filename)) {
             return false;
         }
-        File file = new File(downloadDir + File.separator + bucket_id);
+        File file = new File(downloadDir + File.separator + bucketId);
         return file.renameTo(new File(downloadDir + File.separator + filename));
 
     }

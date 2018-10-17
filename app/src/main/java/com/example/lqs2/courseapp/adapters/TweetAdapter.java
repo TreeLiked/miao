@@ -26,6 +26,7 @@ import com.example.lqs2.courseapp.activities.MainActivity;
 import com.example.lqs2.courseapp.activities.TweetDetailActivity;
 import com.example.lqs2.courseapp.entity.Tweet;
 import com.example.lqs2.courseapp.entity.UserAndTweet;
+import com.example.lqs2.courseapp.global.ThreadPoolExecutorFactory;
 import com.example.lqs2.courseapp.utils.Base64ImageUtils;
 import com.example.lqs2.courseapp.utils.HttpUtil;
 import com.example.lqs2.courseapp.utils.MaterialDialogUtils;
@@ -45,6 +46,11 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
+/**
+ * 动态适配器
+ *
+ * @author lqs2
+ */
 public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> {
 
 
@@ -61,9 +67,7 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> 
         notifyDataSetChanged();
     }
 
-
     static class ViewHolder extends RecyclerView.ViewHolder {
-
         CardView cardView;
         LinearLayout bgLayout;
         CircleImageView circleImageView;
@@ -75,12 +79,9 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> 
         com.like.LikeButton collectBtn;
         TextView goodView;
 
-//        ImageView commentView;
-
         ViewHolder(View view) {
             super(view);
             cardView = view.findViewById(R.id.tweet_item_layout);
-
             bgLayout = view.findViewById(R.id.tweet_item_layout_for_bg);
             circleImageView = view.findViewById(R.id.user_profile_pic);
             userIdView = view.findViewById(R.id.user_userId);
@@ -90,8 +91,6 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> 
             praiseBtn = view.findViewById(R.id.tweet_praise_btn);
             collectBtn = view.findViewById(R.id.tweet_collect_btn);
             goodView = view.findViewById(R.id.tweet_good_view);
-
-//            commentView = view.findViewById(R.id.tweet_comment);
         }
     }
 
@@ -118,10 +117,10 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> 
         Tweet tweet = tweetList.get(position);
         String picStr = tweet.getUserProfilePicStr();
         if (!TextUtils.isEmpty(picStr)) {
-            new Thread(() -> {
+            ThreadPoolExecutorFactory.getThreadPoolExecutor().execute(() -> {
                 Bitmap b = Base64ImageUtils.base64StrToBitmap(picStr);
                 ((MainActivity) mContext).runOnUiThread(() -> Glide.with(mContext).load(b).thumbnail(0.2f).into(holder.circleImageView));
-            }).start();
+            });
         } else {
             holder.circleImageView.setImageBitmap(BitmapFactory.decodeResource(mContext.getResources(), R.drawable.default_head));
         }
@@ -141,17 +140,14 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> 
         adapter.setDataB(ImageAdapter.getImagePathList(tweet));
 
         holder.recyclerView.setAdapter(adapter);
-
         holder.cardView.setOnClickListener(v -> showTweetDetail(tweet));
         holder.tweetContentView.setOnClickListener(v1 -> showTweetDetail(tweet));
-//        holder.recyclerView.setOnClickListener(v2 -> showTweetDetail(tweet));
 
         bindLongClickToDelete(holder, tweet, position);
         boolean hasLogin = activity.checkHasLoginDarkme();
         if (hasLogin) {
             getUserAccount();
         }
-
         bindUserAndTweet(holder, tweet.getId(), hasLogin);
         bindPraiseButton(holder.praiseBtn, holder.goodView, tweet.getId(), hasLogin);
         bindCollectButton(holder.collectBtn, tweet.getId(), hasLogin);
@@ -159,20 +155,28 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> 
 
     }
 
+    /**
+     * 绑定长按事件
+     *
+     * @param holder   当前视图
+     * @param tweet    动态对象
+     * @param position 在适配器中的位置
+     */
     private void bindLongClickToDelete(ViewHolder holder, Tweet tweet, int position) {
         if (tweet.getUserId().equals(un)) {
             holder.cardView.setOnLongClickListener(v -> {
-                MaterialDialogUtils.showYesOrNoDialogWithBothSthTodo(mContext, new String[]{"删除此条动态吗", "此操作不可恢复", "取消", "确认"}, new MaterialDialogUtils.DialogOnCancelClickListener() {
+                MaterialDialogUtils.showYesOrNoDialogWithBothSthTodo(mContext, new String[]{"删除此条动态吗", "此操作不可恢复", "取消", "确认"}, new MaterialDialogUtils.AbstractDialogOnCancelClickListener() {
                     @Override
                     public void onCancelButtonClick() {
                         HttpUtil.deleteTweet(tweet.getId(), new Callback() {
                             @Override
-                            public void onFailure(Call call, IOException e) {
+                            public void onFailure(@NonNull Call call, @NonNull IOException e) {
                                 ToastUtils.showToastOnMain(mContext, activity, "连接错误", Toast.LENGTH_SHORT);
                             }
 
                             @Override
-                            public void onResponse(Call call, Response response) throws IOException {
+                            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                                assert response.body() != null;
                                 String resp = response.body().string();
                                 if ("1".equals(resp)) {
                                     activity.runOnUiThread(() -> {
@@ -191,12 +195,22 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> 
         }
     }
 
-    public void deleteItem(int position) {
+    /**
+     * 删除对象
+     *
+     * @param position 动态的位置
+     */
+    private void deleteItem(int position) {
         tweetList.remove(position);
         notifyItemRemoved(position);
         notifyDataSetChanged();
     }
 
+    /**
+     * 展示动态的相信信息
+     *
+     * @param tweet 动态对象
+     */
     public void showTweetDetail(Tweet tweet) {
         Intent intent = new Intent(activity, TweetDetailActivity.class);
         Bundle bundle = new Bundle();
@@ -206,17 +220,24 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> 
         activity.startActivity(intent);
     }
 
+    /**
+     * 绑带用户与动态的关系，是否点赞/手残
+     *
+     * @param holder   当前视图
+     * @param id       动态的od
+     * @param hasLogin 是否登录了账户
+     */
     private void bindUserAndTweet(ViewHolder holder, String id, boolean hasLogin) {
         if (hasLogin) {
             HttpUtil.showUserTweetInfo(un, id, new Callback() {
                 @Override
-                public void onFailure(Call call, IOException e) {
+                public void onFailure(@NonNull Call call, @NonNull IOException e) {
 
                 }
 
                 @Override
-                public void onResponse(Call call, Response response) throws IOException {
-
+                public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                    assert response.body() != null;
                     String resp = response.body().string();
                     if (!"-1".equals(resp) && !"0".equals(resp)) {
                         UserAndTweet tweet = gson.fromJson(resp, UserAndTweet.class);
@@ -237,6 +258,13 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> 
         }
     }
 
+    /**
+     * 绑带收藏按钮
+     *
+     * @param button   按钮对象
+     * @param id       动态id
+     * @param hasLogin 是否已经登录账户
+     */
     private void bindCollectButton(LikeButton button, String id, boolean hasLogin) {
         if (hasLogin) {
             if (!TextUtils.isEmpty(un)) {
@@ -271,7 +299,13 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> 
         }
     }
 
-
+    /**
+     * 绑带点赞按钮
+     *
+     * @param button   按钮对象
+     * @param id       动态id
+     * @param hasLogin 是否已经登录账户
+     */
     private void bindPraiseButton(LikeButton button, TextView view, String id, boolean hasLogin) {
         if (hasLogin) {
             button.setOnLikeListener(new OnLikeListener() {
@@ -312,33 +346,54 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> 
         }
     }
 
+    /**
+     * 修改动态的点赞数
+     *
+     * @param id  动态的id
+     * @param add 点赞/取消
+     */
     private void modifyPraiseCount(String id, boolean add) {
-        new Thread(() -> HttpUtil.modifyTweetGood(id, add)).start();
+        ThreadPoolExecutorFactory.getThreadPoolExecutor().execute(() -> HttpUtil.modifyTweetGood(id, add));
     }
 
 
+    /**
+     * 用户点赞动态
+     *
+     * @param tweetId 动态id
+     * @param praise  点赞/取消
+     */
     private void userPraiseTweet(String tweetId, boolean praise) {
-        new Thread(() -> HttpUtil.userPraiseTweet(un, tweetId, praise)).start();
+        ThreadPoolExecutorFactory.getThreadPoolExecutor().execute(() -> HttpUtil.userPraiseTweet(un, tweetId, praise));
     }
 
+    /**
+     * 用户收藏动态
+     *
+     * @param tweetId 动态id
+     * @param collect 收藏/取消
+     */
     private void userCollectTweet(String tweetId, boolean collect) {
-        new Thread(() -> {
+        ThreadPoolExecutorFactory.getThreadPoolExecutor().execute(() -> {
             try {
                 Response resp = HttpUtil.userCollectTweet(un, tweetId, collect);
                 String r = resp.body().string();
                 if ("1".equals(r)) {
 
-                    activity.showToastOnMainThread(collect ? "收藏成功" : "取消收藏成功", Toast.LENGTH_SHORT);
+                    activity.showToast(collect ? "收藏成功" : "取消收藏成功", Toast.LENGTH_SHORT);
                 } else {
-                    activity.showToastOnMainThread(collect ? "收藏失败" : "取消收藏失败", Toast.LENGTH_SHORT);
+                    activity.showToast(collect ? "收藏失败" : "取消收藏失败", Toast.LENGTH_SHORT);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }).start();
+        });
     }
 
 
+    /**
+     * 获取用户账户
+     */
     private void getUserAccount() {
         un = (String) SharedPreferenceUtil.get(mContext, "darkme_un", "");
     }
@@ -353,6 +408,11 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> 
     }
 
 
+    /**
+     * 是否开启了黑暗模式
+     *
+     * @param holder 当前视图对象
+     */
     private void displayDarkMode(ViewHolder holder) {
         holder.tweetContentView.setTextColor(mContext.getResources().getColor(R.color.white));
         holder.goodView.setTextColor(mContext.getResources().getColor(R.color.white));

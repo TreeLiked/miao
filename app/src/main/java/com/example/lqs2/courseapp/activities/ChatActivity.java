@@ -13,58 +13,61 @@ import com.example.lqs2.courseapp.R;
 import com.example.lqs2.courseapp.adapters.ChatMsgAdapter;
 import com.example.lqs2.courseapp.utils.StatusBarUtils;
 
+/**
+ * 聊天活动
+ *
+ * @author lqs2
+ */
 public class ChatActivity extends ActivityCollector {
 
 
-
-    private RecyclerView recyclerView;
     private EditText mEditText;
-    private ChatMsgAdapter msgAdapter;
     private TextView titleView;
-
-    private String un;
-    private String friendId;
-
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
-
         StatusBarUtils.setStatusBarTransparentAndTextColorBlack(this);
 
         bindViews();
         bindActions();
         bindIntentData();
-//        testSomeData();
-
-
     }
 
-
+    /**
+     * 从intent中获取聊天所需要的信息
+     */
     public void bindIntentData() {
-        Intent i =  getIntent();
-        un = i.getStringExtra("un");
-        friendId = i.getStringExtra("friendId");
+        Intent i = getIntent();
+        String un = i.getStringExtra("un");
+        String friendId = i.getStringExtra("friendId");
         titleView.setText(friendId);
     }
 
+    /**
+     * 绑定视图
+     */
     private void bindViews() {
         mEditText = findViewById(R.id.chat_edit_text);
-        recyclerView = findViewById(R.id.chat_msg_recycler_view);
+        RecyclerView recyclerView = findViewById(R.id.chat_msg_recycler_view);
         titleView = findViewById(R.id.chat_title);
-        msgAdapter = new ChatMsgAdapter(this);
+        ChatMsgAdapter msgAdapter = new ChatMsgAdapter(this);
         LinearLayoutManager manager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(manager);
         recyclerView.setAdapter(msgAdapter);
     }
 
+    /**
+     * 绑定聊天框点击发送消息的动作
+     */
     private void bindActions() {
         mEditText.setOnEditorActionListener((v, actionId, event) -> {
-            if (actionId == EditorInfo.IME_ACTION_SEND
+            boolean flag = actionId == EditorInfo.IME_ACTION_SEND
                     || actionId == EditorInfo.IME_ACTION_DONE
-                    || (event != null && KeyEvent.KEYCODE_ENTER == event.getKeyCode() && KeyEvent.ACTION_DOWN == event.getAction())) {
+                    || (event != null && KeyEvent.KEYCODE_ENTER == event.getKeyCode() && KeyEvent.ACTION_DOWN == event.getAction());
+            if (flag) {
                 //处理事件
             }
             return true;

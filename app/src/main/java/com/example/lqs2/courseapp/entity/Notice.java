@@ -2,26 +2,24 @@ package com.example.lqs2.courseapp.entity;
 
 import java.io.Serializable;
 
+/**
+ * notice model
+ *
+ * @author lqs2
+ */
 public class Notice implements Serializable {
 
     private static final long serialVersionUID = 2L;
 
-
     private String title;
     private String time;
-
     private String contentUrl;
     private String content;
-
     private String annexUrl;
     private String annexText;
 
+
     public Notice() {
-    }
-
-
-    public static long getSerialVersionUID() {
-        return serialVersionUID;
     }
 
     public Notice(String title, String time, String contentUrl) {

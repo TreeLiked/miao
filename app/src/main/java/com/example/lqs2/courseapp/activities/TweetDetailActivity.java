@@ -5,14 +5,12 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -28,14 +26,13 @@ import com.example.lqs2.courseapp.utils.TimeUtils;
 
 import java.util.Objects;
 
-public class TweetDetailActivity extends AppCompatActivity {
+/**
+ * 动态的详情页面
+ *
+ * @author lqs2
+ */
+public class TweetDetailActivity extends ActivityCollector {
 
-    private EditText comment_detail_edit;
-
-    private ImageView imageView;
-    private CollapsingToolbarLayout layout;
-    private TextView contentView;
-    private TextView postTimeView;
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @Override
@@ -45,10 +42,10 @@ public class TweetDetailActivity extends AppCompatActivity {
 
         StatusBarUtils.setStatusTransparent(this);
 
-        layout = findViewById(R.id.tweet_detail_cover_layout);
-        imageView = findViewById(R.id.tweet_detail_cover);
-        contentView = findViewById(R.id.tweet_detail_content);
-        postTimeView = findViewById(R.id.tweet_detail_postTime);
+        CollapsingToolbarLayout layout = findViewById(R.id.tweet_detail_cover_layout);
+        ImageView imageView = findViewById(R.id.tweet_detail_cover);
+        TextView contentView = findViewById(R.id.tweet_detail_content);
+        TextView postTimeView = findViewById(R.id.tweet_detail_postTime);
 
 
         Intent intent = getIntent();
@@ -60,7 +57,6 @@ public class TweetDetailActivity extends AppCompatActivity {
                 findViewById(R.id.notice_annex_layout).setVisibility(View.GONE);
                 findViewById(R.id.notice_link_layout).setVisibility(View.GONE);
                 ImageAdapter adapter = new ImageAdapter(this, TweetDetailActivity.this);
-//        recyclerView.addItemDecoration(new DividerItemDecoration(this, LinearLayout.HORIZONTAL));
                 GridLayoutManager layoutManager = new GridLayoutManager(this, 3);
                 recyclerView.setLayoutManager(layoutManager);
                 recyclerView.setAdapter(adapter);
@@ -72,10 +68,10 @@ public class TweetDetailActivity extends AppCompatActivity {
                 }
                 postTimeView.setText(TimeUtils.tweetPostTimeConvert(tweet.getPostTime()));
                 if (Base64ImageUtils.isPicPath(tweet.getImgPath0())) {
-                    Glide.with(TweetDetailActivity.this).load(Constant.img_access_url + tweet.getImgPath0()).into(imageView);
+                    Glide.with(TweetDetailActivity.this).load(Constant.IMG_ACCESS_URL + tweet.getImgPath0()).into(imageView);
                     adapter.setDataC(ImageAdapter.getImagePathList(tweet));
                 } else {
-                    Glide.with(this).load(R.drawable.notice_banner).into(imageView);
+                    Glide.with(this).load(R.drawable.tweet_no_img).into(imageView);
                 }
                 break;
             case 1:
@@ -83,11 +79,11 @@ public class TweetDetailActivity extends AppCompatActivity {
                 findViewById(R.id.news_detail_comment).setVisibility(View.GONE);
                 Glide.with(this).load(R.drawable.notice_banner).into(imageView);
                 Notice notice = (Notice) Objects.requireNonNull(intent.getExtras()).getSerializable("notice");
+                assert notice != null;
                 layout.setTitle(notice.getTitle());
                 layout.setExpandedTitleColor(getResources().getColor(R.color.white));
                 layout.setCollapsedTitleTextColor(getResources().getColor(R.color.black));
                 contentView.setText(notice.getContent());
-
                 TextView linkView = findViewById(R.id.link_text_view);
                 linkView.setMovementMethod(LinkMovementMethod.getInstance());
                 CharSequence c1 = Html.fromHtml("<a href=\"" + notice.getContentUrl() + "\">" + "在网页中查看" + "</a>");
@@ -105,8 +101,6 @@ public class TweetDetailActivity extends AppCompatActivity {
             default:
                 break;
         }
-
-
 //        android.support.v7.widget.Toolbar toolbar = findViewById(R.id.toolbar);
 //        CollapsingToolbarLayout collapsingToolbarLayout = findViewById(R.id.collapsing_toolbar);
 //

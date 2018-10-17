@@ -27,55 +27,49 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
+/**
+ * 图书适配器
+ *
+ * @author lqs2
+ */
 public class BookAdapter extends RecyclerView.Adapter<BookAdapter.NoticeHolder> {
 
     private Context context;
     private Activity activity;
-
     private List<Book> books;
-
 
     public BookAdapter(Context context, Activity activity) {
         this.context = context;
         this.activity = activity;
     }
 
+    /**
+     * 给适配器设置数据
+     *
+     * @param books 图书列表
+     */
     public void setData(List<Book> books) {
         this.books = books;
         notifyDataSetChanged();
     }
 
-    @NonNull
-    @Override
-    public NoticeHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-
-        if (context == null) {
-            context = parent.getContext();
-        }
-        return new NoticeHolder(LayoutInflater.from(context).inflate(R.layout.book_item, parent, false));
-    }
-
-    @Override
-    public void onBindViewHolder(@NonNull NoticeHolder holder, int position) {
-        Book book = books.get(position);
-        holder.nameView.setText(book.getBookNameWithNo());
-        holder.authorView.setText(book.getAuthor());
-        holder.publisherView.setText(book.getPublisher());
-        holder.blInfoView.setText(book.getBlInfo());
-        bindOneClick(holder, book);
-
-    }
-
+    /**
+     * 绑定单击事件
+     *
+     * @param holder holder
+     * @param book   book
+     */
     private void bindOneClick(NoticeHolder holder, Book book) {
 
-        holder.layout.setOnClickListener(v -> HttpUtil.getBookDeatil(book.getDetailUrl(), new Callback() {
+        holder.layout.setOnClickListener(v -> HttpUtil.getBookDetail(book.getDetailUrl(), new Callback() {
             @Override
-            public void onFailure(Call call, IOException e) {
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 ToastUtils.showConnectErrorOnMain(context, activity);
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                assert response.body() != null;
                 String resp = response.body().string();
                 if (!StringUtils.isEmpty(resp)) {
                     HtmlCodeExtractUtil.parseHtmlForBookDetail(book, resp);
@@ -90,7 +84,7 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.NoticeHolder> 
                         builder.append("馆藏地：\t").append(loc.getRoomNo()).append("\n");
                         builder.append("书刊状态：\t").append(loc.getBlState()).append("\n\n");
                     }
-                    activity.runOnUiThread(() -> MaterialDialogUtils.showYesOrNoDialogWithBothSthTodo(context, new String[]{"馆藏", builder.toString(), "确认", "查看图书详细信息"}, new MaterialDialogUtils.DialogBothDoSthOnClickListener() {
+                    activity.runOnUiThread(() -> MaterialDialogUtils.showYesOrNoDialogWithBothSthTodo(context, new String[]{"馆藏", builder.toString(), "确认", "查看图书详细信息"}, new MaterialDialogUtils.AbstractDialogBothDoSthOnClickListener() {
                         @Override
                         public void onConfirmButtonClick() {
 
@@ -108,13 +102,26 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.NoticeHolder> 
         }));
     }
 
+    @NonNull
     @Override
-    public int getItemCount() {
-        return books != null ? books.size() : -1;
+    public NoticeHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        if (context == null) {
+            context = parent.getContext();
+        }
+        return new NoticeHolder(LayoutInflater.from(context).inflate(R.layout.book_item, parent, false));
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull NoticeHolder holder, int position) {
+        Book book = books.get(position);
+        holder.nameView.setText(book.getBookNameWithNo());
+        holder.authorView.setText(book.getAuthor());
+        holder.publisherView.setText(book.getPublisher());
+        holder.blInfoView.setText(book.getBlInfo());
+        bindOneClick(holder, book);
     }
 
     static class NoticeHolder extends RecyclerView.ViewHolder {
-
         CardView layout;
         TextView nameView;
         TextView authorView;
@@ -131,5 +138,8 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.NoticeHolder> 
         }
     }
 
-
+    @Override
+    public int getItemCount() {
+        return books != null ? books.size() : -1;
+    }
 }

@@ -18,6 +18,7 @@ import com.bumptech.glide.Glide;
 import com.example.lqs2.courseapp.R;
 import com.example.lqs2.courseapp.activities.FileActivity;
 import com.example.lqs2.courseapp.entity.UserMessage;
+import com.example.lqs2.courseapp.global.ThreadPoolExecutorFactory;
 import com.example.lqs2.courseapp.utils.Base64ImageUtils;
 import com.example.lqs2.courseapp.utils.HttpUtil;
 import com.example.lqs2.courseapp.utils.MaterialDialogUtils;
@@ -33,14 +34,20 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
+/**
+ * 好友消息适配器
+ *
+ * @author lqs2
+ */
 public class FriMsgAdapter extends RecyclerView.Adapter<FriMsgAdapter.ViewHolder> {
 
     private Context mContext;
     private Activity activity;
     private List<UserMessage> messageList;
 
-
-    //用来保存不重复的好友
+    /**
+     * 用来保存不重复的好友
+     */
     private List<String> friDistinctList = new ArrayList<>();
 
     public FriMsgAdapter(Context mContext, Activity activity) {
@@ -52,11 +59,13 @@ public class FriMsgAdapter extends RecyclerView.Adapter<FriMsgAdapter.ViewHolder
 
         friDistinctList.clear();
         this.messageList = messages;
-//        mergeIdenticalFriend();
         notifyDataSetChanged();
     }
 
 
+    /**
+     * 混合相同的好友
+     */
     private void mergeIdenticalFriend() {
         for (int i = 0; i < messageList.size(); i++) {
             UserMessage msg = messageList.get(i);
@@ -68,7 +77,6 @@ public class FriMsgAdapter extends RecyclerView.Adapter<FriMsgAdapter.ViewHolder
                 }
             }
         }
-
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
@@ -103,18 +111,11 @@ public class FriMsgAdapter extends RecyclerView.Adapter<FriMsgAdapter.ViewHolder
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
 
         UserMessage msg = messageList.get(position);
-//        String msgFrom = msg.getMsgFrom();
         String msgContent = msg.getMsgContent();
         int msgType = msg.getMsgType();
 
         switch (msgType) {
             case 1:
-//                friDistinctList.add(msgFrom);
-//                holder.userIdView.setText(msg.getMsgFrom());
-//                holder.contentView.setText(msgContent);
-//                holder.chatTimeView.setText(TimeUtils.tweetPostTimeConvert(msg.getPostTime()));
-//                loadFriendProfilePic(msg.getMsgFrom(), holder.profilePicView, 1);
-//
                 break;
             case 2:
                 holder.userIdView.setText("好友消息");
@@ -142,6 +143,11 @@ public class FriMsgAdapter extends RecyclerView.Adapter<FriMsgAdapter.ViewHolder
         }
     }
 
+    /**
+     * 删除消息的item
+     *
+     * @param position adapter 中的位置
+     */
     public void deleteItem(int position) {
         messageList.remove(position);
         notifyItemRemoved(position);
@@ -149,19 +155,49 @@ public class FriMsgAdapter extends RecyclerView.Adapter<FriMsgAdapter.ViewHolder
     }
 
 
+    /**
+     * 绑定好友动作
+     *
+     * @param holder   当前视图
+     * @param type     忘了
+     * @param msg      消息内容
+     * @param position 消息位置
+     */
     private void bindFriAction(ViewHolder holder, int type, UserMessage msg, int position) {
         holder.layout.setOnClickListener(v -> bindOnClick(type, msg, position));
     }
 
+    /**
+     * 绑定文件动作
+     *
+     * @param holder   当前视图
+     * @param type     忘了
+     * @param msg      消息内容
+     * @param position 消息位置
+     */
     private void bindFileAction(ViewHolder holder, int type, UserMessage msg, int position) {
-
         holder.layout.setOnClickListener(v -> bindOnClick(type, msg, position));
     }
 
+    /**
+     * 绑定系统通知动作
+     *
+     * @param holder   当前视图
+     * @param type     忘了
+     * @param msg      消息内容
+     * @param position 消息位置
+     */
     private void bindSysAction(ViewHolder holder, int type, UserMessage msg, int position) {
         holder.layout.setOnClickListener(v -> bindOnClick(type, msg, position));
     }
 
+    /**
+     * 绑定单击时间
+     *
+     * @param type     消息的类型，想起来了
+     * @param msg      消息内容
+     * @param position 消息的位置
+     */
     private void bindOnClick(int type, UserMessage msg, int position) {
         switch (type) {
             case 0:
@@ -170,17 +206,18 @@ public class FriMsgAdapter extends RecyclerView.Adapter<FriMsgAdapter.ViewHolder
             case 2:
 //                这种写法也是没谁了，，主要是不想写了
                 if (msg.getMsgContent().contains("迫切")) {
-                    MaterialDialogUtils.showYesOrNoDialog(mContext, new String[]{"好友通知", msg.getMsgContent(), "答应了", "当作没看见"}, new MaterialDialogUtils.DialogOnConfirmClickListener() {
+                    MaterialDialogUtils.showYesOrNoDialog(mContext, new String[]{"好友通知", msg.getMsgContent(), "答应了", "当作没看见"}, new MaterialDialogUtils.AbstractDialogOnConfirmClickListener() {
                         @Override
                         public void onConfirmButtonClick() {
                             HttpUtil.userSendAgreeFriendMessage(msg.getId(), msg.getMsgTo(), msg.getMsgFrom(), true, new Callback() {
                                 @Override
-                                public void onFailure(Call call, IOException e) {
+                                public void onFailure(@NonNull Call call, @NonNull IOException e) {
                                     ToastUtils.showConnectErrorOnMain(mContext, activity);
                                 }
 
                                 @Override
-                                public void onResponse(Call call, Response response) throws IOException {
+                                public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                                    assert response.body() != null;
                                     String resp = response.body().string();
                                     if ("1".equals(resp)) {
                                         ToastUtils.showToastOnMain(mContext, activity, "好友添加成功", Toast.LENGTH_SHORT);
@@ -198,7 +235,7 @@ public class FriMsgAdapter extends RecyclerView.Adapter<FriMsgAdapter.ViewHolder
                 }
                 break;
             case 3:
-                MaterialDialogUtils.showYesOrNoDialog(mContext, new String[]{"文件通知", msg.getMsgContent(), "前往下载", "以后再说"}, new MaterialDialogUtils.DialogOnConfirmClickListener() {
+                MaterialDialogUtils.showYesOrNoDialog(mContext, new String[]{"文件通知", msg.getMsgContent(), "前往下载", "以后再说"}, new MaterialDialogUtils.AbstractDialogOnConfirmClickListener() {
                     @Override
                     public void onConfirmButtonClick() {
                         Intent intent = new Intent(mContext, FileActivity.class);
@@ -212,15 +249,22 @@ public class FriMsgAdapter extends RecyclerView.Adapter<FriMsgAdapter.ViewHolder
         }
     }
 
+    /**
+     * 加载好友头像
+     *
+     * @param friId 好友的id
+     * @param view  当前视图
+     * @param type  头像类型
+     */
     private void loadFriendProfilePic(String friId, CircleImageView view, int type) {
-        new Thread(() -> HttpUtil.getUserProfilePicture(friId, new Callback() {
+        ThreadPoolExecutorFactory.getThreadPoolExecutor().execute(() -> HttpUtil.getUserProfilePicture(friId, new Callback() {
             @Override
-            public void onFailure(Call call, IOException e) {
-
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                assert response.body() != null;
                 String resp = response.body().string();
                 if (!TextUtils.isEmpty(resp) && Base64ImageUtils.isPicPath(resp)) {
                     Bitmap bitmap = Base64ImageUtils.base64StrToBitmap(resp);
@@ -239,7 +283,7 @@ public class FriMsgAdapter extends RecyclerView.Adapter<FriMsgAdapter.ViewHolder
                     }
                 }
             }
-        })).start();
+        }));
     }
 
     @Override

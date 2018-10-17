@@ -1,18 +1,33 @@
 package com.example.lqs2.courseapp.entity;
 
+
+import com.google.gson.annotations.SerializedName;
+
 /**
- * @Author lqs2
- * @Description TODO
- * @Date 2018/7/25, Wed
+ * memo model
+ *
+ * @author lqs2
  */
 public class Memo {
     private int id;
-    private String memo_author;
-    private String memo_title;
-    private String memo_content;
-    private int memo_type;
-    private int memo_state;
-    private String memo_post_date;
+
+    @SerializedName("memo_author")
+    private String memoAuthor;
+
+    @SerializedName("memo_title")
+    private String memoTitle;
+
+    @SerializedName("memo_content")
+    private String memoContent;
+
+    @SerializedName("memo_type")
+    private int memoType;
+
+    @SerializedName("memo_state")
+    private int memoState;
+
+    @SerializedName("memo_post_date")
+    private String memoPostDate;
 
 
     public int getId() {
@@ -23,64 +38,64 @@ public class Memo {
         this.id = id;
     }
 
-    public String getMemo_author() {
-        return memo_author;
+    public String getMemoAuthor() {
+        return memoAuthor;
     }
 
-    public void setMemo_author(String memo_author) {
-        this.memo_author = memo_author;
+    public void setMemoAuthor(String memoAuthor) {
+        this.memoAuthor = memoAuthor;
     }
 
-    public String getMemo_title() {
-        return memo_title;
+    public String getMemoTitle() {
+        return memoTitle;
     }
 
-    public void setMemo_title(String memo_title) {
-        this.memo_title = memo_title;
+    public void setMemoTitle(String memoTitle) {
+        this.memoTitle = memoTitle;
     }
 
-    public String getMemo_content() {
-        return memo_content;
+    public String getMemoContent() {
+        return memoContent;
     }
 
-    public void setMemo_content(String memo_content) {
-        this.memo_content = memo_content;
+    public void setMemoContent(String memoContent) {
+        this.memoContent = memoContent;
     }
 
-    public int getMemo_type() {
-        return memo_type;
+    public int getMemoType() {
+        return memoType;
     }
 
-    public void setMemo_type(int memo_type) {
-        this.memo_type = memo_type;
+    public void setMemoType(int memoType) {
+        this.memoType = memoType;
     }
 
-    public int getMemo_state() {
-        return memo_state;
+    public int getMemoState() {
+        return memoState;
     }
 
-    public void setMemo_state(int memo_state) {
-        this.memo_state = memo_state;
+    public void setMemoState(int memoState) {
+        this.memoState = memoState;
     }
 
-    public String getMemo_post_date() {
-        return memo_post_date;
+    public String getMemoPostDate() {
+        return memoPostDate;
     }
 
-    public void setMemo_post_date(String memo_post_date) {
-        this.memo_post_date = memo_post_date;
+    public void setMemoPostDate(String memoPostDate) {
+        this.memoPostDate = memoPostDate;
     }
 
     @Override
     public String toString() {
         return "Memo{" +
                 "id=" + id +
-                ", memo_author='" + memo_author + '\'' +
-                ", memo_title='" + memo_title + '\'' +
-                ", memo_content='" + memo_content + '\'' +
-                ", memo_type=" + memo_type +
-                ", memo_state=" + memo_state +
-                ", memo_post_date='" + memo_post_date + '\'' +
+                ", memoAuthor='" + memoAuthor + '\'' +
+                ", memoTitle='" + memoTitle + '\'' +
+                ", memoContent='" + memoContent + '\'' +
+                ", memoType=" + memoType +
+                ", memoState=" + memoState +
+                ", memoPostDate='" + memoPostDate + '\'' +
                 '}';
     }
 }

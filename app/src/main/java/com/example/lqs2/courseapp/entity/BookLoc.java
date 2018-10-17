@@ -1,6 +1,12 @@
 package com.example.lqs2.courseapp.entity;
 
+/**
+ * book loc model
+ *
+ * @author lqs2
+ */
 public class BookLoc {
+
 
     private String searchNo;
     private String idNo;

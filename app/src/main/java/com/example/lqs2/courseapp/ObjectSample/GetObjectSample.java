@@ -31,7 +31,7 @@ public class GetObjectSample {
     /**
      * 采用异步回调操作
      */
-    public void startAsync(String bucket_id, String filename) {
+    public void startAsync(String bucketId, String filename) {
         String bucket = qServiceCfg.getBucketForObjectAPITest();
         String cosPath = qServiceCfg.getGetCosPath();
         String downloadDir = qServiceCfg.getDownloadDir();
@@ -47,9 +47,9 @@ public class GetObjectSample {
             @Override
             public void onSuccess(CosXmlRequest cosXmlRequest, CosXmlResult cosXmlResult) {
                 byeProgress(filename + "下载成功", "文件存储在： " + qServiceCfg.getDownloadDir() + File.separator + filename, 1);
-                boolean r = FileUtils.renameFile(bucket_id, filename, downloadDir);
+                boolean r = FileUtils.renameFile(bucketId, filename, downloadDir);
                 if (!r) {
-                    byeProgress("重命名失败", "现文件名: " + bucket_id + "存储在：" + qServiceCfg.getDownloadDir() + File.separator + filename, 1);
+                    byeProgress("重命名失败", "现文件名: " + bucketId + "存储在：" + qServiceCfg.getDownloadDir() + File.separator + filename, 1);
                 }
             }
             @Override

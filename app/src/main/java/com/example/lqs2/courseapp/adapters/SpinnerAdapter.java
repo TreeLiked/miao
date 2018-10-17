@@ -13,6 +13,11 @@ import com.example.lqs2.courseapp.R;
 
 import java.util.List;
 
+/**
+ * 下拉框适配器
+ *
+ * @author lqs2
+ */
 public class SpinnerAdapter extends ArrayAdapter<String> {
 
     private int resourceId;

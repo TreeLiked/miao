@@ -7,6 +7,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
@@ -45,6 +46,8 @@ import okhttp3.Response;
 
 /**
  * A simple {@link Fragment} subclass.
+ *
+ * @author lqs2
  */
 public class FriendFragment extends Fragment {
 
@@ -64,7 +67,6 @@ public class FriendFragment extends Fragment {
     private Gson gson;
     private String un;
 
-    private long currentTime;
     private long lastTime;
 
     public FriendFragment() {
@@ -73,9 +75,8 @@ public class FriendFragment extends Fragment {
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_friend, container, false);
 
         gson = new Gson();
@@ -85,7 +86,7 @@ public class FriendFragment extends Fragment {
         friListView = view.findViewById(R.id.fri_list_recycler_view);
         friOptEdit = view.findViewById(R.id.fri_opt_edit);
         layout = view.findViewById(R.id.flush_friends_layout);
-        layout.setOnRefreshListener(() -> displayMyFriend());
+        layout.setOnRefreshListener(this::displayMyFriend);
         friOptEdit.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -137,7 +138,7 @@ public class FriendFragment extends Fragment {
         un = UsualSharedPreferenceUtil.getDarkmeAccount(this.getContext());
         HttpUtil.showMyFriends(un, new okhttp3.Callback() {
             @Override
-            public void onFailure(Call call, IOException e) {
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 activity.runOnUiThread(() -> {
                     layout.setRefreshing(false);
                     ToastUtils.showToast(context, "服务错误", Toast.LENGTH_SHORT);
@@ -145,7 +146,8 @@ public class FriendFragment extends Fragment {
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                assert response.body() != null;
                 String resp = response.body().string();
                 if (!"-1".equals(resp)) {
                     friendList = gson.fromJson(resp, new TypeToken<List<UserFriend>>() {
@@ -166,23 +168,25 @@ public class FriendFragment extends Fragment {
     }
 
     class QueryUser implements Runnable {
+        @Override
         public void run() {
-            currentTime = System.currentTimeMillis();
+            long currentTime = System.currentTimeMillis();
             if (currentTime - lastTime >= 1500) {
                 String text = friOptEdit.getText().toString().trim();
-                MaterialDialogUtils.showYesOrNoDialog(getActivity(), new String[]{"No User Matches", "是否查找ID为 [ " + text + " ] 的用户", "查找", "关闭"}, new MaterialDialogUtils.DialogOnConfirmClickListener() {
+                MaterialDialogUtils.showYesOrNoDialog(getActivity(), new String[]{"No User Matches", "是否查找ID为 [ " + text + " ] 的用户", "查找", "关闭"}, new MaterialDialogUtils.AbstractDialogOnConfirmClickListener() {
                     @Override
                     public void onConfirmButtonClick() {
                         HttpUtil.hasMatcherUser(text, new Callback() {
                             @Override
-                            public void onFailure(Call call, IOException e) {
+                            public void onFailure(@NonNull Call call, @NonNull IOException e) {
                                 ToastUtils.showToastOnMain(context, activity, "连接错误", Toast.LENGTH_SHORT);
                             }
 
                             @SuppressLint("SetTextI18n")
                             @Override
-                            public void onResponse(Call call, Response response) throws IOException {
+                            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
 
+                                assert response.body() != null;
                                 String resp = response.body().string();
                                 if (!"0".equals(resp) && !"error".equals(resp)) {
                                     User user = gson.fromJson(resp, User.class);
@@ -211,7 +215,7 @@ public class FriendFragment extends Fragment {
                                             v3.setText("性     别：" + (user.isMan() ? "男" : "女"));
                                             v4.setText("邮     箱：" + user.getEmail());
                                             v5.setText("添加时间：" + user.getCreateTime());
-                                            MaterialDialogUtils.showYesOrNoDialogWithCustomView(context, new String[]{"查找到用户", "", "添加", "关闭"}, view, new MaterialDialogUtils.DialogOnConfirmClickListener() {
+                                            MaterialDialogUtils.showYesOrNoDialogWithCustomView(context, new String[]{"查找到用户", "", "添加", "关闭"}, view, new MaterialDialogUtils.AbstractDialogOnConfirmClickListener() {
                                                 @Override
                                                 public void onConfirmButtonClick() {
                                                     ToastUtils.showToast(context, "已发送好友添加请求", Toast.LENGTH_LONG);

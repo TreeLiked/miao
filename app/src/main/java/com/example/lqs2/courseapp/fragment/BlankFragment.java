@@ -14,13 +14,14 @@ import com.example.lqs2.courseapp.R;
 
 /**
  * A simple {@link Fragment} subclass.
+ *
+ * @author lqs2
  */
 public class BlankFragment extends Fragment {
 
     public static BlankFragment newInstance(String text) {
-
         Bundle args = new Bundle();
-        args.putString("text",text);
+        args.putString("text", text);
         BlankFragment fragment = new BlankFragment();
         fragment.setArguments(args);
         return fragment;

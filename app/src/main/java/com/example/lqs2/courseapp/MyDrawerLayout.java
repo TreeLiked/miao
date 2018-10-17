@@ -36,7 +36,7 @@ public class MyDrawerLayout extends DrawerLayout {
 //                    case R.id.nav_course:
 //                        Log.d("CourseApp", "hasLoginJW" + hasLogin_JW);
 //                        if (!hasLogin_JW) {
-//                            Intent intent = new Intent(MyApplication.getContext(), LoginNJITActivity.class);
+//                            Intent intent = new Intent(MyApplication.getContext(), LoginNjitActivity.class);
 //                            intent.putExtra("TODO", "COURSE");
 //                            MyApplication.getContext().startActivity(intent);
 //                        } else {
@@ -84,7 +84,7 @@ public class MyDrawerLayout extends DrawerLayout {
 //                            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 //                                if (position == 0) {
 //                                    Toast.makeText(MyApplication.getContext(), "欢迎使用成绩查询系统", Toast.LENGTH_LONG).show();
-//                                    Intent intent = new Intent(MyApplication.getContext(), LoginNJITActivity.class);
+//                                    Intent intent = new Intent(MyApplication.getContext(), LoginNjitActivity.class);
 //                                    intent.putExtra("TODO", "GRADE");
 //                                    MyApplication.getContext().startActivity(intent);
 //                                    alert.dismiss();
@@ -100,7 +100,7 @@ public class MyDrawerLayout extends DrawerLayout {
 //                    case R.id.nav_network:
 //                        boolean hasSavePwd = (Boolean) SharedPreferenceUtil.get(MyApplication.getContext(), "remember_password_jw", false);
 //                        if (!hasSavePwd) {
-//                            Intent intent = new Intent(MyApplication.getContext(), LoginNJITActivity.class);
+//                            Intent intent = new Intent(MyApplication.getContext(), LoginNjitActivity.class);
 //                            intent.putExtra("TODO", "NETWORK");
 //                            MyApplication.getContext().startActivity(intent);
 //                        } else {

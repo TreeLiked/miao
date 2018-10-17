@@ -2,6 +2,11 @@ package com.example.lqs2.courseapp.entity;
 
 import java.util.List;
 
+/**
+ * book model
+ *
+ * @author lqs2
+ */
 public class Book {
 
     private String bookNameWithNo;
@@ -9,7 +14,6 @@ public class Book {
     private String publisher;
     private String blInfo;
     private String detailUrl;
-
     private String detailInfo;
     private String blDetail;
 

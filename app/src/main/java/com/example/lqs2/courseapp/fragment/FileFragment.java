@@ -67,6 +67,11 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
+/**
+ * file fragment
+ *
+ * @author lqs2
+ */
 @SuppressWarnings({"NullableProblems", "ConstantConditions"})
 public class FileFragment extends Fragment implements View.OnClickListener {
     @SuppressLint("HandlerLeak")
@@ -103,6 +108,9 @@ public class FileFragment extends Fragment implements View.OnClickListener {
         }
     };
 
+    /**
+     * 文件的MIME类型
+     */
     private static final String[][] MATCH_ARRAY = {
             //{后缀名，    文件类型}
             {".3gp", "video/3gpp"},
@@ -171,83 +179,40 @@ public class FileFragment extends Fragment implements View.OnClickListener {
     };
 
     private SwipeRefreshLayout refreshLayout;
-    //读文件权限请求码
+    /**
+     * 读文件权限请求码
+     */
     private int REQUEST_PERMISSION_CODE_READ = 1;
-    //写文件权限请求码
+    /**
+     * 写文件权限请求码
+     */
     private int REQUEST_PERMISSION_CODE_WRITE = 2;
-    public static boolean isCloud = true;
 
+    public static boolean isCloud = true;
     private ProgressBar pBar;
     private Toast toast;
     private static final int NOTIFICATION_ID = 0x3;
-
-    private RecyclerView fileRecycleView;
     private FileAdapter fileAdapter;
     private List<File> fileList;
-
     private Gson gson;
-
-
     private NotificationManager notificationManager;
     private NotificationCompat.Builder builder;
-
     public static String un;
     private FloatingActionsMenu menu;
 
-
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
-
-        View view = inflater.inflate(R.layout.fragment_file, container, false);
-        fileAdapter = new FileAdapter(getContext(), FileFragment.this);
-        gson = new Gson();
-        fileRecycleView = view.findViewById(R.id.file_recycle_view);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
-        fileRecycleView.setLayoutManager(layoutManager);
-        fileRecycleView.setAdapter(fileAdapter);
-        menu = view.findViewById(R.id.file_float_menu);
-        FloatingActionButton showCloudFile = view.findViewById(R.id.file_choice_showCloudFile);
-        FloatingActionButton showLocalFile = view.findViewById(R.id.file_choice_showLocalFile);
-        FloatingActionButton searchFile = view.findViewById(R.id.file_choice_searchFile);
-        FloatingActionButton uploadFile = view.findViewById(R.id.file_choice_uploadFile);
-        FloatingActionButton logOut = view.findViewById(R.id.file_choice_logOut);
-
-
-        showCloudFile.setOnClickListener(this);
-        showLocalFile.setOnClickListener(this);
-        searchFile.setOnClickListener(this);
-        uploadFile.setOnClickListener(this);
-        logOut.setOnClickListener(this);
-
-
-        pBar = view.findViewById(R.id.file_load_progress_bar);
-        notificationManager = (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
-
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            String id = "channel_1";
-            String description = "143";
-            int importance = NotificationManager.IMPORTANCE_LOW;
-            NotificationChannel channel = new NotificationChannel(id, description, importance);
-            notificationManager.createNotificationChannel(channel);
+    /**
+     * 获取打开文件权限
+     *
+     * @param context 上下文
+     * @param fileUri 文件uri
+     * @param intent  intent
+     */
+    private static void grantUriPermission(Context context, Uri fileUri, Intent intent) {
+        List<ResolveInfo> resInfoList = context.getPackageManager().queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
+        for (ResolveInfo resolveInfo : resInfoList) {
+            String packageName = resolveInfo.activityInfo.packageName;
+            context.grantUriPermission(packageName, fileUri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
         }
-
-
-        builder = new NotificationCompat.Builder(getActivity(), "channel_1");
-        refreshLayout = view.findViewById(R.id.file_swipe_flush);
-        refreshLayout.setColorSchemeResources(R.color.r3);
-
-        refreshLayout.setOnRefreshListener(() -> {
-            showLoadBar(true);
-            if (isCloud) {
-                showCloudFile(false, false);
-            } else {
-                showLocalDownloadDir(false, false);
-            }
-        });
-        return view;
     }
 
     @Override
@@ -325,74 +290,59 @@ public class FileFragment extends Fragment implements View.OnClickListener {
         SharedPreferenceUtil.put(getContext(), "darkme_pwd", "");
     }
 
-    private void searchFile(String no) {
-        HttpUtil.searchFileByNo(un, no, new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                showToast("查询错误，呜～", Toast.LENGTH_SHORT);
-            }
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                String r = response.body().string();
-                if (!"0".equals(r)) {
-                    if (!"null".equals(r)) {
-                        if (!"no".equals(r)) {
-                            try {
-                                getActivity().runOnUiThread(() -> {
-                                    File file = new Gson().fromJson(r, File.class);
-                                    final me.drakeet.materialdialog.MaterialDialog mMaterialDialog = new me.drakeet.materialdialog.MaterialDialog(getActivity());
-                                    mMaterialDialog
-                                            .setTitle(file.getFile_name())
-                                            .setMessage("大       小：" + file.getFile_size()
-                                                    + "\n" + "编       号：" + file.getFile_bring_id()
-                                                    + "\n" + "归       属：" + file.getFile_post_author()
-                                                    + "\n" + "去       向：" + file.getFile_destination()
-                                                    + "\n" + "备       注：" + file.getFile_attach()
-                                                    + "\n" + "上传日期：" + file.getFile_post_date()
-                                                    + "\n" + "有   效   期：" + file.getFile_save_days() + "天")
-                                            .setNegativeButton("删除", v1 -> {
-                                                HttpUtil.deleteOneFile(un, String.valueOf(file.getId()), new Callback() {
-                                                    @Override
-                                                    public void onFailure(Call call1, IOException e) {
-                                                        showToast("删除失败，请稍后重试", 0);
-                                                    }
 
-                                                    @Override
-                                                    public void onResponse(Call call1, Response response1) throws IOException {
-                                                        if ("1".equals(response1.body().string())) {
-                                                            QServiceCfg qServiceCfg = QServiceCfg.instance(getActivity());
-                                                            qServiceCfg.setUploadCosPath(file.getFile_bucket_id());
-                                                            DeleteObjectSample deleteObjectSample = new DeleteObjectSample(qServiceCfg, FileFragment.this);
-                                                            deleteObjectSample.startAsync();
-                                                        } else {
-                                                            showToast("删除失败，呜～", 0);
-                                                        }
-                                                    }
-                                                });
-                                                mMaterialDialog.dismiss();
-                                            })
-                                            .setPositiveButton("下载", v1 -> {
-                                                mMaterialDialog.dismiss();
-                                                downloadFile(file.getFile_bucket_id(), file.getFile_name());
-                                            })
-                                            .setCanceledOnTouchOutside(true);
-                                    mMaterialDialog.show();
-                                });
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        } else {
-                            showToast("你没有权限下载此文件", Toast.LENGTH_SHORT);
-                        }
-                    } else {
-                        showToast("不存在此编号的文件 || 文件已失效", Toast.LENGTH_SHORT);
-                    }
-                } else {
-                    showToast("身份验证失败", Toast.LENGTH_SHORT);
-                }
+        View view = inflater.inflate(R.layout.fragment_file, container, false);
+        fileAdapter = new FileAdapter(getContext(), FileFragment.this);
+        gson = new Gson();
+        RecyclerView fileRecycleView = view.findViewById(R.id.file_recycle_view);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
+        fileRecycleView.setLayoutManager(layoutManager);
+        fileRecycleView.setAdapter(fileAdapter);
+        menu = view.findViewById(R.id.file_float_menu);
+        FloatingActionButton showCloudFile = view.findViewById(R.id.file_choice_showCloudFile);
+        FloatingActionButton showLocalFile = view.findViewById(R.id.file_choice_showLocalFile);
+        FloatingActionButton searchFile = view.findViewById(R.id.file_choice_searchFile);
+        FloatingActionButton uploadFile = view.findViewById(R.id.file_choice_uploadFile);
+        FloatingActionButton logOut = view.findViewById(R.id.file_choice_logOut);
+
+
+        showCloudFile.setOnClickListener(this);
+        showLocalFile.setOnClickListener(this);
+        searchFile.setOnClickListener(this);
+        uploadFile.setOnClickListener(this);
+        logOut.setOnClickListener(this);
+
+
+        pBar = view.findViewById(R.id.file_load_progress_bar);
+        notificationManager = (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
+
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            String id = "channel_1";
+            String description = "143";
+            int importance = NotificationManager.IMPORTANCE_LOW;
+            NotificationChannel channel = new NotificationChannel(id, description, importance);
+            notificationManager.createNotificationChannel(channel);
+        }
+
+
+        builder = new NotificationCompat.Builder(getActivity(), "channel_1");
+        refreshLayout = view.findViewById(R.id.file_swipe_flush);
+        refreshLayout.setColorSchemeResources(R.color.r3);
+
+        refreshLayout.setOnRefreshListener(() -> {
+            showLoadBar(true);
+            if (isCloud) {
+                showCloudFile(false, false);
+            } else {
+                showLocalDownloadDir(false, false);
             }
         });
+        return view;
     }
 
     @Override
@@ -474,6 +424,101 @@ public class FileFragment extends Fragment implements View.OnClickListener {
         handler.sendMessage(msg);
     }
 
+    private void searchFile(String no) {
+        HttpUtil.searchFileByNo(un, no, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                showToast("查询错误，呜～", Toast.LENGTH_SHORT);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String r = response.body().string();
+                if (!"0".equals(r)) {
+                    if (!"null".equals(r)) {
+                        if (!"no".equals(r)) {
+                            try {
+                                getActivity().runOnUiThread(() -> {
+                                    File file = new Gson().fromJson(r, File.class);
+                                    final me.drakeet.materialdialog.MaterialDialog mMaterialDialog = new me.drakeet.materialdialog.MaterialDialog(getActivity());
+                                    mMaterialDialog
+                                            .setTitle(file.getFileName())
+                                            .setMessage("大       小：" + file.getFileSize()
+                                                    + "\n" + "编       号：" + file.getFileBringId()
+                                                    + "\n" + "归       属：" + file.getFilePostAuthor()
+                                                    + "\n" + "去       向：" + file.getFileDestination()
+                                                    + "\n" + "备       注：" + file.getFileAttach()
+                                                    + "\n" + "上传日期：" + file.getFilePostDate()
+                                                    + "\n" + "有   效   期：" + file.getFileSaveDays() + "天")
+                                            .setNegativeButton("删除", v1 -> {
+                                                HttpUtil.deleteOneFile(un, String.valueOf(file.getId()), new Callback() {
+                                                    @Override
+                                                    public void onFailure(Call call1, IOException e) {
+                                                        showToast("删除失败，请稍后重试", 0);
+                                                    }
+
+                                                    @Override
+                                                    public void onResponse(Call call1, Response response1) throws IOException {
+                                                        if ("1".equals(response1.body().string())) {
+                                                            QServiceCfg qServiceCfg = QServiceCfg.instance(getActivity());
+                                                            qServiceCfg.setUploadCosPath(file.getFileBucketId());
+                                                            DeleteObjectSample deleteObjectSample = new DeleteObjectSample(qServiceCfg, FileFragment.this);
+                                                            deleteObjectSample.startAsync();
+                                                        } else {
+                                                            showToast("删除失败，呜～", 0);
+                                                        }
+                                                    }
+                                                });
+                                                mMaterialDialog.dismiss();
+                                            })
+                                            .setPositiveButton("下载", v1 -> {
+                                                mMaterialDialog.dismiss();
+                                                downloadFile(file.getFileBucketId(), file.getFileName());
+                                            })
+                                            .setCanceledOnTouchOutside(true);
+                                    mMaterialDialog.show();
+                                });
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            showToast("你没有权限下载此文件", Toast.LENGTH_SHORT);
+                        }
+                    } else {
+                        showToast("不存在此编号的文件 || 文件已失效", Toast.LENGTH_SHORT);
+                    }
+                } else {
+                    showToast("身份验证失败", Toast.LENGTH_SHORT);
+                }
+            }
+        });
+    }
+
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == Activity.RESULT_OK) {
+            switch (requestCode) {
+                case Constant.GET_CONTENT:
+                    Uri uri = data.getData();
+                    String url = FilePathResolver.getPathFormUri(getActivity(), uri);
+                    if (url != null) {
+                        doShowUploadChoice(url);
+                    } else {
+                        showToast("文件路径不正确", Toast.LENGTH_SHORT);
+                    }
+                    break;
+                case PermissionUtils.CODE_READ_EXTERNAL_STORAGE:
+                    menu.collapseImmediately();
+                    isCloud = false;
+                    showLoadBar(true);
+                    showLocalDownloadDir(true, true);
+                default:
+                    break;
+            }
+        }
+    }
+
     private void showLocalDownloadDir(boolean isInit, boolean showHaveShown) {
         clearFileList();
         try {
@@ -486,10 +531,10 @@ public class FileFragment extends Fragment implements View.OnClickListener {
                     for (java.io.File file : listFiles) {
                         if (file.isFile()) {
                             File file1 = new File();
-                            file1.setFile_name(file.getName());
+                            file1.setFileName(file.getName());
                             cal.setTimeInMillis(file.lastModified());
-                            file1.setFile_post_date(cal.getTime().toLocaleString());
-                            file1.setFile_size(FileUtils.FormetFileSize(new FileInputStream(Constant.DOWNLOAD_DIR + java.io.File.separator + file.getName()).available()));
+                            file1.setFilePostDate(cal.getTime().toLocaleString());
+                            file1.setFileSize(FileUtils.formatFileSize(new FileInputStream(Constant.DOWNLOAD_DIR + java.io.File.separator + file.getName()).available()));
                             fileList.add(file1);
                             showLoadBar(false);
                             showFileList(false);
@@ -525,31 +570,6 @@ public class FileFragment extends Fragment implements View.OnClickListener {
         }
     }
 
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == Activity.RESULT_OK) {
-            switch (requestCode) {
-                case Constant.GET_CONTENT:
-                    Uri uri = data.getData();
-                    String url = FilePathResolver.getPathFormUri(getActivity(), uri);
-                    if (url != null) {
-                        doShowUploadChoice(url);
-                    } else {
-                        showToast("文件路径不正确", Toast.LENGTH_SHORT);
-                    }
-                    break;
-                case PermissionUtils.CODE_READ_EXTERNAL_STORAGE:
-                    menu.collapseImmediately();
-                    isCloud = false;
-                    showLoadBar(true);
-                    showLocalDownloadDir(true, true);
-                default:
-                    break;
-            }
-        }
-    }
-
     private void doShowUploadChoice(String url) {
         View view = null;
         try {
@@ -568,10 +588,10 @@ public class FileFragment extends Fragment implements View.OnClickListener {
                 .negativeText("取消")
                 .onAny((dialog1, which) -> {
                     if (which == DialogAction.POSITIVE) {
-                        EditText e_text1 = finalView.findViewById(R.id.file_choice_dest);
-                        EditText e_text2 = finalView.findViewById(R.id.file_choice_atta);
-                        String t1 = e_text1.getText().toString();
-                        String t2 = e_text2.getText().toString();
+                        EditText eText1 = finalView.findViewById(R.id.file_choice_dest);
+                        EditText eText2 = finalView.findViewById(R.id.file_choice_atta);
+                        String t1 = eText1.getText().toString();
+                        String t2 = eText2.getText().toString();
                         if (t2.length() <= 45) {
                             if (!TextUtils.isEmpty(t1)) {
                                 try {
@@ -614,9 +634,8 @@ public class FileFragment extends Fragment implements View.OnClickListener {
     private void doUpload(String absUrl, String dest, String atta) {
 
         String fileSize = "未知大小";
-//        String fileName = absUrl.substring(absUrl.lastIndexOf("/") + 1);
         try {
-            fileSize = FileUtils.FormetFileSize(new FileInputStream(new java.io.File(absUrl)).available());
+            fileSize = FileUtils.formatFileSize(new FileInputStream(new java.io.File(absUrl)).available());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -645,9 +664,18 @@ public class FileFragment extends Fragment implements View.OnClickListener {
         });
     }
 
-    //    public String  insertFileRecord(String file_post_author, int fileNo, String fileName, String attachment, String destination, String fileSize)
-    private void insertNewFileRecord(String file_post_author, String fileNo, String fileName, String attachment, String destination, String fileSize) {
-        HttpUtil.insertFileRecord(file_post_author, fileNo, fileName, attachment, destination, fileSize, new Callback() {
+    /**
+     * 保存此条文件记录
+     *
+     * @param filePostAuthor 文件作者
+     * @param fileNo         文件编号
+     * @param fileName       文件名
+     * @param attachment     附加信息
+     * @param destination    目的地
+     * @param fileSize       文件大小
+     */
+    private void insertNewFileRecord(String filePostAuthor, String fileNo, String fileName, String attachment, String destination, String fileSize) {
+        HttpUtil.insertFileRecord(filePostAuthor, fileNo, fileName, attachment, destination, fileSize, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 showToast("上传失败", Toast.LENGTH_SHORT);
@@ -668,6 +696,13 @@ public class FileFragment extends Fragment implements View.OnClickListener {
 
     }
 
+    /**
+     * 上传/下载通知
+     *
+     * @param title   通知标题
+     * @param content 通知内容
+     * @param t       类型，上传/下载
+     */
     public void startProgress(String title, String content, int t) {
         if (t < 0) {
             builder.setSmallIcon(R.mipmap.up);
@@ -680,6 +715,12 @@ public class FileFragment extends Fragment implements View.OnClickListener {
         notificationManager.notify(NOTIFICATION_ID, builder.build());
     }
 
+    /**
+     * 显示进度
+     *
+     * @param per 百分比
+     * @param t   通知标题
+     */
     public void publishProgress(int per, String t) {
         builder.setProgress(100, per, false);
         builder.setContentTitle(t);
@@ -687,6 +728,17 @@ public class FileFragment extends Fragment implements View.OnClickListener {
         notificationManager.notify(NOTIFICATION_ID, builder.build());
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    }
+
+    /**
+     * 上传/下载完成
+     *
+     * @param title   通知标题
+     * @param content 通知内容
+     * @param t       上传/下载
+     */
     public void sayGoodbyeToProgress(String title, String content, int t) {
 //        设置关闭通知栏
         notificationManager.cancel(NOTIFICATION_ID);
@@ -701,47 +753,73 @@ public class FileFragment extends Fragment implements View.OnClickListener {
         notificationManager.notify(NOTIFICATION_ID, builder.build());
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-    }
-
+    /**
+     * 检查权限
+     *
+     * @param permissionType 权限类型
+     * @param code           权限请求吗
+     */
     public void checkPermission(String permissionType, int code) {
         if (ActivityCompat.checkSelfPermission(getContext(), permissionType) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(getActivity(), new String[]{permissionType}, code);
         }
     }
 
-    public void downloadFile(String bucket_id, String filename) {
+    /**
+     * 下载文件
+     *
+     * @param bucketId 对象存储中的id
+     * @param filename 文件名
+     */
+    public void downloadFile(String bucketId, String filename) {
         checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, REQUEST_PERMISSION_CODE_WRITE);
-        doDownload(bucket_id, filename);
+        doDownload(bucketId, filename);
     }
 
-    public void doDownload(String bucket_id, String filename) {
+    /**
+     * 下载前初始化工作
+     *
+     * @param bucketId 文件编号
+     * @param filename 文件名
+     */
+    public void doDownload(String bucketId, String filename) {
         QServiceCfg qServiceCfg = QServiceCfg.instance(getActivity());
         qServiceCfg.setDownloadDir(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath());
         System.out.println(qServiceCfg.getDownloadDir());
-        qServiceCfg.setGetCosPath(bucket_id);
+        qServiceCfg.setGetCosPath(bucketId);
         GetObjectSample getObjectRequest = new GetObjectSample(qServiceCfg, this);
-        getObjectRequest.startAsync(bucket_id, filename);
+        getObjectRequest.startAsync(bucketId, filename);
     }
 
+    /**
+     * 通过文件路径获取文件名
+     *
+     * @param s 文件路径
+     * @return 文件名
+     */
     public String getFilenameThroughPath(String s) {
         return s.substring(s.lastIndexOf("/") + 1);
     }
 
-
+    /**
+     * 打开指定路径的文件
+     *
+     * @param context 上下文
+     * @param path    路径
+     */
     public void openFileByPath(Context context, String path) {
-        if (context == null || path == null)
+        if (context == null || path == null) {
             return;
+        }
         Intent intent = new Intent();
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         //设置intent的Action属性
         intent.setAction(Intent.ACTION_VIEW);
         //文件的MIME类型
         String type = "";
-        for (String[] aMATCH_ARRAY : MATCH_ARRAY) {
-            if (path.contains(aMATCH_ARRAY[0])) {
-                type = aMATCH_ARRAY[1];
+        for (String[] matchArray : MATCH_ARRAY) {
+            if (path.contains(matchArray[0])) {
+                type = matchArray[1];
                 break;
             }
         }
@@ -749,7 +827,8 @@ public class FileFragment extends Fragment implements View.OnClickListener {
             //设置intent的data和Type属性
             java.io.File file = new java.io.File(path);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                Uri fileUri = FileProvider.getUriForFile(context.getApplicationContext(), BuildConfig.APPLICATION_ID + ".provider", file);//android 7.0以上
+                //android 7.0以上
+                Uri fileUri = FileProvider.getUriForFile(context.getApplicationContext(), BuildConfig.APPLICATION_ID + ".provider", file);
                 intent.setDataAndType(fileUri, type);
                 grantUriPermission(context, fileUri, intent);
             } else {
@@ -763,21 +842,18 @@ public class FileFragment extends Fragment implements View.OnClickListener {
         }
     }
 
-    private static void grantUriPermission(Context context, Uri fileUri, Intent intent) {
-        List<ResolveInfo> resInfoList = context.getPackageManager().queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
-        for (ResolveInfo resolveInfo : resInfoList) {
-            String packageName = resolveInfo.activityInfo.packageName;
-            context.grantUriPermission(packageName, fileUri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        }
-    }
-
-    public void deleteFileInDownloadDir(String file_name) {
-        if (TextUtils.isEmpty(file_name)) {
+    /**
+     * 删除下载文件夹中的文件
+     *
+     * @param fileName 文件名
+     */
+    public void deleteFileInDownloadDir(String fileName) {
+        if (TextUtils.isEmpty(fileName)) {
             showToast("删除失败", Toast.LENGTH_SHORT);
             return;
         }
         try {
-            java.io.File file = new java.io.File(Constant.DOWNLOAD_DIR + java.io.File.separator + file_name);
+            java.io.File file = new java.io.File(Constant.DOWNLOAD_DIR + java.io.File.separator + fileName);
             boolean delete = file.delete();
             if (delete) {
                 showToast("删除成功", Toast.LENGTH_SHORT);
@@ -790,6 +866,9 @@ public class FileFragment extends Fragment implements View.OnClickListener {
         }
     }
 
+    /**
+     * 清空文件列表
+     */
     private void clearFileList() {
         if (null != fileList) {
             fileList.clear();

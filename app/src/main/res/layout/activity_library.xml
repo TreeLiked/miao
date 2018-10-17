@@ -13,11 +13,11 @@
         android:gravity="center_horizontal"
         android:text="图书馆书目检索"
         android:textColor="@color/black"
-        android:textSize="25sp" />
+        android:textSize="26sp" />
 
     <EditText
         android:id="@+id/library_search_edit"
-        style="@style/MyEditText"
+
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="10dp"
@@ -25,6 +25,7 @@
         android:layout_marginBottom="6dp"
         android:hint="输入图书信息以发起检索"
         android:imeOptions="actionDone"
+        android:theme="@style/MyEditText2"
         android:maxLines="1"
         android:singleLine="true" />
 

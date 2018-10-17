@@ -91,7 +91,9 @@ public class StringUtils {
         pos2 = pos2 >= 0 ? pos2 :url.length();
         host = url.substring(pos + 1, pos2);
         int pos3 = host.indexOf(':');
-        if(pos3 >= 0)host = host.substring(0,pos3);
+        if (pos3 >= 0) {
+            host = host.substring(0, pos3);
+        }
         return host;
     }
 

@@ -6,9 +6,20 @@ import android.util.Base64;
 
 import java.io.ByteArrayOutputStream;
 
+/**
+ * base64 工具类
+ *
+ * @author lqs2
+ */
 public class Base64ImageUtils {
 
 
+    /**
+     * bit 2 base64 str
+     *
+     * @param bitmap bitmap
+     * @return str base64字符串
+     */
     public static String bitmapToBase64Str(Bitmap bitmap) {
         // 将Bitmap转换成字符串
         String string = null;
@@ -19,6 +30,12 @@ public class Base64ImageUtils {
         return string;
     }
 
+    /**
+     * base64 转 bit
+     *
+     * @param string 字符串
+     * @return bit
+     */
     public static Bitmap base64StrToBitmap(String string) {
         //将字符串转换成Bitmap类型
         Bitmap bitmap = null;
@@ -32,24 +49,14 @@ public class Base64ImageUtils {
         return bitmap;
     }
 
-
+    /**
+     * 判断指定的字符串是否是一张图片的base64
+     *
+     * @param str 字符串
+     * @return 是/否
+     */
     public static boolean isPicPath(String str) {
         return str != null && str.length() > 30;
     }
 
-    public static int[] getImageWidthHeight(Bitmap bitmap){
-        BitmapFactory.Options options = new BitmapFactory.Options();
-
-        /**
-         * 最关键在此，把options.inJustDecodeBounds = true;
-         * 这里再decodeFile()，返回的bitmap为空，但此时调用options.outHeight时，已经包含了图片的高了
-         */
-        options.inJustDecodeBounds = true;
-//        Bitmap bitmap = BitmapFactory.decodeFile(path, options); // 此时返回的bitmap为null
-
-        /**
-         *options.outHeight为原始图片的高
-         */
-        return new int[]{options.outWidth,options.outHeight};
-    }
 }

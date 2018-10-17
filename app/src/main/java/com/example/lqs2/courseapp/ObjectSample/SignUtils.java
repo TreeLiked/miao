@@ -149,9 +149,13 @@ public class SignUtils {
             }
             if (url != null) {
                 qUri = StringUtils.getPath(url);
-                if (qUri == null) throw new IllegalArgumentException("qUrl is null");
+                if (qUri == null) {
+                    throw new IllegalArgumentException("qUrl is null");
+                }
                 String queryStr = StringUtils.getQuery(url);
-                if (queryStr == null) throw new IllegalArgumentException("qUrlParamList is null");
+                if (queryStr == null) {
+                    throw new IllegalArgumentException("qUrlParamList is null");
+                }
                 //urlEncode编码
                 queryStr = StringUtils.encodedUrl(queryStr);
                 String[] query = queryStr.split("&");

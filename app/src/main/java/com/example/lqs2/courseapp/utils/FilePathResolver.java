@@ -12,13 +12,26 @@ import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 
+/**
+ * 文件路径工具类
+ *
+ * @author lqs2
+ */
 public class FilePathResolver {
 
 
+    /**
+     * 从uri中获取文件绝对路径
+     *
+     * @param context 上下文
+     * @param fileUri uri
+     * @return 路径
+     */
     @TargetApi(19)
     public static String getPathFormUri(Activity context, Uri fileUri) {
-        if (context == null || fileUri == null)
+        if (context == null || fileUri == null) {
             return null;
+        }
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT && DocumentsContract.isDocumentUri(context, fileUri)) {
             if (isExternalStorageDocument(fileUri)) {
                 String docId = DocumentsContract.getDocumentId(fileUri);
@@ -50,11 +63,10 @@ public class FilePathResolver {
                 String[] selectionArgs = new String[]{split[1]};
                 return getDataColumn(context, contentUri, selection, selectionArgs);
             }
-        } // MediaStore (and general)
-        else if ("content".equalsIgnoreCase(fileUri.getScheme())) {
-            // Return the remote address
-            if (isGooglePhotosUri(fileUri))
+        } else if ("content".equalsIgnoreCase(fileUri.getScheme())) {
+            if (isGooglePhotosUri(fileUri)) {
                 return fileUri.getLastPathSegment();
+            }
             return getDataColumn(context, fileUri, null, null);
         }
         // File
@@ -125,9 +137,9 @@ public class FilePathResolver {
         else if ("content".equalsIgnoreCase(uri.getScheme())) {
 
             // Return the remote address
-            if (isGooglePhotosUri(uri))
+            if (isGooglePhotosUri(uri)) {
                 return uri.getLastPathSegment();
-
+            }
             return getDataColumn(context, uri, null, null);
         }
         // File
@@ -163,8 +175,9 @@ public class FilePathResolver {
                 return cursor.getString(index);
             }
         } finally {
-            if (cursor != null)
+            if (cursor != null) {
                 cursor.close();
+            }
         }
         return null;
     }

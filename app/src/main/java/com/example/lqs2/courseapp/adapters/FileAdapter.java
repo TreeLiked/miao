@@ -18,8 +18,8 @@ import com.example.lqs2.courseapp.entity.File;
 import com.example.lqs2.courseapp.fragment.FileFragment;
 import com.example.lqs2.courseapp.utils.Constant;
 import com.example.lqs2.courseapp.utils.HttpUtil;
+import com.example.lqs2.courseapp.utils.ImageTools;
 import com.example.lqs2.courseapp.utils.PermissionUtils;
-import com.example.lqs2.courseapp.utils.Tools;
 
 import java.io.IOException;
 import java.util.List;
@@ -29,7 +29,11 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
-//@SuppressWarnings({"NullableProblems", "ConstantConditions"})
+/**
+ * 文件适配器
+ *
+ * @author lqs2
+ */
 public class FileAdapter extends RecyclerView.Adapter<FileAdapter.ViewHolder> {
 
     private Context mContext;
@@ -42,27 +46,14 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.ViewHolder> {
     }
 
 
+    /**
+     * 设置数据
+     *
+     * @param mFileList 数据
+     */
     public void setData(List<File> mFileList) {
         this.mFileList = mFileList;
         notifyDataSetChanged();
-    }
-
-    static class ViewHolder extends RecyclerView.ViewHolder {
-        LinearLayout linearLayout;
-        ImageView file_icon;
-        TextView file_name;
-        TextView file_date;
-        TextView file_size;
-
-
-        ViewHolder(View view) {
-            super(view);
-            linearLayout = (LinearLayout) view;
-            file_icon = view.findViewById(R.id.file_item_icon);
-            file_name = view.findViewById(R.id.file_item_name);
-            file_date = view.findViewById(R.id.file_item_date);
-            file_size = view.findViewById(R.id.file_item_size);
-        }
     }
 
     @NonNull
@@ -80,26 +71,27 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.ViewHolder> {
             if (FileFragment.isCloud) {
                 final MaterialDialog mMaterialDialog = new MaterialDialog(mContext);
                 mMaterialDialog
-                        .setTitle(file.getFile_name())
-                        .setMessage("大       小：" + file.getFile_size()
-                                + "\n" + "编       号：" + file.getFile_bring_id()
-                                + "\n" + "归       属：" + file.getFile_post_author()
-                                + "\n" + "去       向：" + file.getFile_destination()
-                                + "\n" + "备       注：" + file.getFile_attach()
-                                + "\n" + "上传日期：" + file.getFile_post_date()
-                                + "\n" + "有   效   期：" + file.getFile_save_days() + "天")
+                        .setTitle(file.getFileName())
+                        .setMessage("大       小：" + file.getFileSize()
+                                + "\n" + "编       号：" + file.getFileBringId()
+                                + "\n" + "归       属：" + file.getFilePostAuthor()
+                                + "\n" + "去       向：" + file.getFileDestination()
+                                + "\n" + "备       注：" + file.getFileAttach()
+                                + "\n" + "上传日期：" + file.getFilePostDate()
+                                + "\n" + "有   效   期：" + file.getFileSaveDays() + "天")
                         .setNegativeButton("删除", v1 -> {
                             HttpUtil.deleteOneFile(FileFragment.un, String.valueOf(file.getId()), new Callback() {
                                 @Override
-                                public void onFailure(Call call, IOException e) {
+                                public void onFailure(@NonNull Call call, @NonNull IOException e) {
                                     showToast("删除失败，请稍后重试", 0);
                                 }
 
                                 @Override
-                                public void onResponse(Call call, Response response) throws IOException {
+                                public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                                    assert response.body() != null;
                                     if ("1".equals(response.body().string())) {
                                         QServiceCfg qServiceCfg = QServiceCfg.instance(mContext);
-                                        qServiceCfg.setUploadCosPath(file.getFile_bucket_id());
+                                        qServiceCfg.setUploadCosPath(file.getFileBucketId());
                                         DeleteObjectSample deleteObjectSample = new DeleteObjectSample(qServiceCfg, fileFragment);
                                         deleteObjectSample.startAsync();
                                     } else {
@@ -111,12 +103,12 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.ViewHolder> {
                         })
                         .setPositiveButton("下载", v1 -> {
                             mMaterialDialog.dismiss();
-                            fileFragment.downloadFile(file.getFile_bucket_id(), file.getFile_name());
+                            fileFragment.downloadFile(file.getFileBucketId(), file.getFileName());
                         })
                         .setCanceledOnTouchOutside(true);
                 mMaterialDialog.show();
             } else {
-                fileFragment.openFileByPath(mContext, Constant.DOWNLOAD_DIR + java.io.File.separator + file.getFile_name());
+                fileFragment.openFileByPath(mContext, Constant.DOWNLOAD_DIR + java.io.File.separator + file.getFileName());
             }
         });
         if (!FileFragment.isCloud) {
@@ -131,7 +123,7 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.ViewHolder> {
                             .setMessage("这将一并在本地移除文件")
                             .setPositiveButton("取消", v1 -> dialog.dismiss())
                             .setNegativeButton("确认删除", v1 -> {
-                                fileFragment.deleteFileInDownloadDir(file.getFile_name());
+                                fileFragment.deleteFileInDownloadDir(file.getFileName());
                                 dialog.dismiss();
                             })
                             .show();
@@ -148,18 +140,19 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.ViewHolder> {
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
 
         File file = mFileList.get(position);
-        holder.file_icon.setImageBitmap(Tools.getImageFromAssetsFile(MyApplication.getContext(), "file_icons", getFileIconType(file.getFile_name())));
-        holder.file_name.setText(file.getFile_name());
-        holder.file_date.setText(file.getFile_post_date().substring(0, file.getFile_post_date().lastIndexOf(":")));
-        holder.file_size.setText(file.getFile_size());
+        holder.fileIcon.setImageBitmap(ImageTools.getImageFromAssetsFile(MyApplication.getContext(), "file_icons", getFileIconType(file.getFileName())));
+        holder.fileName.setText(file.getFileName());
+        holder.fileDate.setText(file.getFilePostDate().substring(0, file.getFilePostDate().lastIndexOf(":")));
+        holder.fileSize.setText(file.getFileSize());
 
     }
 
-    @Override
-    public int getItemCount() {
-        return mFileList != null ? mFileList.size() : -1;
-    }
-
+    /**
+     * 获取文件的图标类型
+     *
+     * @param filename 文件名
+     * @return 文件前缀
+     */
     private String getFileIconType(String filename) {
         String suffix = filename.substring(filename.lastIndexOf(".") + 1);
         suffix = suffix.toLowerCase();
@@ -167,13 +160,45 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.ViewHolder> {
         return suffix;
     }
 
+    @Override
+    public int getItemCount() {
+        return mFileList != null ? mFileList.size() : -1;
+    }
+
+    /**
+     * 显示toast
+     *
+     * @param c 内容
+     * @param t 时长
+     */
     private void showToast(String c, int t) {
         fileFragment.showToast(c, t);
     }
 
+    /**
+     * 清空list
+     */
     public void clear() {
         if (mFileList != null) {
             mFileList.removeAll(mFileList);
+        }
+    }
+
+    static class ViewHolder extends RecyclerView.ViewHolder {
+        LinearLayout linearLayout;
+        ImageView fileIcon;
+        TextView fileName;
+        TextView fileDate;
+        TextView fileSize;
+
+
+        ViewHolder(View view) {
+            super(view);
+            linearLayout = (LinearLayout) view;
+            fileIcon = view.findViewById(R.id.file_item_icon);
+            fileName = view.findViewById(R.id.file_item_name);
+            fileDate = view.findViewById(R.id.file_item_date);
+            fileSize = view.findViewById(R.id.file_item_size);
         }
     }
 }

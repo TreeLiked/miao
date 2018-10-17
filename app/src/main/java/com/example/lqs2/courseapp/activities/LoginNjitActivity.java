@@ -18,7 +18,6 @@ import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.ActionBar;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
@@ -48,12 +47,14 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
-public class LoginNJITActivity extends ActivityCollector {
+/**
+ * 登录教务网
+ *
+ * @author lqs2
+ */
+public class LoginNjitActivity extends ActivityCollector {
 
 
-    private static String VIEWSTATE;
-    //    注册广播
-    private IntentFilter intentFilter;
     private NetworkChangeReceiver networkChangeReceiver;
     public static boolean isOnline = false;
 
@@ -64,12 +65,9 @@ public class LoginNJITActivity extends ActivityCollector {
     private Button loginButton;
     private EditText checkCode;
     private ImageView codeView;
-    //    private boolean isLoginSuccess = false;
     private Context context;
     public ProgressBar progressBar;
 
-//    private static String txtUserName;
-//    private static String TextBox2;
 
     private static String cookie = "";
     @SuppressLint("HandlerLeak")
@@ -81,7 +79,6 @@ public class LoginNJITActivity extends ActivityCollector {
                 case Constant.SERVER_ERROR:
                     Toast.makeText(context, "服务器错误 " + msg.obj, Toast.LENGTH_SHORT).show();
                     progressBar.setVisibility(View.GONE);
-//                    flushCheckCode();
                     loginButton.setEnabled(true);
                     break;
                 case Constant.INFO_ERROR:
@@ -118,30 +115,18 @@ public class LoginNJITActivity extends ActivityCollector {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-//        if (Build.VERSION.SDK_INT >= 21) {
-//            View decorView = getWindow().getDecorView();
-//            int option = View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-//                    | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-//                    | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
-//            decorView.setSystemUiVisibility(option);
-//            getWindow().setNavigationBarColor(Color.TRANSPARENT);
-//            getWindow().setStatusBarColor(Color.TRANSPARENT);
-//        }
+
         context = this;
         activity = this;
 
         StatusBarUtils.setStatusTransparent(this);
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null)
-            actionBar.hide();
-
 
         Intent intent = getIntent();
         final String type = intent.getStringExtra("TODO");
 
 
 //        监听网络变化
-        intentFilter = new IntentFilter();
+        IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
         networkChangeReceiver = new NetworkChangeReceiver();
         registerReceiver(networkChangeReceiver, intentFilter);
@@ -200,10 +185,6 @@ public class LoginNJITActivity extends ActivityCollector {
             sendMessage(Constant.TURN_PROGRESS_BAR_ON, null);
 
             loginButton.setEnabled(false);
-//            Message msg = new Message();
-//            msg.what = Constant.TURN_PROGRESS_BAR_ON;
-//            handler.sendMessage(msg);
-//                progressBar.setVisibility(View.VISIBLE);
             final String xh = accountText.getText().toString().trim();
             final String xm = passwordText.getText().toString();
             final String code = checkCode.getText().toString().trim();
@@ -211,10 +192,10 @@ public class LoginNJITActivity extends ActivityCollector {
             if (isOnline) {
                 if (cookie != null) {
                     if (!(TextUtils.isEmpty(xh) || TextUtils.isEmpty(xm) || TextUtils.isEmpty(code))) {
-                        HttpUtil.get_login_VIEWSTATE(new Callback() {
+                        HttpUtil.getLoginViewstate(new Callback() {
                             @Override
                             public void onFailure(Call call, IOException e) {
-                                sendMessage(Constant.SERVER_ERROR, Constant.server_off);
+                                sendMessage(Constant.SERVER_ERROR, Constant.SERVER_OFF);
                             }
 
                             @Override
@@ -222,7 +203,6 @@ public class LoginNJITActivity extends ActivityCollector {
                                 String html = response.body().string();
                                 Document doc = Jsoup.parse(html);
                                 String __VIEWSTATE = doc.select("input[name='__VIEWSTATE']").val();
-                                VIEWSTATE = __VIEWSTATE;
                                 HttpUtil.login(xh, xm, code, cookie, __VIEWSTATE, new Callback() {
                                     @Override
                                     public void onFailure(Call call, IOException e) {
@@ -236,7 +216,7 @@ public class LoginNJITActivity extends ActivityCollector {
                                         if (responseCode == 200) {
                                             String loginResponse = response.body().string();
 
-                                            if (loginResponse.contains(Constant.login_jw_success)) {
+                                            if (loginResponse.contains(Constant.LOGIN_JW_SUCCESS)) {
                                                 HttpUtil.redirect(xh, cookie, new Callback() {
                                                     @Override
                                                     public void onFailure(Call call, IOException e) {
@@ -278,8 +258,8 @@ public class LoginNJITActivity extends ActivityCollector {
                                                                         String sourceCode = response.body().string();
                                                                         System.out.println(sourceCode);
 
-                                                                        if (!sourceCode.contains(Constant.login_error_noComment)) {
-                                                                            sendMessage(Constant.SHOW_TOAST, Constant.login_success_info);
+                                                                        if (!sourceCode.contains(Constant.LOGIN_ERROR_NO_COMMENT)) {
+                                                                            sendMessage(Constant.SHOW_TOAST, Constant.LOGIN_SUCCESS_INFO);
                                                                             SharedPreferenceUtil.put(context, "hasGetCourse", true);
                                                                             Document doc = Jsoup.parse(sourceCode);
                                                                             Element xnString = doc.getElementById("xnd");
@@ -318,7 +298,6 @@ public class LoginNJITActivity extends ActivityCollector {
                                                                             SharedPreferenceUtil.put(context, "xns", xnStrings.substring(0, xnStrings.lastIndexOf("\t")));
                                                                             SharedPreferenceUtil.put(context, "xqs", xqStrings.substring(0, xqStrings.lastIndexOf("\t")));
                                                                             Intent intent1 = new Intent(context, CourseActivity.class);
-//                                                            intent.putExtra("cookie", cookie);
                                                                             intent1.putExtra("xnc", xnText);
                                                                             intent1.putExtra("xqc", xqText);
                                                                             intent1.putExtra("sourceCode", sourceCode);
@@ -331,7 +310,7 @@ public class LoginNJITActivity extends ActivityCollector {
                                                                             startActivity(intent1);
                                                                             finish();
                                                                         } else {
-                                                                            sendMessage(Constant.SERVER_ERROR, Constant.login_error_noComment);
+                                                                            sendMessage(Constant.SERVER_ERROR, Constant.LOGIN_ERROR_NO_COMMENT);
                                                                         }
                                                                     }
                                                                 });
@@ -346,7 +325,7 @@ public class LoginNJITActivity extends ActivityCollector {
                                                                     @Override
                                                                     public void onResponse(Call call, Response response) throws IOException {
                                                                         String code = response.body().string();
-                                                                        if (!code.contains(Constant.login_error_noComment)) {
+                                                                        if (!code.contains(Constant.LOGIN_ERROR_NO_COMMENT)) {
                                                                             Document doc = Jsoup.parse(code);
                                                                             String __VIEWSTATE = doc.select("input[name='__VIEWSTATE']").val();
                                                                             Element xnString = doc.getElementById("ddlxn");
@@ -380,7 +359,7 @@ public class LoginNJITActivity extends ActivityCollector {
                                                                             startActivity(intent1);
                                                                             finish();
                                                                         } else {
-                                                                            sendMessage(Constant.SERVER_ERROR, Constant.login_error_noComment);
+                                                                            sendMessage(Constant.SERVER_ERROR, Constant.LOGIN_ERROR_NO_COMMENT);
                                                                         }
                                                                     }
                                                                 });
@@ -504,14 +483,14 @@ public class LoginNJITActivity extends ActivityCollector {
 //                                                        }
                                                     }
                                                 });
-                                            } else if (loginResponse.contains(Constant.login_error_cord)) {
-                                                sendMessage(Constant.INFO_ERROR, Constant.login_error_cord);
+                                            } else if (loginResponse.contains(Constant.LOGIN_ERROR_CORD)) {
+                                                sendMessage(Constant.INFO_ERROR, Constant.LOGIN_ERROR_CORD);
 
-                                            } else if (loginResponse.contains(Constant.login_error_pw)) {
-                                                sendMessage(Constant.INFO_ERROR, Constant.login_error_pw);
+                                            } else if (loginResponse.contains(Constant.LOGIN_ERROR_PW)) {
+                                                sendMessage(Constant.INFO_ERROR, Constant.LOGIN_ERROR_PW);
 
-                                            } else if (loginResponse.contains(Constant.login_error_xh)) {
-                                                sendMessage(Constant.INFO_ERROR, Constant.login_error_xh);
+                                            } else if (loginResponse.contains(Constant.LOGIN_ERROR_XH)) {
+                                                sendMessage(Constant.INFO_ERROR, Constant.LOGIN_ERROR_XH);
 
                                             }
                                         }//responseCode = 200
@@ -534,6 +513,12 @@ public class LoginNJITActivity extends ActivityCollector {
         });
     }
 
+    /**
+     * 切换到主线程发送消息
+     *
+     * @param what 消息类型
+     * @param obj  消息内容
+     */
     private void sendMessage(int what, Object obj) {
         synchronized (this) {
             Message msg = new Message();
@@ -544,11 +529,10 @@ public class LoginNJITActivity extends ActivityCollector {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
             case 1:
-                if (grantResults.length > 0 || !(grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                if (grantResults.length > 0 || (grantResults[0] != PackageManager.PERMISSION_GRANTED)) {
                     showToast("网络使用权限被拒绝");
                 }
                 break;
@@ -557,37 +541,50 @@ public class LoginNJITActivity extends ActivityCollector {
         }
     }
 
+    /**
+     * 非在子线程中显示toast
+     *
+     * @param info toast内容
+     */
     private void showToast(String info) {
         Toast.makeText(context, info, Toast.LENGTH_SHORT).show();
     }
 
+    /**
+     * 刷新验证码
+     */
     private void flushCheckCode() {
         HttpUtil.getCheckCode(new Callback() {
             @Override
-            public void onFailure(Call call, IOException e) {
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 Message message = new Message();
                 message.what = Constant.SERVER_ERROR;
-                message.obj = Constant.code_flush_fail;
+                message.obj = Constant.CODE_FLUSH_FAIL;
                 handler.sendMessage(message);
             }
 
             @Override
-            public void onResponse(Call call, final Response response) throws IOException {
-                byte[] byte_image = response.body().bytes();
+            public void onResponse(@NonNull Call call, @NonNull final Response response) throws IOException {
+                assert response.body() != null;
+                byte[] byteImage = response.body().bytes();
                 cookie = response.header("Set-Cookie");
-                sendMessage(Constant.TRANSFER_CODE, byte_image);
+                sendMessage(Constant.TRANSFER_CODE, byteImage);
             }
         });
     }
 
+    /**
+     * 网络状态变化接收广播
+     */
     class NetworkChangeReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
             ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+            assert connectivityManager != null;
             NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
             if (!(networkInfo != null && networkInfo.isAvailable())) {
                 isOnline = false;
-                showToast(Constant.network_off);
+                showToast(Constant.NETWORK_OFF);
             } else {
                 isOnline = true;
                 flushCheckCode();

@@ -1,9 +1,10 @@
 package com.example.lqs2.courseapp.entity;
 
+
 /**
- * @Author lqs2
- * @Description TODO
- * @Date 2018/7/16, Mon
+ * darkme account
+ *
+ * @author lqs2
  */
 public class User {
 

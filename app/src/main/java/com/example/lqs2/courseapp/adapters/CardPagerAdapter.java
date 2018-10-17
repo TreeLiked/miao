@@ -27,6 +27,11 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
+/**
+ * 页面适配器
+ *
+ * @author lqs2
+ */
 public class CardPagerAdapter extends PagerAdapter implements CardAdapter {
 
     private List<CardView> mViews;
@@ -34,7 +39,6 @@ public class CardPagerAdapter extends PagerAdapter implements CardAdapter {
     private Context mContext;
     private MemoActivity activity;
     private float mBaseElevation;
-
     private int memoCount;
 
     public CardPagerAdapter(Context context, MemoActivity activity, int memoCount) {
@@ -45,24 +49,18 @@ public class CardPagerAdapter extends PagerAdapter implements CardAdapter {
         mViews = new ArrayList<>();
     }
 
+    /**
+     * 添加item
+     *
+     * @param item item
+     */
     public void addCardItem(CardItem item) {
         mViews.add(null);
         mData.add(item);
     }
 
 
-    public void resetData(List<CardItem> cardItems) {
-        mData.clear();
-        mViews.add(null);
-        mData.addAll(cardItems);
-        notifyDataSetChanged();
-    }
-
-    public void resetData() {
-        mViews.clear();
-        mData.clear();
-    }
-
+    @Override
     public float getBaseElevation() {
         return mBaseElevation;
     }
@@ -78,18 +76,15 @@ public class CardPagerAdapter extends PagerAdapter implements CardAdapter {
         return mData.size();
     }
 
-//    @Override
-//    public float getPageWidth(int position) {
-//        return (float) 0.95;
-//    }
 
     @Override
-    public boolean isViewFromObject(View view, Object object) {
+    public boolean isViewFromObject(@NonNull View view, @NonNull Object object) {
         return view == object;
     }
 
+    @NonNull
     @Override
-    public Object instantiateItem(ViewGroup container, int position) {
+    public Object instantiateItem(@NonNull ViewGroup container, int position) {
         View view = LayoutInflater.from(container.getContext())
                 .inflate(R.layout.memo_card_page_adapter, container, false);
         container.addView(view);
@@ -97,7 +92,7 @@ public class CardPagerAdapter extends PagerAdapter implements CardAdapter {
         CardItem c = mData.get(position);
         bind(c, view);
         view.setOnLongClickListener(v -> {
-            MaterialDialogUtils.showYesOrNoDialog(mContext, new String[]{"确认删除此备忘录吗", "此操作不可恢复", "确认", "取消"}, new MaterialDialogUtils.DialogOnConfirmClickListener() {
+            MaterialDialogUtils.showYesOrNoDialog(mContext, new String[]{"确认删除此备忘录吗", "此操作不可恢复", "确认", "取消"}, new MaterialDialogUtils.AbstractDialogOnConfirmClickListener() {
                 @Override
                 public void onConfirmButtonClick() {
                     changeMemoState(c.getId(), "1".equals(c.getType()) ? -1 : -2, true);
@@ -115,7 +110,7 @@ public class CardPagerAdapter extends PagerAdapter implements CardAdapter {
     }
 
     @Override
-    public void destroyItem(ViewGroup container, int position, Object object) {
+    public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
         container.removeView((View) object);
         mViews.set(position, null);
     }
@@ -128,18 +123,19 @@ public class CardPagerAdapter extends PagerAdapter implements CardAdapter {
 
     }
 
+    /**
+     * 绑定便签视图
+     *
+     * @param item 当前便签
+     * @param view 当前视图
+     */
     private void bind(CardItem item, View view) {
-
         TextView titleTextView = view.findViewById(R.id.titleTextView);
         TextView contentTextView = view.findViewById(R.id.contentTextView);
         TextView timeView = view.findViewById(R.id.memo_time_view);
-
-
         ImageView markView = view.findViewById(R.id.memo_mark_bg);
         Button btn = view.findViewById(R.id.memo_btn_text);
         String state = item.getState();
-
-
         if ("1".equals(state)) {
             markView.setImageResource(R.drawable.ic_bookmark_24dp_green);
         } else if ("0".equals(state)) {
@@ -164,16 +160,22 @@ public class CardPagerAdapter extends PagerAdapter implements CardAdapter {
     }
 
 
+    /**
+     * 修改便签的完成状态
+     *
+     * @param id      便签的id
+     * @param toState 要修改的状态
+     * @param isDel   是否删除便签
+     */
     private void changeMemoState(int id, int toState, boolean isDel) {
-
         HttpUtil.changeUserMemoState("admin", id, toState, isDel, new Callback() {
             @Override
-            public void onFailure(Call call, IOException e) {
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 showSpecialToast("服务器异常", Toast.LENGTH_SHORT);
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                 assert response.body() != null;
                 String resp = response.body().string();
                 if ("1".equals(resp)) {
@@ -202,12 +204,13 @@ public class CardPagerAdapter extends PagerAdapter implements CardAdapter {
         });
     }
 
+    /**
+     * 显示指定的toast
+     *
+     * @param msg 内容
+     * @param t   时长
+     */
     private void showSpecialToast(String msg, int t) {
         ToastUtils.showToastOnMain(mContext, activity, msg, t);
-    }
-
-    private void flushMemo(boolean isFinished) {
-
-
     }
 }

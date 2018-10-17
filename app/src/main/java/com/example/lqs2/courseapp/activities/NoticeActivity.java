@@ -1,8 +1,8 @@
 package com.example.lqs2.courseapp.activities;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -29,9 +29,12 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
-public class NoticeActivity extends AppCompatActivity {
-
-
+/**
+ * 通知activity
+ *
+ * @author lqs2
+ */
+public class NoticeActivity extends ActivityCollector {
     private SwipeRefreshLayout layout;
     private SwipeMenuRecyclerView recyclerView;
     private EditText searchEdit;
@@ -58,12 +61,14 @@ public class NoticeActivity extends AppCompatActivity {
         init();
         initRefresh();
 
-        pushData();
+        pullData();
     }
 
+    /**
+     * 初始化布局
+     */
     private void initRefresh() {
-
-        layout.setOnRefreshListener(this::pushData);
+        layout.setOnRefreshListener(this::pullData);
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
@@ -82,19 +87,18 @@ public class NoticeActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
     }
 
+    /**
+     * 初始化动作
+     */
     private void init() {
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-
         adapter = new NoticeAdapter(this, this);
         LinearLayoutManager manager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(manager);
         recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-
-
         searchEdit.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
             }
 
             @Override
@@ -119,12 +123,14 @@ public class NoticeActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-
             }
 
         });
     }
 
+    /**
+     * 绑定视图
+     */
     private void bindViews() {
         layout = findViewById(R.id.notice_recycle_view_refresh_layout);
         recyclerView = findViewById(R.id.notice_recycle_view);
@@ -132,36 +138,45 @@ public class NoticeActivity extends AppCompatActivity {
 
     }
 
-    private void pushData() {
-        HttpUtil.pushSchoolNotice(new Callback() {
+    /**
+     * 拉取数据
+     */
+    private void pullData() {
+        HttpUtil.pullSchoolNotice(new Callback() {
             @Override
-            public void onFailure(Call call, IOException e) {
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 runOnUiThread(() -> layout.setRefreshing(false));
                 ToastUtils.showConnectErrorOnMain(NoticeActivity.this, NoticeActivity.this);
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                assert response.body() != null;
                 String resp = response.body().string();
+                List<Notice> notices = HtmlCodeExtractUtil.parseHtmlForNotice(resp, true);
                 runOnUiThread(() -> {
                     layout.setRefreshing(false);
-                    noticeList.addAll(HtmlCodeExtractUtil.parseHtmlForNotice(resp, true));
+                    noticeList.addAll(notices);
                     adapter.setData(noticeList);
                 });
             }
         });
     }
 
+    /**
+     * 向下拉加载更多数据
+     */
     private void loadMore() {
-        HttpUtil.pushSchoolNotice(anchorPosition, new Callback() {
+        HttpUtil.pullSchoolNotice(anchorPosition, new Callback() {
             @Override
-            public void onFailure(Call call, IOException e) {
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 runOnUiThread(() -> layout.setRefreshing(false));
                 ToastUtils.showConnectErrorOnMain(NoticeActivity.this, NoticeActivity.this);
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                assert response.body() != null;
                 String resp = response.body().string();
                 runOnUiThread(() -> {
                     anchorPosition--;

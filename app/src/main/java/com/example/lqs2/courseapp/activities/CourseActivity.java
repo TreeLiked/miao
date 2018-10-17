@@ -33,6 +33,7 @@ import com.bumptech.glide.Glide;
 import com.example.lqs2.courseapp.R;
 import com.example.lqs2.courseapp.adapters.SpinnerAdapter;
 import com.example.lqs2.courseapp.entity.Course;
+import com.example.lqs2.courseapp.global.ThreadPoolExecutorFactory;
 import com.example.lqs2.courseapp.utils.Constant;
 import com.example.lqs2.courseapp.utils.CropUtils;
 import com.example.lqs2.courseapp.utils.HtmlCodeExtractUtil;
@@ -54,6 +55,11 @@ import java.util.List;
 
 import me.drakeet.materialdialog.MaterialDialog;
 
+/**
+ * 课表活动
+ *
+ * @author lqs2
+ */
 public class CourseActivity extends ActivityCollector implements View.OnClickListener, AdapterView.OnItemSelectedListener {
 
     private List<Course> mCourseList;
@@ -63,27 +69,23 @@ public class CourseActivity extends ActivityCollector implements View.OnClickLis
     private Spinner weekSpinner;
     private Spinner yearSpinner;
     private Spinner teamSpinner;
-    private ArrayAdapter spinnerAdapter;
-    private ArrayAdapter yearAdapter;
-    private ArrayAdapter teamAdapter;
     private String sourceCode;
     private int width;
-    private int height;
     private int weekNow;
     private SwipeRefreshLayout swipeRefresh;
-    //    从initSpinner跳转的点击事项不予显示设置周数
-    private boolean flag1 = false;
+
     private String xn;
     private String xq;
 
 
     private ImageView imageView;
-    private boolean chageYearTeamFlag = false;
+    private boolean changeYearTeamFlag = false;
 
 
     @SuppressLint("HandlerLeak")
     private Handler handler = new Handler() {
 
+        @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case Constant.TURN_PROGRESS_BAR_ON:
@@ -97,6 +99,22 @@ public class CourseActivity extends ActivityCollector implements View.OnClickLis
         }
     };
 
+    /**
+     * 设置spinner中的值
+     *
+     * @param spinner 所设置的spinner
+     * @param value   所设置的值
+     */
+    public static void setSpinnerItemSelectedByValue(Spinner spinner, String value) {
+        android.widget.SpinnerAdapter apsAdapter = spinner.getAdapter();
+        for (int i = 0; i < apsAdapter.getCount(); i++) {
+            if (value.equals(apsAdapter.getItem(i).toString())) {
+                spinner.setSelection(i, true);
+                break;
+            }
+        }
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,61 +126,65 @@ public class CourseActivity extends ActivityCollector implements View.OnClickLis
         weekNow = (int) SharedPreferenceUtil.get(CourseActivity.this, "weekNow", 0);
 
         StatusBarUtils.setStatusTransparent(this);
-//        ActionBar actionBar = getSupportActionBar();
-//        if (actionBar != null)
-//            actionBar.hide();
-
 
         WindowManager wm = (WindowManager) this.getSystemService(Context.WINDOW_SERVICE);
         assert wm != null;
         DisplayMetrics dm = getResources().getDisplayMetrics();
         width = dm.widthPixels;
-        height = dm.heightPixels;
 
-        progressBar = findViewById(R.id.course_page_progress_bar);
-        progressBar.setIndeterminateDrawable(new Wave());
+
+        bindViews();
+        initComponents();
 
         Intent intent = getIntent();
         sourceCode = intent.getStringExtra("sourceCode");
-
-//        定义
-        gridLayout = findViewById(R.id.grid_layout);
-        imageView = findViewById(R.id.course_bg_img_view);
-
-        weekSpinner = findViewById(R.id.switchWeek);
-        yearSpinner = findViewById(R.id.switchYear);
-        teamSpinner = findViewById(R.id.switchTeam);
-
-        flushButton = findViewById(R.id.flush_course_button);
-        swipeRefresh = findViewById(R.id.course_swipe_refresh);
-
-
-        weatherAddWeek();
         mCourseList = HtmlCodeExtractUtil.getCourseList(sourceCode, weekNow == 0 ? 1 : weekNow, 0);
 
-        flushButton.setOnClickListener(this);
-//        初始化控件
-        weekSpinner.setGravity(View.TEXT_ALIGNMENT_CENTER);
-        weekSpinner.setOnItemSelectedListener(this);
-        yearSpinner.setGravity(View.TEXT_ALIGNMENT_CENTER);
-        yearSpinner.setOnItemSelectedListener(this);
-        teamSpinner.setGravity(View.TEXT_ALIGNMENT_CENTER);
-        teamSpinner.setOnItemSelectedListener(this);
-
-
-        swipeRefresh.setColorSchemeResources(R.color.r4);
-        swipeRefresh.setOnRefreshListener(() -> {
-            Intent intent1 = new Intent(CourseActivity.this, MainActivity.class);
-            startActivity(intent1);
-            swipeRefresh.setRefreshing(false);
-        });
-
+        weatherAddWeek();
         initWeekSpinner();
         initYearTeamSpinner();
         showDate();
         showCourseBg();
     }
 
+    /**
+     * 初始化组件
+     */
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
+    private void initComponents() {
+        flushButton.setOnClickListener(this);
+        progressBar.setIndeterminateDrawable(new Wave());
+        weekSpinner.setGravity(View.TEXT_ALIGNMENT_CENTER);
+        weekSpinner.setOnItemSelectedListener(this);
+        yearSpinner.setGravity(View.TEXT_ALIGNMENT_CENTER);
+        yearSpinner.setOnItemSelectedListener(this);
+        teamSpinner.setGravity(View.TEXT_ALIGNMENT_CENTER);
+        teamSpinner.setOnItemSelectedListener(this);
+        swipeRefresh.setColorSchemeResources(R.color.r4);
+        swipeRefresh.setOnRefreshListener(() -> {
+            Intent intent1 = new Intent(CourseActivity.this, MainActivity.class);
+            startActivity(intent1);
+            swipeRefresh.setRefreshing(false);
+        });
+    }
+
+    /**
+     * 绑定视图
+     */
+    private void bindViews() {
+        progressBar = findViewById(R.id.course_page_progress_bar);
+        gridLayout = findViewById(R.id.grid_layout);
+        imageView = findViewById(R.id.course_bg_img_view);
+        weekSpinner = findViewById(R.id.switchWeek);
+        yearSpinner = findViewById(R.id.switchYear);
+        teamSpinner = findViewById(R.id.switchTeam);
+        flushButton = findViewById(R.id.flush_course_button);
+        swipeRefresh = findViewById(R.id.course_swipe_refresh);
+    }
+
+    /**
+     * 判断是否是周一并且增加一周
+     */
     private void weatherAddWeek() {
         int weekToday = Tools.getWeek();
         Calendar cal = Calendar.getInstance();
@@ -172,10 +194,25 @@ public class CourseActivity extends ActivityCollector implements View.OnClickLis
             if (!added) {
                 SharedPreferenceUtil.put(this, key, true);
                 weekNow++;
+                SharedPreferenceUtil.put(this, "weekNow", weekNow);
+
+            }
+        } else {
+            Date weekMonday = Tools.getThisWeekMonday(new Date());
+            cal.setTime(weekMonday);
+            String key1 = cal.get(Calendar.YEAR) + "" + (cal.get(Calendar.MONTH) + 1) + "" + cal.get(Calendar.DAY_OF_MONTH);
+            boolean added = (boolean) SharedPreferenceUtil.get(this, key1, false);
+            if (!added) {
+                SharedPreferenceUtil.put(this, key, true);
+                weekNow++;
+                SharedPreferenceUtil.put(this, "weekNow", weekNow);
             }
         }
     }
 
+    /**
+     * 显示今天的日期
+     */
     @SuppressLint("SetTextI18n")
     private void showDate() {
         int[] days = Tools.getTimeInterval(new Date());
@@ -282,110 +319,6 @@ public class CourseActivity extends ActivityCollector implements View.OnClickLis
         }
     }
 
-
-    @SuppressLint("SetTextI18n")
-    private void showCourses() {
-        isShowProgressBar(true);
-        gridLayout.removeAllViews();
-        int[] colors = new int[]{R.color.r1, R.color.r2, R.color.r3, R.color.r4,
-                R.color.r5, R.color.r6, R.color.r7, R.color.r8, R.color.r9, R.color.r10, R.color.r11, R.color.r12, R.color.r14};
-//        先填充对角线，否则空列偏移
-        for (int i = 0; i < 7; i++) {
-            TextView blankView = new TextView(this);
-            blankView.setWidth((int) ((width - Tools.dip2px(40)) / 7));
-            blankView.setHeight(Tools.dip2px(50 * 2));
-            blankView.setGravity(Gravity.CENTER);
-            GridLayout.Spec rowSpec1 = GridLayout.spec(i, 2);
-            GridLayout.Spec columnSpec1 = GridLayout.spec(i);
-            GridLayout.LayoutParams params1 = new GridLayout.LayoutParams(rowSpec1, columnSpec1);
-            params1.setGravity(Gravity.CENTER);
-//            params1.setMargins(0, 0, 0, 0);
-            gridLayout.addView(blankView, params1);
-        }
-
-//        Typeface typeface = Typeface.createFromAsset(CourseActivity.this.getAssets(), "fonts/arial.ttf");
-
-        for (int i = 0; i < mCourseList.size(); ++i) {
-            final Course course = mCourseList.get(i);
-            int row = course.getClsNum();
-            int col = course.getDay();
-            int size = course.getClsCount();
-
-//            ColorDrawable drawable = (ColorDrawable) getResources().getDrawable(colors[course.getColor()]);
-
-            TextView textView = new TextView(this);
-//            70.5 = 30 * 1.5 + 2 * 1.5 * 8 + 1.5
-
-//            Typeface typeFace =Typeface.createFromAsset(getResources().getAssets(),"fonts/arial.ttf");
-//            textView.setTypeface(typeFace);
-            textView.setWidth((int) ((width - Tools.dip2px(54)) / 7));
-            textView.setHeight(Tools.dip2px(55 * size));
-            textView.setGravity(Gravity.CENTER);
-            textView.setTextColor(Color.rgb(255, 255, 255));
-            textView.setText(course.getDialog_name() + "\n@" + course.getDialog_location());
-//            textView.setTypeface(typeface);
-            textView.setTextSize(12);
-            textView.setPadding(1, 1, 1, 1);
-//            textView.setTexS
-
-//            textView.setBackground(drawable);
-            textView.setBackgroundResource(R.drawable.single_course_style);
-            GradientDrawable myGrad = (GradientDrawable) textView.getBackground();
-            myGrad.setColor(getResources().getColor(colors[course.getColor()]));
-            final String times = (row <= 4 ? "上午第" : "下午第") + (size == 2 ? row + ", " + (row + 1) : row + "," + (row + 1) + "," + (row + 2)) + "节";
-            textView.setOnClickListener(v -> {
-                final MaterialDialog mMaterialDialog = new MaterialDialog(CourseActivity.this);
-                mMaterialDialog
-                        .setTitle(course.getDialog_name())
-                        .setMessage("节数:  " + times
-                                + "\n周数:  " + course.getDialog_weeks()
-                                + "\n老师:  " + course.getDialog_teacher()
-                                + "\n教室:  " + course.getDialog_location())
-                        .setCanceledOnTouchOutside(true);
-                mMaterialDialog.show();
-            });
-
-            //设定View在表格的行列
-            GridLayout.Spec rowSpec = GridLayout.spec(row - 1, size);
-            GridLayout.Spec columnSpec = GridLayout.spec(col - 1);
-            GridLayout.LayoutParams params = new GridLayout.LayoutParams(rowSpec, columnSpec);
-
-            //设置View的宽高
-//            params.width = mTableDistance*2;
-//            params.height = (int) getResources().getDimension(R.dimen.table_row_height) * size;
-            params.setGravity(Gravity.CENTER);
-//            params.setMargins(0, 0, 0, 0);
-            gridLayout.addView(textView, params);
-        }
-        isShowProgressBar(false);
-    }
-
-//    private void saveCourseSourceCode(String source) {
-//        if (source != null) {
-//            FileOutputStream out = null;
-//            BufferedWriter writer = null;
-//            try {
-//                out = openFileOutput("courseSourceCode", Context.MODE_PRIVATE);
-//                writer = new BufferedWriter(new OutputStreamWriter(out));
-//                writer.write(source);
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            } finally {
-//                try {
-//                    if (writer != null) {
-//                        writer.close();
-//                    }
-//                    if (out != null) {
-//                        out.close();
-//                    }
-//                    SharedPreferenceUtil.put(CourseActivity.this, "hasGetCourse", true);
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        }
-//    }
-
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -451,6 +384,76 @@ public class CourseActivity extends ActivityCollector implements View.OnClickLis
         }
     }
 
+    /**
+     * 显示课程
+     */
+    @SuppressLint("SetTextI18n")
+    private void showCourses() {
+        isShowProgressBar(true);
+        gridLayout.removeAllViews();
+        int[] colors = new int[]{R.color.r1, R.color.r2, R.color.r3, R.color.r4,
+                R.color.r5, R.color.r6, R.color.r7, R.color.r8, R.color.r9, R.color.r10, R.color.r11, R.color.r12, R.color.r14};
+//        先填充对角线，否则空列偏移
+        for (int i = 0; i < 7; i++) {
+            TextView blankView = new TextView(this);
+            blankView.setWidth((int) ((width - Tools.dip2px(40)) / 7));
+            blankView.setHeight(Tools.dip2px(50 * 2));
+            blankView.setGravity(Gravity.CENTER);
+            GridLayout.Spec rowSpec1 = GridLayout.spec(i, 2);
+            GridLayout.Spec columnSpec1 = GridLayout.spec(i);
+            GridLayout.LayoutParams params1 = new GridLayout.LayoutParams(rowSpec1, columnSpec1);
+            params1.setGravity(Gravity.CENTER);
+            gridLayout.addView(blankView, params1);
+        }
+
+        for (int i = 0; i < mCourseList.size(); ++i) {
+            final Course course = mCourseList.get(i);
+            int row = course.getClsNum();
+            int col = course.getDay();
+            int size = course.getClsCount();
+
+            TextView textView = new TextView(this);
+//            70.5 = 30 * 1.5 + 2 * 1.5 * 8 + 1.5
+            textView.setWidth((width - Tools.dip2px(54)) / 7);
+            textView.setHeight(Tools.dip2px(55 * size));
+            textView.setGravity(Gravity.CENTER);
+            textView.setTextColor(Color.rgb(255, 255, 255));
+            textView.setText(course.getDialogName() + "\n@" + course.getDialogLocation());
+            textView.setTextSize(12);
+            textView.setPadding(1, 1, 1, 1);
+            textView.setBackgroundResource(R.drawable.single_course_style);
+            GradientDrawable myGrad = (GradientDrawable) textView.getBackground();
+            myGrad.setColor(getResources().getColor(colors[course.getColor()]));
+            final String times = (row <= 4 ? "上午第" : "下午第") + (size == 2 ? row + ", " + (row + 1) : row + "," + (row + 1) + "," + (row + 2)) + "节";
+            textView.setOnClickListener(v -> {
+                final MaterialDialog mMaterialDialog = new MaterialDialog(CourseActivity.this);
+                mMaterialDialog
+                        .setTitle(course.getDialogName())
+                        .setMessage("节数:  " + times
+                                + "\n周数:  " + course.getDialogWeeks()
+                                + "\n老师:  " + course.getDialogTeacher()
+                                + "\n教室:  " + course.getDialogLocation())
+                        .setCanceledOnTouchOutside(true);
+                mMaterialDialog.show();
+            });
+//            设定View在表格的行列
+            GridLayout.Spec rowSpec = GridLayout.spec(row - 1, size);
+            GridLayout.Spec columnSpec = GridLayout.spec(col - 1);
+            GridLayout.LayoutParams params = new GridLayout.LayoutParams(rowSpec, columnSpec);
+            params.setGravity(Gravity.CENTER);
+            gridLayout.addView(textView, params);
+        }
+        isShowProgressBar(false);
+    }
+
+    /**
+     * 修改课程的背景
+     *
+     * @param context     上下文
+     * @param bitmap      背景位图
+     * @param backDefault 是否恢复默认背景
+     * @param isInit      是否初始化加载背景，如果false，则显示背景更换结果
+     */
     private void changeCourseBg(Context context, Bitmap bitmap, boolean backDefault, boolean isInit) {
         runOnUiThread(() -> {
             if (backDefault) {
@@ -468,18 +471,25 @@ public class CourseActivity extends ActivityCollector implements View.OnClickLis
 
     }
 
+    /**
+     * 加载背景
+     */
     private void showCourseBg() {
-        boolean diy_course_bg = (boolean) SharedPreferenceUtil.get(this, "diy_course_bg", false);
-        if (diy_course_bg) {
+        boolean diyCourseBg = (boolean) SharedPreferenceUtil.get(this, "diy_course_bg", false);
+        if (diyCourseBg) {
             Bitmap bitmap = SharedPreferenceUtil.getImage(this, "course_bg");
             changeCourseBg(this, bitmap, false, true);
         } else {
-            new Thread(() -> changeCourseBg(CourseActivity.this, ImageTools.compressImage(BitmapFactory.decodeResource(getResources(), R.drawable.course_bg)), true, true)).start();
+            ThreadPoolExecutorFactory.getThreadPoolExecutor().execute(() -> changeCourseBg(CourseActivity.this, ImageTools.compressImage(BitmapFactory.decodeResource(getResources(), R.drawable.course_bg)), true, true));
         }
     }
 
+    /**
+     * 是否显示加载条
+     *
+     * @param isShow 显示/隐藏
+     */
     private void isShowProgressBar(boolean isShow) {
-
         Message message = new Message();
         if (isShow) {
             message.what = Constant.TURN_PROGRESS_BAR_ON;
@@ -489,50 +499,24 @@ public class CourseActivity extends ActivityCollector implements View.OnClickLis
         handler.sendMessage(message);
     }
 
+    /**
+     * 初始化周下拉框
+     */
     private void initWeekSpinner() {
-
         List<Integer> list = new ArrayList<>();
         for (int i = 0; i < HtmlCodeExtractUtil.MaxWeek; i++) {
             list.add(i + 1);
         }
-
-        spinnerAdapter = new SpinnerAdapter(CourseActivity.this, R.layout.week_spiner_item, list);
+        ArrayAdapter spinnerAdapter = new SpinnerAdapter(CourseActivity.this, R.layout.week_spiner_item, list);
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         weekSpinner.setAdapter(spinnerAdapter);
 
         if (weekNow == 0) {
-            flag1 = false;
             showToast("您可能需要手动修改当前周", 1);
         } else {
 //            会默认去调用onItemSelect()方法, 索引从0开始
             weekSpinner.setSelection(weekNow - 1, true);
-            flag1 = true;
         }
-    }
-
-    private void initYearTeamSpinner() {
-
-        List<String> xnList = new ArrayList<>();
-        List<String> xqList = new ArrayList<>();
-        String xns = (String) SharedPreferenceUtil.get(this, "xns", "");
-        String xqs = (String) SharedPreferenceUtil.get(this, "xqs", "");
-        if (xns != null) {
-            Collections.addAll(xnList, xns.split("\t"));
-        }
-        if (xqs != null) {
-            Collections.addAll(xqList, xqs.split("\t"));
-        }
-
-        yearAdapter = new SpinnerAdapter(CourseActivity.this, R.layout.week_spiner_item, xnList);
-        teamAdapter = new SpinnerAdapter(CourseActivity.this, R.layout.week_spiner_item, xqList);
-        yearAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        teamAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        yearSpinner.setAdapter(yearAdapter);
-        teamSpinner.setAdapter(teamAdapter);
-        setSpinnerItemSelectedByValue(yearSpinner, xn);
-        setSpinnerItemSelectedByValue(teamSpinner, xq);
-
-
     }
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
@@ -555,23 +539,10 @@ public class CourseActivity extends ActivityCollector implements View.OnClickLis
                 }
                 break;
             case R.id.switchWeek:
-//                String str = (String) weekSpinner.getItemAtPosition(position);
-//                int week = Integer.parseInt(str.substring(str.indexOf("第") + 1, str.indexOf("周")));
                 int week = (int) weekSpinner.getItemAtPosition(position);
                 mCourseList.clear();
                 mCourseList = HtmlCodeExtractUtil.getCourseList(sourceCode, week, 0);
                 SharedPreferenceUtil.put(CourseActivity.this, "weekNow", week);
-//        if (!flag1) {
-//            String date = format.format(Tools.getThisWeekMonday(new Date()));
-//            SharedPreferenceUtil.put(CourseActivity.this, "weekStartDate", date);
-//            Log.d("date", "onItemSelected: " + date);
-//            Snackbar.make(view, "已设置当前周为: 第" + week + "周", Snackbar.LENGTH_LONG).setAction("取消设置", v -> {
-//                showToast("已恢复当前周为: 第" + weekNow + "周", 1);
-//                weekSpinner.setSelection(weekNow - 1, true);
-//            }).show();
-//        }
-//        flag1 = false;
-//        weekSpinner.setSelection(week, true);
                 showCourses();
                 sendCourseChangedBC();
                 break;
@@ -580,27 +551,50 @@ public class CourseActivity extends ActivityCollector implements View.OnClickLis
         }
     }
 
+    /**
+     * 初始化学年/学期下拉框
+     */
+    private void initYearTeamSpinner() {
+
+        List<String> xnList = new ArrayList<>();
+        List<String> xqList = new ArrayList<>();
+        String xns = (String) SharedPreferenceUtil.get(this, "xns", "");
+        String xqs = (String) SharedPreferenceUtil.get(this, "xqs", "");
+        if (xns != null) {
+            Collections.addAll(xnList, xns.split("\t"));
+        }
+        if (xqs != null) {
+            Collections.addAll(xqList, xqs.split("\t"));
+        }
+        ArrayAdapter yearAdapter = new SpinnerAdapter(CourseActivity.this, R.layout.week_spiner_item, xnList);
+        ArrayAdapter teamAdapter = new SpinnerAdapter(CourseActivity.this, R.layout.week_spiner_item, xqList);
+        yearAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        teamAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        yearSpinner.setAdapter(yearAdapter);
+        teamSpinner.setAdapter(teamAdapter);
+        setSpinnerItemSelectedByValue(yearSpinner, xn);
+        setSpinnerItemSelectedByValue(teamSpinner, xq);
+
+
+    }
+
+    /**
+     * 修改学年/学期
+     *
+     * @param year 当前下拉框中的学年
+     * @param team 当前下拉框中的学期
+     * @param isXn 是否修改学年，如果false，则修改学期
+     */
     public void changeYearTeam(String year, String team, boolean isXn) {
-        chageYearTeamFlag = true;
+        changeYearTeamFlag = true;
         Toast.makeText(CourseActivity.this, "课表更新", Toast.LENGTH_LONG).show();
-        Intent intent = new Intent(CourseActivity.this, LoginNJITActivity.class);
+        Intent intent = new Intent(CourseActivity.this, LoginNjitActivity.class);
         intent.putExtra("TODO", "COURSE");
         intent.putExtra("year", year);
         intent.putExtra("team", team);
         intent.putExtra("team", team);
         intent.putExtra("isXn", isXn);
         startActivity(intent);
-    }
-
-
-    public static void setSpinnerItemSelectedByValue(Spinner spinner, String value) {
-        android.widget.SpinnerAdapter apsAdapter = spinner.getAdapter();
-        for (int i = 0; i < apsAdapter.getCount(); i++) {
-            if (value.equals(apsAdapter.getItem(i).toString())) {
-                spinner.setSelection(i, true);// 默认选中项
-                break;
-            }
-        }
     }
 
 
@@ -619,18 +613,20 @@ public class CourseActivity extends ActivityCollector implements View.OnClickLis
         super.onDestroy();
     }
 
-
     @Override
     protected void onResume() {
         super.onResume();
-        if (chageYearTeamFlag) {
-            chageYearTeamFlag = false;
+        if (changeYearTeamFlag) {
+            changeYearTeamFlag = false;
             sourceCode = (String) SharedPreferenceUtil.get(this, "courseSourceCode", "");
             mCourseList.clear();
             mCourseList = HtmlCodeExtractUtil.getCourseList(sourceCode, weekNow == 0 ? 1 : weekNow, 0);
         }
     }
 
+    /**
+     * 发送课程信息被修改的广播给主页活动
+     */
     private void sendCourseChangedBC() {
         Intent intent = new Intent(Constant.ACTION3);
         MainActivity.localBroadcastManager.sendBroadcast(intent);

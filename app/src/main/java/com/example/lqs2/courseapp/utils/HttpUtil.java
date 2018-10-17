@@ -4,24 +4,18 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.Log;
 
+import com.example.lqs2.courseapp.common.StringUtils;
+import com.example.lqs2.courseapp.global.ThreadPoolExecutorFactory;
 import com.luck.picture.lib.entity.LocalMedia;
 
 import org.jsoup.Jsoup;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLEncoder;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Callback;
@@ -36,11 +30,21 @@ import top.zibin.luban.Luban;
 import top.zibin.luban.OnCompressListener;
 
 
+/**
+ * 网络工具类
+ *
+ * @author lqs2
+ */
 public class HttpUtil {
 
-    private static OkHttpClient client = null;
+    private static volatile OkHttpClient client = null;
     private static String TAG = "HttpUtil";
 
+    /**
+     * 单例获取client对象
+     *
+     * @return client对象
+     */
     private static OkHttpClient getInstance() {
         if (client == null) {
             synchronized (HttpUtil.class) {
@@ -57,7 +61,12 @@ public class HttpUtil {
         return client;
     }
 
-
+    /**
+     * 输出request 参数
+     *
+     * @param request request对象
+     * @return 参数字符串
+     */
     private static String outputPostParams(Request request) {
         StringBuilder sb = new StringBuilder();
         String method = request.method();
@@ -65,7 +74,7 @@ public class HttpUtil {
             if (request.body() instanceof FormBody) {
                 FormBody body = (FormBody) request.body();
                 for (int i = 0; i < body.size(); i++) {
-                    sb.append(body.encodedName(i) + "=" + body.encodedValue(i) + "\n");
+                    sb.append(body.encodedName(i)).append("=").append(body.encodedValue(i)).append("\n");
                 }
                 sb.delete(sb.length() - 1, sb.length());
             }
@@ -73,92 +82,111 @@ public class HttpUtil {
         return sb.toString();
     }
 
+    /**
+     * 获取教务网验证码
+     *
+     * @param c 回调接口
+     */
     public static void getCheckCode(Callback c) {
-
-
-        client = getInstance();
-        Request request = new Request.Builder()
-                .url("http://jwjx.njit.edu.cn/CheckCode.aspx")
-                .get()
-                .build();
-        client.newCall(request).enqueue(c);
+        doAsynGetRequest(Constant.CHECK_CODE_URL, null, null, c);
     }
 
-    public static void get_login_VIEWSTATE(Callback c) {
-        client = getInstance();
-        Request request = new Request.Builder()
-                .url(Constant.main_url)
-                .build();
-        client.newCall(request).enqueue(c);
+    /**
+     * 获取登录状态
+     *
+     * @param c 回调接口
+     */
+    public static void getLoginViewstate(Callback c) {
+        doAsynGetRequest(Constant.MAIN_URL, null, null, c);
     }
 
-    public static void login(String xh, String xm, String code, String cookie, String __VIEWSTATE, Callback c) {
-        client = getInstance();
-
-        FormBody.Builder formBody = new FormBody.Builder();//创建表单请求体
-        formBody.add("__VIEWSTATE", __VIEWSTATE);//传递键值对参数
-        formBody.add("txtUserName", xh);
-        formBody.add("TextBox2", xm);
-        formBody.add("txtSecretCode", code);
-        formBody.add("RadioButtonList1", "学生");
-        formBody.add("Button1", "");
-        formBody.add("lbLanguage", "");
-        formBody.add("hidPdrs", "");
-        formBody.add("hidsc", "");
-        RequestBody requestBody = formBody.build();
-
-        Request request = new Request.Builder()
-                .post(requestBody)
-                .addHeader("contentType", "GB2312")
-                .addHeader("Referer", Constant.refer_url)
-                .url(Constant.main_url)
-                .addHeader("Cookie", cookie)
-                .build();
-        client.newCall(request).enqueue(c);
+    /**
+     * 登录教务网
+     *
+     * @param xh        学号
+     * @param xm        姓名
+     * @param code      验证码
+     * @param cookie    cookie
+     * @param viewstate 标志
+     * @param c         回调接口
+     */
+    public static void login(String xh, String xm, String code, String cookie, String viewstate, Callback c) {
+        FormBody formBody = generateFormBody(new HashMap<String, String>(9) {{
+            put("__VIEWSTATE", viewstate);
+            put("txtUserName", xh);
+            put("TextBox2", xm);
+            put("txtSecretCode", code);
+            put("RadioButtonList1", "学生");
+            put("Button1", "");
+            put("lbLanguage", "");
+            put("hidPdrs", "");
+            put("hidsc", "");
+        }});
+        doAsynPostRequest(Constant.MAIN_URL, null, new HashMap<String, String>(3) {{
+            put("contentType", "GB2312");
+            put("Referer", Constant.REFER_URL);
+            put("Cookie", cookie);
+        }}, formBody, c);
     }
 
+    /**
+     * main重定向
+     *
+     * @param xh     学号
+     * @param cookie cookie
+     * @param c      回调接口
+     */
     public static void redirect(String xh, String cookie, Callback c) {
-        client = getInstance();
-        Request request = new Request.Builder()
-                .addHeader("Referer", Constant.refer_url)
-                .addHeader("Cookie", cookie)
-                .url(Constant.forward_url + xh)
-                .build();
-        client.newCall(request).enqueue(c);
+        doAsynGetRequest(Constant.FORWARD_URL + xh, null, new HashMap<String, String>(2) {{
+            put("Referer", Constant.REFER_URL);
+            put("Cookie", cookie);
+        }}, c);
     }
 
 
+    /**
+     * 查询课程，写的什么玩意儿
+     *
+     * @param context 上下文
+     * @param xh      学号
+     * @param xm      姓名
+     * @param year    学年
+     * @param team    学期
+     * @param cookie  cookie
+     * @param isXn    是否学年
+     * @param c       回调接口
+     * @throws IOException 异常
+     */
     public static void queryCourse(Context context, String xh, String xm, String year, String team, String cookie, boolean isXn, Callback c) throws IOException {
         client = getInstance();
         Request request;
-
         String xncr = (String) SharedPreferenceUtil.get(context, "xncr", "");
         String xqcr = (String) SharedPreferenceUtil.get(context, "xqcr", "");
 
         if ((xncr.equals(year) && xqcr.equals(team)) || ("".equals(year) && "".equals(team))) {
             request = new Request.Builder()
                     .addHeader("contentType", "GB2312")
-                    .addHeader("Referer", Constant.forward_url + xh)
+                    .addHeader("Referer", Constant.FORWARD_URL + xh)
                     .addHeader("Cookie", cookie)
                     .url("http://jwjx.njit.edu.cn/xskbcx.aspx?xh=" + xh + "&xm=" + xm + "&gnmkdm=N121603")
                     .build();
         } else {
             request = new Request.Builder()
                     .addHeader("contentType", "GB2312")
-                    .addHeader("Referer", Constant.forward_url + xh)
+                    .addHeader("Referer", Constant.FORWARD_URL + xh)
                     .addHeader("Cookie", cookie)
                     .url("http://jwjx.njit.edu.cn/xskbcx.aspx?xh=" + xh + "&xm=" + xm + "&gnmkdm=N121603")
                     .build();
             Response response = client.newCall(request).execute();
             String html = response.body().string();
-            String __VIEWSTATE = Jsoup.parse(html).select("input[name=__VIEWSTATE]").get(0).attr("value");
+            String viewstate = Jsoup.parse(html).select("input[name=__VIEWSTATE]").get(0).attr("value");
 
             FormBody builder;
             if (isXn) {
                 builder = new FormBody.Builder()
                         .add("xnd", year)
                         .add("xqd", team)
-                        .add("__VIEWSTATE", __VIEWSTATE)
+                        .add("__VIEWSTATE", viewstate)
                         .add("__EVENTARGUMENT", "")
                         .add("__EVENTTARGET", "xnd")
                         .build();
@@ -166,14 +194,14 @@ public class HttpUtil {
                 builder = new FormBody.Builder()
                         .add("xnd", year)
                         .add("xqd", team)
-                        .add("__VIEWSTATE", __VIEWSTATE)
+                        .add("__VIEWSTATE", viewstate)
                         .add("__EVENTARGUMENT", "")
                         .add("__EVENTTARGET", "xqd")
                         .build();
             }
             request = new Request.Builder()
                     .addHeader("contentType", "GB2312")
-                    .addHeader("Referer", Constant.forward_url + xh)
+                    .addHeader("Referer", Constant.FORWARD_URL + xh)
                     .addHeader("Cookie", cookie)
                     .url("http://jwjx.njit.edu.cn/xskbcx.aspx?xh=" + xh + "&xm=" + xm + "&gnmkdm=N121603")
                     .post(builder)
@@ -183,60 +211,98 @@ public class HttpUtil {
     }
 
 
+    /**
+     * 获取bing每日一图
+     *
+     * @param c 回调接口
+     */
     public static void loadBingPic(Callback c) {
-        client = getInstance();
-        Request request = new Request.Builder()
-                .url(Constant.bing_pic_api)
-                .build();
-        client.newCall(request).enqueue(c);
+        doAsynGetRequest(Constant.BING_PIC_API, null, null, c);
     }
 
+    /**
+     * 查询成绩第一步
+     *
+     * @param xh     学号
+     * @param xm     姓名
+     * @param cookie cookie
+     * @param c      回调接口
+     */
     public static void queryGradeInit(String xh, String xm, String cookie, Callback c) {
-        client = getInstance();
-        Request request = new Request.Builder()
-                .addHeader("contentType", "GB2312")
-                .addHeader("Referer", Constant.forward_url + xh)
-                .addHeader("Cookie", cookie)
-                .url("http://jwjx.njit.edu.cn/xscjcx_dq.aspx?xh=" + xh + "&xm=" + xm + "&gnmkdm=N121605")
-                .build();
-        client.newCall(request).enqueue(c);
+        doAsynGetRequest(Constant.QUERY_PREFIX_URL, new HashMap<String, String>(3) {{
+            put("xh", xh);
+            put("xm", xm);
+            put("gnmkdm", "N121605");
+        }}, new HashMap<String, String>(3) {{
+            put("contentType", "GB2312");
+            put("Referer", Constant.FORWARD_URL + xh);
+            put("Cookie", cookie);
+        }}, c);
     }
 
-    public static void queryGrade(String __VIEWSTATE, String xh, String xm, String cookie, String xn, String xq, Callback c) {
-
-        FormBody.Builder formBody = new FormBody.Builder();
-        formBody.add("__EVENTTARGET", "");
-        formBody.add("__EVENTARGUMENT", "");
-        formBody.add("__VIEWSTATE", __VIEWSTATE);
-        formBody.add("ddlxn", xq);
-        formBody.add("ddlxq", xn);
-        formBody.add("btnCx", " 查  询 ");
-        RequestBody requestBody = formBody.build();
-        client = getInstance();
-        Request request = new Request.Builder()
-                .post(requestBody)
-                .addHeader("contentType", "GB2312")
-                .addHeader("Referer", "http://jwjx.njit.edu.cn/xscjcx_dq.aspx?xh=" + xh + "&xm=" + xm + "&gnmkdm=N121605")
-                .addHeader("Cookie", cookie)
-                .url("http://jwjx.njit.edu.cn/xscjcx_dq.aspx?xh=" + xh + "&xm=" + xm + "&gnmkdm=N121605")
-                .build();
-        client.newCall(request).enqueue(c);
+    /**
+     * 查询成绩第二部
+     *
+     * @param viewstate 标志
+     * @param xh        学号
+     * @param xm        姓名
+     * @param cookie    cookie
+     * @param xn        学年
+     * @param xq        学期
+     * @param c         回调
+     */
+    public static void queryGrade(String viewstate, String xh, String xm, String cookie, String xn, String xq, Callback c) {
+        FormBody formBody = generateFormBody(new HashMap<String, String>(6) {{
+            put("__EVENTTARGET", "");
+            put("__EVENTARGUMENT", "");
+            put("__VIEWSTATE", viewstate);
+            put("ddlxn", xq);
+            put("ddlxq", xn);
+            put("btnCx", " 查  询 ");
+        }});
+        doAsynPostRequest(Constant.QUERY_PREFIX_URL, new HashMap<String, String>(3) {{
+            put("xh", xh);
+            put("xm", xm);
+            put("gnmkdm", "N121605");
+        }}, new HashMap<String, String>(3) {{
+            put("contentType", "GB2312");
+            put("Referer", "http://jwjx.njit.edu.cn/xscjcx_dq.aspx?xh=" + xh + "&xm=" + xm + "&gnmkdm=N121605");
+            put("Cookie", cookie);
+        }}, formBody, c);
     }
 
+
+    /**
+     * 查询学分第一步
+     *
+     * @param xh     学号
+     * @param xm     姓名
+     * @param cookie cookie
+     * @param c      回调接口
+     */
     public static void queryCreditInit(String xh, String xm, String cookie, Callback c) {
-        client = getInstance();
-        Request request = new Request.Builder()
-                .addHeader("contentType", "GB2312")
-                .addHeader("Referer", Constant.forward_url + xh)
-                .addHeader("Cookie", cookie)
-                .url("http://jwjx.njit.edu.cn/xscjcx.aspx?xh=" + xh + "&xm=" + xm + "&gnmkdm=N121617")
-                .build();
-        client.newCall(request).enqueue(c);
+        doAsynGetRequest(Constant.QUERY_PREFIX_URL, new HashMap<String, String>(3) {{
+            put("xh", xh);
+            put("xm", xm);
+            put("gnmkdm", "N121617");
+        }}, new HashMap<String, String>(3) {{
+            put("contentType", "GB2312");
+            put("Referer", Constant.FORWARD_URL + xh);
+            put("Cookie", cookie);
+        }}, c);
     }
 
+    /**
+     * 查询学分第二步
+     *
+     * @param xh        姓名
+     * @param xm        学号
+     * @param viewState 状态
+     * @param cookie    cookie
+     * @param c         回调
+     */
     public static void queryCredit(String xh, String xm, String viewState, String cookie, Callback c) {
-        client = getInstance();
-        RequestBody formBody = getValidationFormBody(new HashMap<String, String>() {{
+        RequestBody formBody = generateFormBody(new HashMap<String, String>(8) {{
             put("__EVENTTARGET", "");
             put("__EVENTARGUMENT", "");
             put("__VIEWSTATE", viewState);
@@ -246,465 +312,270 @@ public class HttpUtil {
             put("ddl_kcxz", "");
             put("Button1", "成绩统计");
         }});
-        Request request = new Request.Builder()
-                .url("http://jwjx.njit.edu.cn/xscjcx.aspx?xh=" + xh + "&xm=" + xm + "&gnmkdm=N121617")
-                .post(formBody)
-                .addHeader("contentType", "GB2312")
-                .addHeader("Referer", "http://jwjx.njit.edu.cn/xscjcx.aspx?xh=" + xh + "&xm=" + xm + "&gnmkdm=N121617")
-                .addHeader("Host", "jwjx.njit.edu.cn")
-                .addHeader("Origin", "http://jwjx.njit.edu.cn")
-                .addHeader("Cookie", cookie)
-                .addHeader("Upgrade-Insecure-Requests", "1")
-                .addHeader("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.45 Safari/537.36")
-                .build();
-        client.newCall(request).enqueue(c);
+        doAsynPostRequest(Constant.QUERY_PREFIX_URL, new HashMap<String, String>(3) {{
+            put("xh", xh);
+            put("xm", xm);
+            put("gnmkdm", "N121617");
+        }}, new HashMap<String, String>(7) {{
+            put("contentType", "GB2312");
+            put("Referer", "http://jwjx.njit.edu.cn/xscjcx.aspx?xh=" + xh + "&xm=" + xm + "&gnmkdm=N121617");
+            put("Host", "jwjx.njit.edu.cn");
+            put("Origin", "http://jwjx.njit.edu.cn");
+            put("Cookie", cookie);
+            put("Upgrade-Insecure-Requests", "1");
+            put("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.45 Safari/537.36");
+        }}, formBody, c);
     }
 
 
-    public static void loadCalendarChoosePage(String url, Callback c) {
-        client = getInstance();
-        Request request = new Request.Builder()
-                .url(url)
-                .build();
-        client.newCall(request).enqueue(c);
+    /**
+     * 加载日历选择页
+     *
+     * @param c 回调接口
+     */
+    public static void loadCalendarChoosePage(Callback c) {
+        doAsynGetRequest(Constant.SCHOOL_CALENDAR_CHOOSE_URL, null, null, c);
     }
 
+    /**
+     * 加载最新日历
+     *
+     * @param url 日历url
+     * @param c   回调
+     */
     public static void loadCalendarPage(String url, Callback c) {
-        client = getInstance();
-        Request request = new Request.Builder()
-                .url(url)
-                .build();
-        client.newCall(request).enqueue(c);
+        doAsynGetRequest(url, null, null, c);
     }
 
 
-    public static void getOneKeyComment_VIEWSTATE(String url, String cookie, String xh, Callback c) {
-        client = getInstance();
-        Request request = new Request.Builder()
-                .url(url)
-                .addHeader("contentType", "GB2312")
-                .addHeader("Cookie", cookie)
-                .addHeader("Referer", Constant.forward_url + xh)
-                .get()
-                .build();
-        client.newCall(request).enqueue(c);
-//        }
-
-    }
-
-    public static String getOneKeyComment_VIEWSTATE_unRecommended(String url, String cookie, String xh) {
-
-        StringBuilder stringBuilder = new StringBuilder();
-
-        try {
-            URL strURL = new URL(url);
-            HttpURLConnection conn = (HttpURLConnection) strURL.openConnection();
-            conn.setRequestMethod("GET");
-            conn.setDoInput(true);
-            conn.setDoOutput(true);
-            conn.setRequestProperty("Cookie", cookie);
-            conn.setRequestProperty("contentType", "GB2312");
-            conn.setRequestProperty("Referer", Constant.forward_url + xh);
-            System.out.println("------------------");
-            String line;
-            BufferedReader bfr = new BufferedReader(new InputStreamReader(conn.getInputStream(), "GB2312"));
-            while ((line = bfr.readLine()) != null) {
-                stringBuilder.append(line);
-                System.out.println(line);
-            }
-            System.out.println("------------------");
-
-
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return stringBuilder.toString();
-    }
-
-
-    public static void OneKeyComment(String url, String cookie, String pjkc, Callback c) {
-
-        FormBody.Builder formBody = new FormBody.Builder();
-
-        StringBuilder paramsString = new StringBuilder();
-        Map<String, String> params = new LinkedHashMap<>();
-
-        params.put("__EVENTTARGET", "");
-        params.put("__EVENTARGUMENT", "");
-        params.put("__VIEWSTATE", Constant.__VIEWSTATE_COMMENT);
-        params.put("pjkc", pjkc);
-
-        formBody.add("__EVENTTARGET", "");
-        formBody.add("__EVENTARGUMENT", "");
-        formBody.add("__VIEWSTATE", Constant.__VIEWSTATE_COMMENT);
-        formBody.add("pjkc", pjkc);
-        for (int i = 2; i < 13; i++) {
-            String str1 = "DataGrid1:_ctl" + i + ":JS1";
-            String str2 = "DataGrid1:_ctl" + i + ":txtjs1";
-            params.put(str1, "非常满意");
-            params.put(str2, "");
-            if (i == 12) {
-                params.put(str1, "比较满意");
-                params.put(str2, "");
-                break;
-            }
-        }
-        params.put("pjxx", "");
-        params.put("txt1", "");
-        params.put("TextBox1", "0");
-        params.put("Button1", "保  存");
-
-        for (Iterator<String> iterator = params.keySet().iterator(); iterator.hasNext(); ) {
-            String name = iterator.next();
-            String value = String.valueOf(params.get(name));
-            paramsString.append(name + "=" + value);
-            if (iterator.hasNext())
-                paramsString.append("&");
-        }
-
-
-        formBody.add("DataGrid1:_ctl2:JS1", "非常满意");
-        formBody.add("DataGrid1:_ctl2:txtjs1", "");
-
-        formBody.add("DataGrid1:_ctl3:JS1", "非常满意");
-        formBody.add("DataGrid1:_ctl3:txtjs1", "");
-
-        formBody.add("DataGrid1:_ctl4:JS1", "非常满意");
-        formBody.add("DataGrid1:_ctl4:txtjs1", "");
-
-        formBody.add("DataGrid1:_ctl5:JS1", "非常满意");
-        formBody.add("DataGrid1:_ctl5:txtjs1", "");
-
-        formBody.add("DataGrid1:_ctl6:JS1", "非常满意");
-        formBody.add("DataGrid1:_ctl6:txtjs1", "");
-
-        formBody.add("DataGrid1:_ctl7:JS1", "非常满意");
-        formBody.add("DataGrid1:_ctl7:txtjs1", "");
-
-        formBody.add("DataGrid1:_ctl8:JS1", "非常满意");
-        formBody.add("DataGrid1:_ctl8:txtjs1", "");
-
-        formBody.add("DataGrid1:_ctl9:JS1", "非常满意");
-        formBody.add("DataGrid1:_ctl9:txtjs1", "");
-
-        formBody.add("DataGrid1:_ctl10:JS1", "非常满意");
-        formBody.add("DataGrid1:_ctl10:txtjs1", "");
-
-        formBody.add("DataGrid1:_ctl11:JS1", "非常满意");
-        formBody.add("DataGrid1:_ctl11:txtjs1", "");
-
-        formBody.add("DataGrid1:_ctl12:JS1", "比较满意");
-        formBody.add("DataGrid1:_ctl12:txtjs1", "");
-
-        formBody.add("pjxx", "");
-        formBody.add("txt1", "");
-        formBody.add("TextBox1", "0");
-        formBody.add("Button1", "保  存");
-
-        RequestBody requestBodyParams = RequestBody.create(MediaType.parse("application/x-www-form-urlencoded;charset=GB2312"), paramsString.toString());
-
-        RequestBody requestBodyForm = formBody.build();
-
-
-        client = getInstance();
-        Request request = new Request.Builder()
-                .addHeader("contentType", "GB2312")
-                .addHeader("Referer", url)
-                .addHeader("Cookie", cookie)
-//                RequestBody.create(MediaType.parse("application/x-www-form-urlencoded;charset=gb2312"),""
-                .url(url)
-                .post(requestBodyForm)
-                .build();
-        System.out.println("\"======================================================\"" + paramsString.toString());
-        System.out.println(outputPostParams(request));
-        client.newCall(request).enqueue(c);
-    }
-
-
-    public static String oneKeyComment_unRecommended(String url, String cookie, String pjkc) {
-
-
-        StringBuilder stringBuilder = new StringBuilder();
-        try {
-            URL strUrl = new URL(url);
-            HttpURLConnection connection = (HttpURLConnection) strUrl.openConnection();
-            connection.setRequestMethod("POST");
-
-            connection.setDoOutput(true);
-            connection.setDoInput(true);
-
-            Map<String, String> map = new LinkedHashMap<>();
-            StringBuilder formParams = new StringBuilder();
-
-
-            connection.setRequestProperty("Cookie", cookie);
-
-            connection.setRequestProperty("Referer", url);
-            connection.setRequestProperty("contentType", "GB2312");
-//            connection.setInstanceFollowRedirects(false);
-
-            map.put("__EVENTTARGET", "");
-            map.put("__EVENTARGUMENT", "");
-            map.put("__VIEWSTATE", Constant.__VIEWSTATE_COMMENT);
-            map.put("pjkc", pjkc);
-            for (int i = 2; i < 13; i++) {
-                String str1 = "DataGrid1:_ctl" + i + ":JS1";
-                String str2 = "DataGrid1:_ctl" + i + ":txtjs1";
-                map.put(str1, URLEncoder.encode("非常满意", "GB2312"));
-                map.put(str2, "");
-                if (i == 12) {
-                    map.put(str1, URLEncoder.encode("比较满意", "GB2312"));
-                    map.put(str2, "");
-                    break;
-                }
-            }
-            map.put("pjxx", "");
-            map.put("txt1", "");
-            map.put("TextBox1", "0");
-            map.put("Button1", URLEncoder.encode("保  存", "GB2312"));
-
-            for (Iterator<String> iterator = map.keySet().iterator(); iterator
-                    .hasNext(); ) {
-                String name = iterator.next();
-                String value = String.valueOf(map.get(name));
-                formParams.append(name).append("=").append(value);
-                if (iterator.hasNext())
-                    formParams.append("&");
-            }
-            OutputStream outputStream = connection.getOutputStream();
-            outputStream.write(new String(formParams).getBytes());
-            outputStream.flush();
-            String line;
-            BufferedReader bfr = new BufferedReader(new InputStreamReader(connection.getInputStream(), "GB2312"));
-            while ((line = bfr.readLine()) != null) {
-                stringBuilder.append(line);
-                System.out.println(line);
-            }
-
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return stringBuilder.toString();
-
-    }
-
-//    public static void getAllNews(Callback c) {
-//        client = getInstance();
-//        Request request = new Request.Builder()
-//                .url(Constant.get_news_url)
-//                .addHeader("Content-type", "application/json;charset=UTF-8")
-//                .get()
-//                .build();
-//        client.newCall(request).enqueue(c);
-//    }
-//
-//    public static void addOneNews(Callback c, News news) {
-//
-//        MediaType JSON = MediaType.parse("application/json;charset=utf-8");
-//        Gson gson = new Gson();
-//        String json = gson.toJson(news);
-//        try {
-//            json = URLEncoder.encode(json, "UTF-8");
-//        } catch (UnsupportedEncodingException e) {
-//            e.printStackTrace();
-//        }
-//        RequestBody requestBody = RequestBody.create(JSON, json);
-//        client = getInstance();
-//        Request request = new Request.Builder()
-//                .url(Constant.add_news_url)
-//                .addHeader("Content-type", "application/json;charset=UTF-8")
-//                .post(requestBody)
-//                .build();
-//        client.newCall(request).enqueue(c);
-//    }
-
-//    public static void deleteOneNews(Callback c, int id) {
-//        client = getInstance();
-//        Request request = new Request.Builder()
-//                .url(Constant.del_news_url + "?id=" + id)
-//                .build();
-//        client.newCall(request).enqueue(c);
-//    }
-
-
+    /**
+     * 显示用户好友
+     *
+     * @param un 用户名
+     * @param c  回调
+     */
     public static void showMyFriends(String un, Callback c) {
-        client = getInstance();
-        Request request = new Request.Builder()
-                .url(generateGetUrl(Constant.user_show_my_friend_url, new HashMap<String, String>() {{
-                    put("un", un);
-                }}))
-                .build();
-        client.newCall(request).enqueue(c);
+        doAsynGetRequest(Constant.USER_SHOW_MY_FRIEND_URL, new HashMap<String, String>(1) {{
+            put("un", un);
+        }}, null, c);
     }
 
+    /**
+     * 显示用户文件
+     *
+     * @param un 用户名
+     * @param c  回调
+     */
     public static void showMyFile(String un, Callback c) {
-        client = getInstance();
-        Request request = new Request.Builder()
-                .url(generateGetUrl(Constant.file_show_url, new HashMap<String, String>() {{
-                    put("un", un);
-                }}))
-                .build();
-        client.newCall(request).enqueue(c);
+
+        doAsynGetRequest(Constant.FILE_SHOW_URL, new HashMap<String, String>(1) {{
+            put("un", un);
+        }}, null, c);
     }
 
-    public static void insertFileRecord(String file_post_author, String fileNo, String fileName, String attachment, String destination, String fileSize, Callback c) {
-        FormBody.Builder builder = new FormBody.Builder()
-                .add("filePostAuthor", file_post_author)
-                .add("fileNo", fileNo)
-                .add("fileName", fileName)
-                .add("attachment", attachment)
-                .add("destination", destination)
-                .add("fileSize", fileSize);
-
-        client = getInstance();
-        Request request = new Request.Builder()
-                .url(Constant.file_insert_record_url)
-                .post(builder.build())
-                .build();
-        client.newCall(request).enqueue(c);
+    /**
+     * 增加一条文件记录
+     *
+     * @param filePostAuthor 文件作者
+     * @param fileNo         文件编号
+     * @param fileName       文件名
+     * @param attachment     附加信息
+     * @param destination    目的地
+     * @param fileSize       文件大小
+     * @param c              回调
+     */
+    public static void insertFileRecord(String filePostAuthor, String fileNo, String fileName, String attachment, String destination, String fileSize, Callback c) {
+        FormBody formBody = generateFormBody(new HashMap<String, String>(6) {{
+            put("filePostAuthor", filePostAuthor);
+            put("fileNo", fileNo);
+            put("fileName", fileName);
+            put("attachment", attachment);
+            put("destination", destination);
+            put("fileSize", fileSize);
+        }});
+        doAsynPostRequest(Constant.FILE_INSERT_RECORD_URL, null, null, formBody, c);
     }
 
-
+    /**
+     * 删除文件
+     *
+     * @param un  用户名
+     * @param fid 文件编号
+     * @param c   回调
+     */
     public static void deleteOneFile(String un, String fid, Callback c) {
-        client = getInstance();
-        Request request = new Request.Builder()
-                .url(Constant.file_del_url)
-                .post(getValidationFormBody(un, new HashMap<String, String>() {{
-                    put("file_id", fid);
-                }}))
-                .build();
-        client.newCall(request).enqueue(c);
+        doAsynPostRequest(Constant.FILE_DEL_URL, null, null, generateFormBody(un, new HashMap<String, String>(1) {{
+            put("file_id", fid);
+        }}), c);
     }
 
 
-    private static FormBody getValidationFormBody(String un, String pwd, Map<String, String> extra) {
-        FormBody.Builder builder = new FormBody.Builder()
-                .add("un", un)
-                .add("pwd", pwd);
-        if (extra != null) {
-            for (Map.Entry<String, String> entry : extra.entrySet()) {
-                builder.add(entry.getKey(), entry.getValue());
-            }
+    /**
+     * 生成darkme post表单，用户名和密码必选
+     *
+     * @param un    用户名
+     * @param pwd   密码
+     * @param extra 附加信息
+     * @return 请求体
+     */
+    private static FormBody generateFormBody(String un, String pwd, Map<String, String> extra) {
+        if (StringUtils.isEmpty(un) || StringUtils.isEmpty(pwd)) {
+            return null;
         }
-        return builder.build();
-    }
-
-    private static FormBody getValidationFormBody(String un, Map<String, String> extra) {
-        FormBody.Builder builder = new FormBody.Builder()
-                .add("un", un);
-        if (extra != null) {
-            for (Map.Entry<String, String> entry : extra.entrySet()) {
-                builder.add(entry.getKey(), entry.getValue());
-            }
+        if (extra == null) {
+            extra = new HashMap<>(2);
         }
-        return builder.build();
+        extra.put("un", un);
+        extra.put("pwd", pwd);
+        return generateFormBody(extra);
     }
 
-    private static FormBody getValidationFormBody(Map<String, String> extra) {
+    /**
+     * 生成darkme post表单，用户名必选
+     *
+     * @param un    用户名
+     * @param extra 附加信息
+     * @return 请求体
+     */
+    private static FormBody generateFormBody(String un, Map<String, String> extra) {
+        if (StringUtils.isEmpty(un)) {
+            return null;
+        }
+        if (extra == null) {
+            extra = new HashMap<>(1);
+        }
+        extra.put("un", un);
+        return generateFormBody(extra);
+    }
+
+    /**
+     * 生成post表单
+     *
+     * @param info 表单内容
+     * @return 请求体
+     */
+    private static FormBody generateFormBody(Map<String, String> info) {
         FormBody.Builder builder = new FormBody.Builder();
-        if (extra != null) {
-            for (Map.Entry<String, String> entry : extra.entrySet()) {
+        if (info != null) {
+            for (Map.Entry<String, String> entry : info.entrySet()) {
                 builder.add(entry.getKey(), entry.getValue());
             }
         }
         return builder.build();
     }
 
+    /**
+     * 生成一个新的文件，获取编号
+     *
+     * @param filename 文件名
+     * @param c        回调接口
+     */
     public static void generateNewFile(String filename, Callback c) {
-
-        doAsynGetRequest(Constant.file_generate_url, new HashMap<String, String>() {{
+        doAsynGetRequest(Constant.FILE_GENERATE_URL, new HashMap<String, String>(1) {{
             put("filename", filename);
-        }}, c);
+        }}, null, c);
     }
 
+    /**
+     * 文件搜索
+     *
+     * @param un 用户名
+     * @param no 文件编号
+     * @param c  回调
+     */
     public static void searchFileByNo(String un, String no, Callback c) {
-        client = getInstance();
-        Request request = new Request.Builder()
-                .url(Constant.file_sear_url)
-                .post(getValidationFormBody(un, new HashMap<String, String>() {{
-                    put("fileNo", no);
-                }}))
-                .build();
-        client.newCall(request).enqueue(c);
+        doAsynPostRequest(Constant.FILE_SEARCH_URL, null, null, generateFormBody(un, new HashMap<String, String>(1) {{
+            put("fileNo", no);
+        }}), c);
     }
 
+    /**
+     * 查询是否有同名的用户
+     *
+     * @param username 用户名
+     * @param c        回调
+     */
     public static void hasMatcherUser(String username, Callback c) {
         client = getInstance();
         Request request = new Request.Builder()
-                .url(Constant.user_do_exist_url + "?name=" + username)
+                .url(Constant.USER_DO_EXIST_URL + "?name=" + username)
                 .get()
                 .build();
         client.newCall(request).enqueue(c);
     }
 
 
-    public static void userValidateDarkMe(String darkme_un, String darkme_pwd, Callback c) throws IOException {
-        client = getInstance();
-        Request request = new Request.Builder()
-                .url(Constant.user_do_login_url)
-                .post(getValidationFormBody(darkme_un, darkme_pwd, null))
-                .build();
-        client.newCall(request).enqueue(c);
+    /**
+     * 登录darkme认证
+     *
+     * @param darkmeUn  账户名
+     * @param darkmePwd 账户密码
+     * @param c         回调
+     */
+    public static void userValidateDarkMe(String darkmeUn, String darkmePwd, Callback c) {
+        doAsynPostRequest(Constant.USER_DO_LOGIN_URL, null, null, generateFormBody(darkmeUn, darkmePwd, null), c);
     }
 
+
+    /**
+     * 用户注册darkme
+     *
+     * @param t1    用户名
+     * @param t2    密码
+     * @param t3    邮箱
+     * @param isMan 性别
+     * @return okHttp响应
+     * @throws IOException 异常
+     */
     public static Response userRegisterDarkMe(String t1, String t2, String t3, String isMan) throws IOException {
         client = getInstance();
         Request request = new Request.Builder()
-                .url(Constant.user_do_register_url)
-                .post(getValidationFormBody(t1, t2, new HashMap<String, String>() {{
+                .url(Constant.USER_DO_REGISTER_URL)
+                .post(Objects.requireNonNull(generateFormBody(t1, t2, new HashMap<String, String>() {{
                     put("email", t3);
                     put("isMan", isMan);
-                }}))
+                }})))
                 .build();
         return client.newCall(request).execute();
     }
 
 
-//    public static void releaseNewTweet(String darkme_un, String content, List<LocalMedia> list, Callback c) {
-//        client = getInstance();
-//        Request request = new Request.Builder()
-//                .url(Constant.tweet_post_url)
-//                .post(getValidationFormBody(darkme_un, new HashMap<String, String>() {{
-//                    put("content", content);
-//                    for (byte i = 0; i < list.size(); i++) {
-//                        String picStr = Base64ImageUtils.bitmapToBase64Str(ImageTools.compressImage(BitmapFactory.decodeFile(list.get(i).getPath())));
-//                        put("picStr" + i, picStr);
-//                    }
-//                    put("picNum", String.valueOf(list.size()));
-//                }}))
-//                .build();
-//        client.newCall(request).enqueue(c);
-//    }
-
-
-    public static void releaseNewTweet(Context context, String darkme_un, String content, List<LocalMedia> list, Callback c) {
-        client = getInstance();
-        Request request = new Request.Builder()
-                .url(Constant.tweet_post_url)
-                .post(getValidationFormBody(darkme_un, new HashMap<String, String>() {{
-                    put("content", content);
-                    for (byte i = 0; i < list.size(); i++) {
-                        String path = getImageReadPath(list.get(i));
-                        Log.d(TAG, "image" + i + ": " + path);
-                        String result = uploadImage(context, path);
-                        if (!"-1".equals(result) && !"error".equals(result)) {
-                            put("imgPath" + i, result);
-                        }
-                    }
-                }}))
-                .build();
-        client.newCall(request).enqueue(c);
+    /**
+     * 发布新动态
+     *
+     * @param context  上下文
+     * @param darkmeUn 用户名
+     * @param content  内容
+     * @param list     图片list
+     * @param c        回调
+     */
+    public static void releaseNewTweet(Context context, String darkmeUn, String content, List<LocalMedia> list, Callback c) {
+        FormBody formBody = generateFormBody(darkmeUn, new HashMap<String, String>(1 + list.size()) {{
+            put("content", content);
+            for (byte i = 0; i < list.size(); i++) {
+                String path = getImageReadPath(list.get(i));
+                Log.d(TAG, "image" + i + ": " + path);
+                String result = uploadImage(context, path);
+                if (!"-1".equals(result) && !"error".equals(result)) {
+                    put("imgPath" + i, result);
+                }
+            }
+        }});
+        doAsynPostRequest(Constant.TWEET_POST_URL, null, null, formBody, c);
     }
 
+    /**
+     * 压缩并上传图像，返回服务器中的绝对路径；
+     *
+     * @param context   上下文
+     * @param imagePath 本地图像路径
+     * @return 图像在服务器中的路径
+     */
     private static String uploadImage(Context context, String imagePath) {
         client = getInstance();
         final String[] result = {"-2"};
-        Luban.with(context) // 初始化
-                .load(imagePath) // 要压缩的图片
+        Luban.with(context)
+                .load(imagePath)
                 .setCompressListener(new OnCompressListener() {
                     @Override
                     public void onStart() {
@@ -712,27 +583,28 @@ public class HttpUtil {
 
                     @Override
                     public void onSuccess(File file) {
-                        // 压缩成功后调用，返回压缩后的图片文件
                         MultipartBody.Builder builder = new MultipartBody.Builder();
                         builder.addFormDataPart("file", imagePath,
                                 RequestBody.create(MediaType.parse("application/octet-stream"), new File(file.getAbsolutePath())));
                         RequestBody requestBody = builder.build();
                         Request request = new Request.Builder()
-                                .url(Constant.upload_image_url)
+                                .url(Constant.UPLOAD_IMAGE_URL)
                                 .post(requestBody)
                                 .build();
                         try {
-                            new Thread(() -> {
+                            ThreadPoolExecutorFactory.getThreadPoolExecutor().execute(() -> {
                                 Response response = null;
                                 try {
                                     response = client.newCall(request).execute();
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }
+                                assert response != null;
                                 Log.d(TAG, "响应码: " + response.code());
                                 if (response.isSuccessful()) {
                                     String resultValue = null;
                                     try {
+                                        assert response.body() != null;
                                         resultValue = response.body().string();
                                     } catch (IOException e) {
                                         e.printStackTrace();
@@ -740,8 +612,7 @@ public class HttpUtil {
                                     Log.d(TAG, "响应体：" + resultValue);
                                     result[0] = resultValue;
                                 }
-                            }).start();
-
+                            });
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -750,8 +621,8 @@ public class HttpUtil {
                     @Override
                     public void onError(Throwable e) {
                     }
-                }).launch(); // 启动压缩
-        while (result[0].equals("-2")) {
+                }).launch();
+        while ("-2".equals(result[0])) {
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
@@ -761,85 +632,109 @@ public class HttpUtil {
         return result[0];
     }
 
+    /**
+     * 获取图像裁剪后的路径
+     * 例如 LocalMedia 里面返回三种path
+     * 1.media.getPath(); 为原图path
+     * 2.media.getCutPath();为裁剪后path，需判断media.isCut();是否为true
+     * 3.media.getCompressPath();为压缩后path，需判断media.isCompressed();是否为true
+     * 如果裁剪并压缩了，已取压缩路径为准，因为是先裁剪后压缩的
+     *
+     * @param media 裁剪后的对象
+     * @return 裁剪后的路径
+     */
     private static String getImageReadPath(LocalMedia media) {
-
-        // 例如 LocalMedia 里面返回三种path
-        // 1.media.getPath(); 为原图path
-        // 2.media.getCutPath();为裁剪后path，需判断media.isCut();是否为true
-        // 3.media.getCompressPath();为压缩后path，需判断media.isCompressed();是否为true
-        // 如果裁剪并压缩了，已取压缩路径为准，因为是先裁剪后压缩的
-
         if (!media.isCut() && !media.isCompressed()) {
             return media.getPath();
         }
-
         if (media.isCompressed()) {
             return media.getCompressPath();
         }
         return media.getCutPath();
     }
 
+    /**
+     * 获取所有的动态
+     *
+     * @param startPosition 起始位置索引
+     * @param c             回调
+     */
     public static void getAllTweets(int startPosition, Callback c) {
-        client = getInstance();
-        Request request = new Request.Builder()
-                .url(generateGetUrl(Constant.tweet_get_all_url, new HashMap<String, String>() {{
-                    put("sp", String.valueOf(startPosition));
-                }}))
-                .build();
-        client.newCall(request).enqueue(c);
+        doAsynGetRequest(Constant.TWEET_GET_ALL_URL, new HashMap<String, String>(1) {{
+            put("sp", String.valueOf(startPosition));
+
+        }}, null, c);
     }
 
+    /**
+     * 删除动态
+     *
+     * @param id 动态id
+     * @param c  回调
+     */
     public static void deleteTweet(String id, Callback c) {
-
-        client = getInstance();
-        Request request = new Request.Builder()
-                .url(generateGetUrl(Constant.tweet_del_url, new HashMap<String, String>() {{
-                    put("id", id);
-                }}))
-                .build();
-        client.newCall(request).enqueue(c);
+        doAsynGetRequest(Constant.TWEET_DEL_URL, new HashMap<String, String>(1) {{
+            put("id", id);
+        }}, null, c);
     }
 
+
+    /**
+     * 修改动态点赞数
+     *
+     * @param id  动态的id
+     * @param add 点赞/取消
+     */
     public static void modifyTweetGood(String id, boolean add) {
-
-        client = getInstance();
-        Request request = new Request.Builder()
-                .url(generateGetUrl(Constant.tweet_praise_add_url, new HashMap<String, String>() {{
-                    put("id", id);
-                    put("add", String.valueOf(add));
-                }}))
-                .build();
-        try {
-            client.newCall(request).execute();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        doSyncGetRequest(Constant.TWEET_PRAISE_ADD_URL, new HashMap<String, String>(2) {{
+            put("id", id);
+            put("add", String.valueOf(add));
+        }}, null);
     }
 
-
+    /**
+     * 展示用户&动态关系
+     *
+     * @param un      用户名
+     * @param tweetId 动态id
+     * @param c       回调
+     */
     public static void showUserTweetInfo(String un, String tweetId, Callback c) {
-        client = getInstance();
-        Request request = new Request.Builder()
-                .url(generateGetUrl(Constant.user_tweet_info_url, new HashMap<String, String>() {{
-                    put("un", un);
-                    put("tweetId", tweetId);
-                }}))
-                .build();
-        client.newCall(request).enqueue(c);
+        doAsynGetRequest(Constant.USER_TWEET_INFO_URL, new HashMap<String, String>(2) {{
+            put("un", un);
+            put("tweetId", tweetId);
+        }}, null, c);
     }
 
+
+    /**
+     * 用户点赞
+     *
+     * @param un      用户名
+     * @param tweetId 动态id
+     * @param praise  点赞/取消点赞
+     */
     public static void userPraiseTweet(String un, String tweetId, boolean praise) {
-        doSyncGetRequest(Constant.user_praise_tweet_url, new HashMap<String, String>() {{
+        doSyncGetRequest(Constant.USER_PRAISE_TWEET_URL, new HashMap<String, String>(3) {{
             put("un", un);
             put("tweetId", tweetId);
             put("praise", String.valueOf(praise));
         }}, null);
     }
 
+    /**
+     * 用户收藏
+     *
+     * @param un      用户名
+     * @param tweetId 动态id
+     * @param collect 收藏/取消
+     * @return okHttp响应
+     * @throws IOException 异常
+     */
     public static Response userCollectTweet(String un, String tweetId, boolean collect) throws IOException {
         client = getInstance();
         Request request = new Request.Builder()
-                .url(generateGetUrl(Constant.user_collect_tweet_url, new HashMap<String, String>() {{
+                .url(generateGetUrl(Constant.USER_COLLECT_TWEET_URL, new HashMap<String, String>(3) {{
                     put("un", un);
                     put("tweetId", tweetId);
                     put("collect", String.valueOf(collect));
@@ -848,112 +743,174 @@ public class HttpUtil {
         return client.newCall(request).execute();
     }
 
-
-    public static void setUserProfilePicture(String darkme_un, Bitmap headImgBit, Callback c) {
+    /**
+     * 设置用户头像
+     *
+     * @param darkmeUn   用户名
+     * @param headImgBit 头像位图
+     * @param c          回调
+     */
+    public static void setUserProfilePicture(String darkmeUn, Bitmap headImgBit, Callback c) {
         String picStr = Base64ImageUtils.bitmapToBase64Str(headImgBit);
-        client = getInstance();
-        Request request = new Request.Builder()
-                .url(Constant.user_set_profile_picture_url)
-                .post(getValidationFormBody(darkme_un, new HashMap<String, String>() {{
-                    put("profilePicStr", picStr);
-                }}))
-                .build();
-        client.newCall(request).enqueue(c);
+        doAsynPostRequest(Constant.USER_SET_PROFILE_PICTURE_URL, null, null, generateFormBody(darkmeUn, new HashMap<String, String>(1) {{
+            put("profilePicStr", picStr);
+        }}), c);
     }
 
-    public static void getUserProfilePicture(String darkme_un, Callback c) {
-        doAsynGetRequest(Constant.user_get_profile_picture_url, new HashMap<String, String>() {{
-            put("un", darkme_un);
-        }}, c);
+    /**
+     * 获取用户头像
+     *
+     * @param darkmeUn 用户名
+     * @param c        回调
+     */
+    public static void getUserProfilePicture(String darkmeUn, Callback c) {
+        doAsynGetRequest(Constant.USER_GET_PROFILE_PICTURE_URL, new HashMap<String, String>(1) {{
+            put("un", darkmeUn);
+        }}, null, c);
     }
 
-    public static void getUserHandoffText(String darkme_un, Callback c) {
-        doAsynGetRequest(Constant.user_get_handoff_text_url, new HashMap<String, String>() {{
-            put("un", darkme_un);
-        }}, c);
+    /**
+     * 获取handoff文本
+     *
+     * @param darkmeUn 用户名
+     * @param c        回调
+     */
+    public static void getUserHandoffText(String darkmeUn, Callback c) {
+        doAsynGetRequest(Constant.USER_GET_HANDOFF_TEXT_URL, new HashMap<String, String>(1) {{
+            put("un", darkmeUn);
+        }}, null, c);
     }
 
 
-    public static void setUserHandoffText(String darkme_un, String text, Callback c) {
-        client = getInstance();
-        Request request = new Request.Builder()
-                .url(Constant.user_post_handoff_text_url)
-                .post(getValidationFormBody(darkme_un, new HashMap<String, String>() {{
-                    put("text", text);
-                }}))
-                .build();
-        client.newCall(request).enqueue(c);
+    /**
+     * 推送handoff文本
+     *
+     * @param darkmeUn 用户名
+     * @param text     文本内容
+     * @param c        回调接口
+     */
+    public static void setUserHandoffText(String darkmeUn, String text, Callback c) {
+        doAsynPostRequest(Constant.USER_POST_HANDOFF_TEXT_URL, null, null, generateFormBody(darkmeUn, new HashMap<String, String>(1) {{
+            put("text", text);
+        }}), c);
     }
 
-    public static void haveReceivedHandOffText(String darkme_un) {
-        doSyncGetRequest(Constant.user_turn_off_handoff_text_url, new HashMap<String, String>() {{
-            put("un", darkme_un);
+    /**
+     * 如果已经接收了文本，则跳过这个文本
+     *
+     * @param darkmeUn 用户名
+     */
+    public static void haveReceivedHandOffText(String darkmeUn) {
+        doSyncGetRequest(Constant.USER_TURN_OFF_HANDOFF_TEXT_URL, new HashMap<String, String>(1) {{
+            put("un", darkmeUn);
         }}, null);
     }
 
 
 //    Memo
 
-    public static void getUserMemoByState(String darkme_un, boolean isFinished, Callback c) {
-        client = getInstance();
-        Request request = new Request.Builder()
-                .url(Constant.user_get_memo_by_state_url)
-                .post(getValidationFormBody(darkme_un, new HashMap<String, String>() {{
-                    put("isFinished", String.valueOf(isFinished));
-                }}))
-                .build();
-        client.newCall(request).enqueue(c);
+    /**
+     * 根据便签状态获取便签
+     *
+     * @param darkmeUn   用户名
+     * @param isFinished 是否完成
+     * @param c          回调
+     */
+    public static void getUserMemoByState(String darkmeUn, boolean isFinished, Callback c) {
+        doAsynPostRequest(Constant.USER_GET_MEMO_BY_STATE_URL, null, null, generateFormBody(darkmeUn, new HashMap<String, String>(1) {{
+            put("isFinished", String.valueOf(isFinished));
+        }}), c);
     }
 
-    public static void changeUserMemoState(String darkme_un, int id, int toState, boolean isDel, Callback c) {
-        doAsynGetRequest(Constant.user_change_memo_state_url, new HashMap<String, String>() {{
-            put("un", darkme_un);
+    /**
+     * 更改用户便签完成状态
+     *
+     * @param darkmeUn 用户名
+     * @param id       便签id
+     * @param toState  要修改的状态
+     * @param isDel    是否删除此条便签
+     * @param c        回调
+     */
+    public static void changeUserMemoState(String darkmeUn, int id, int toState, boolean isDel, Callback c) {
+        doAsynGetRequest(Constant.USER_CHANGE_MEMO_STATE_URL, new HashMap<String, String>(4) {{
+            put("un", darkmeUn);
             put("id", String.valueOf(id));
             put("toState", String.valueOf(toState));
             put("isDel", String.valueOf(isDel));
-        }}, c);
+        }}, null, c);
     }
 
-    public static void newUserMemo(String darkme_un, String t, String content, int type, Callback c) {
-        client = getInstance();
-        Request request = new Request.Builder()
-                .url(Constant.user_new_memo_url)
-                .post(getValidationFormBody(darkme_un, new HashMap<String, String>() {
-                    {
-                        put("title", t);
-                        put("content", content);
-                        put("type", String.valueOf(type));
-                    }
-                }))
-                .build();
-        client.newCall(request).enqueue(c);
+    /**
+     * 新建便签
+     *
+     * @param darkmeUn 用户名
+     * @param t        标题
+     * @param content  内容
+     * @param type     状态
+     * @param c        回调
+     */
+    public static void newUserMemo(String darkmeUn, String t, String content, int type, Callback c) {
+        doAsynPostRequest(Constant.USER_NEW_MEMO_URL, null, null, generateFormBody(darkmeUn, new HashMap<String, String>(3) {{
+            put("title", t);
+            put("content", content);
+            put("type", String.valueOf(type));
+        }}), c);
     }
 
-    //    firend
+    /**
+     * 修改好友备注
+     *
+     * @param un       用户名
+     * @param friendId 好友用户名
+     * @param mark     新备注
+     * @param c        回调
+     */
     public static void changeFriendMark(String un, String friendId, String mark, Callback c) {
-
-        doSyncGetRequest(Constant.user_change_friend_mark, new HashMap<String, String>() {{
+        doAsynGetRequest(Constant.USER_CHANGE_FRIEND_MARK, new HashMap<String, String>(3) {{
             put("un", un);
             put("friendId", friendId);
             put("mark", mark);
-        }}, c);
+        }}, null, c);
     }
 
+    /**
+     * 删除好友
+     *
+     * @param id     用户编号
+     * @param userId 用户id
+     * @param friId  好友id
+     * @param c      回调
+     */
     public static void deleteUserFriend(String id, String userId, String friId, Callback c) {
-        doAsynGetRequest(Constant.user_delete_friend_url, new HashMap<String, String>() {{
+        doAsynGetRequest(Constant.USER_DELETE_FRIEND_URL, new HashMap<String, String>(3) {{
             put("id", id);
             put("userId", userId);
             put("friendId", friId);
-        }}, c);
+        }}, null, c);
     }
 
 
-    private static void doGetRequest(String url, HashMap<String, String> args, Callback c, boolean asyn) throws IOException {
-
+    /**
+     * 发送get网络请求
+     *
+     * @param url     请求网址
+     * @param args    url中携带的参数
+     * @param headers 请求头
+     * @param c       回调
+     * @param asyn    同步/异步
+     * @throws IOException 异常
+     */
+    private static void doGetRequest(String url, Map<String, String> args, Map<String, String> headers, Callback c, boolean asyn) throws IOException {
         client = getInstance();
-        Request request = new Request.Builder()
-                .url(generateGetUrl(url, args))
-                .build();
+        Request.Builder builder = new Request.Builder()
+                .url(generateGetUrl(url, args));
+
+        if (headers != null) {
+            for (String key : headers.keySet()) {
+                builder.addHeader(key, headers.get(key));
+            }
+        }
+        Request request = builder.build();
         if (asyn) {
             client.newCall(request).enqueue(c);
         } else {
@@ -961,105 +918,246 @@ public class HttpUtil {
         }
     }
 
-    private static void doAsynGetRequest(String url, HashMap<String, String> args, Callback c) {
-        new Thread(() -> {
+    /**
+     * 发送post网络请求
+     *
+     * @param url     请求网址
+     * @param args    url中携带的参数
+     * @param headers 请求头
+     * @param c       回调
+     * @param asyn    同步/异步
+     * @throws IOException 异常
+     */
+    private static void doPostRequest(String url, Map<String, String> args, Map<String, String> headers, RequestBody requestBody, Callback c, boolean asyn) throws IOException {
+        client = getInstance();
+        Request.Builder builder = new Request.Builder()
+                .post(requestBody)
+                .url(generateGetUrl(url, args));
+        if (headers != null) {
+            for (String key : headers.keySet()) {
+                builder.addHeader(key, headers.get(key));
+            }
+        }
+        Request request = builder.build();
+        if (asyn) {
+            client.newCall(request).enqueue(c);
+        } else {
+            client.newCall(request).execute();
+        }
+    }
+
+    /**
+     * 发送异步get网络请求
+     *
+     * @param url     请求网址
+     * @param args    url中携带的参数
+     * @param headers 请求头
+     * @param c       回调
+     */
+    private static void doAsynGetRequest(String url, Map<String, String> args, Map<String, String> headers, Callback c) {
+        ThreadPoolExecutorFactory.getThreadPoolExecutor().execute(() -> {
             try {
-                doGetRequest(url, args, c, true);
+                doGetRequest(url, args, headers, c, true);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
-        }).start();
+        });
     }
 
-    private static void doSyncGetRequest(String url, HashMap<String, String> args, Callback c) {
-        new Thread(() -> {
+    /**
+     * 发送同步get网络请求
+     *
+     * @param url     请求网址
+     * @param args    url中携带的参数
+     * @param headers 请求头
+     */
+    private static void doSyncGetRequest(String url, Map<String, String> args, Map<String, String> headers) {
+        ThreadPoolExecutorFactory.getThreadPoolExecutor().execute(() -> {
             try {
-                doGetRequest(url, args, c, false);
+                doGetRequest(url, args, headers, null, false);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
-        }).start();
+        });
     }
 
+
+    /**
+     * 发送异步post网络请求
+     *
+     * @param url         请求网址
+     * @param args        url中携带的参数
+     * @param headers     请求头
+     * @param requestBody 表单请求体
+     * @param c           回调
+     */
+    private static void doAsynPostRequest(String url, Map<String, String> args, Map<String, String> headers, RequestBody requestBody, Callback c) {
+        ThreadPoolExecutorFactory.getThreadPoolExecutor().execute(() -> {
+            try {
+                doPostRequest(url, args, headers, requestBody, c, true);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+
+    }
+
+    /**
+     * 发送同步post网络请求
+     *
+     * @param url         请求网址
+     * @param args        url中携带的参数
+     * @param headers     请求头
+     * @param requestBody 表单请求体
+     */
+    private static void doSyncPostRequest(String url, Map<String, String> args, Map<String, String> headers, RequestBody requestBody) {
+        ThreadPoolExecutorFactory.getThreadPoolExecutor().execute(() -> {
+            try {
+                doPostRequest(url, args, headers, requestBody, null, false);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    /**
+     * 同意好友添加请求
+     *
+     * @param un        用户名
+     * @param destFriId 好友id
+     */
     public static void userSendAddFriendMessage(String un, String destFriId) {
-        doSyncGetRequest(Constant.user_send_make_friend_msg, new HashMap<String, String>() {{
+        doSyncGetRequest(Constant.USER_SEND_MAKE_FRIEND_MSG, new HashMap<String, String>(2) {{
             put("un", un);
             put("friendId", destFriId);
         }}, null);
     }
 
+    /**
+     * 好友请求结果
+     *
+     * @param id        消息id
+     * @param un        用户名
+     * @param destFriId 好友id
+     * @param agree     同意/拒绝
+     * @param c         回调
+     */
     public static void userSendAgreeFriendMessage(String id, String un, String destFriId, boolean agree, Callback c) {
-        doSyncGetRequest(Constant.user_send_agree_make_friend_msg, new HashMap<String, String>() {{
+        doAsynGetRequest(Constant.USER_SEND_AGREE_MAKE_FRIEND_MSG, new HashMap<String, String>(4) {{
             put("id", id);
             put("un", un);
             put("friendId", destFriId);
             put("agree", String.valueOf(agree));
-        }}, c);
+        }}, null, c);
     }
 
+    /**
+     * 获取用户消息
+     *
+     * @param un 用户名
+     * @param c  回调
+     */
     public static void getUserMessage(String un, Callback c) {
-        doAsynGetRequest(Constant.user_get_msg, new HashMap<String, String>() {{
+        doAsynGetRequest(Constant.USER_GET_MSG, new HashMap<String, String>(1) {{
             put("un", un);
-        }}, c);
+        }}, null, c);
     }
 
+    /**
+     * 用户删除消息
+     *
+     * @param msgId 消息id
+     */
     public static void deleteUserMessage(String msgId) {
-        doSyncGetRequest(Constant.user_del_msg, new HashMap<String, String>() {{
+        doSyncGetRequest(Constant.USER_DEL_MSG, new HashMap<String, String>(1) {{
             put("id", msgId);
         }}, null);
     }
-
 //    update
 
+    /**
+     * 检查更新
+     *
+     * @param c 回调
+     */
     public static void checkUpdate(Callback c) {
-        doAsynGetRequest(Constant.check_update_url, null, c);
+        doAsynGetRequest(Constant.CHECK_UPDATE_URL, null, null, c);
     }
 
-    public static Response pushUpdate() throws IOException {
-
+    /**
+     * 拉取更新
+     *
+     * @return ok响应
+     * @throws IOException 异常
+     */
+    public static Response pullUpdate() throws IOException {
         client = getInstance();
         Request request = new Request.Builder()
-                .url(Constant.push_update_url)
+                .url(Constant.PUSH_UPDATE_URL)
                 .build();
         return client.newCall(request).execute();
     }
 
 //    notice
 
-    public static void pushSchoolNotice(Callback c) {
-        doAsynGetRequest(Constant.school_notice_url, null, c);
+    /**
+     * 拉取学校通知
+     *
+     * @param c 回调
+     */
+    public static void pullSchoolNotice(Callback c) {
+        doAsynGetRequest(Constant.SCHOOL_NOTICE_URL, null, null, c);
     }
 
-    public static void pushSchoolNotice(int position, Callback c) {
-        doAsynGetRequest(Constant.notice_next_base_url + position + ".htm", null, c);
+    /**
+     * 拉取翻页通知
+     *
+     * @param position 第几页
+     * @param c        回调
+     */
+    public static void pullSchoolNotice(int position, Callback c) {
+        doAsynGetRequest(Constant.NOTICE_NEXT_BASE_URL + position + ".htm", null, null, c);
     }
 
+    /**
+     * 获取通知香型
+     *
+     * @param contentUrl 内容详情url
+     * @param c          回调
+     */
     public static void getNoticeDetail(String contentUrl, Callback c) {
-        doAsynGetRequest(contentUrl, null, c);
+        doAsynGetRequest(contentUrl, null, null, c);
     }
 
-    //    book
+
+    /**
+     * 根据关键字搜索图书
+     *
+     * @param key 关键字
+     * @param c   回调
+     */
     public static void searchBookByKey(String key, Callback c) {
-
-//        client = getInstance();
-//        Request request = new Request.Builder()
-//                .url(generateGetUrl(Constant.bookUrlBefore + key + Constant.bookUrlAfter, null))
-//                .addHeader("Referer", "http://opac.lib.njit.edu.cn/opac/search.php")
-//                .addHeader("Host", "opac.lib.njit.edu.cn")
-//                .addHeader("Upgrade-Insecure-Requests", "1")
-//                .addHeader("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.45 Safari/537.36")
-//                .build();
-//        client.newCall(request).enqueue(c);
-        doAsynGetRequest(Constant.bookUrlBefore + key + Constant.bookUrlAfter, null, c);
+        doAsynGetRequest(Constant.BOOK_URL_BEFORE + key + Constant.BOOK_URL_AFTER, null, null, c);
     }
 
-    public static void getBookDeatil(String detailUrl, Callback c) {
-        doAsynGetRequest(detailUrl, null, c);
+    /**
+     * 获取图书详情
+     *
+     * @param detailUrl 详情url
+     * @param c         回调
+     */
+    public static void getBookDetail(String detailUrl, Callback c) {
+        doAsynGetRequest(detailUrl, null, null, c);
     }
 
-    private static String generateGetUrl(String url, HashMap<String, String> args) {
+    /**
+     * 拼接get请求中的参数
+     *
+     * @param url  请求url
+     * @param args 参数
+     * @return 拼接后的url
+     */
+    private static String generateGetUrl(String url, Map<String, String> args) {
         StringBuilder builder = new StringBuilder();
         builder.append(url).append("?");
         if (null != args) {
@@ -1071,6 +1169,4 @@ public class HttpUtil {
         }
         return builder.substring(0, builder.lastIndexOf("&"));
     }
-
-
 }

@@ -27,13 +27,17 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
+/**
+ * 通知适配器
+ *
+ * @author lqs2
+ */
 public class NoticeAdapter extends RecyclerView.Adapter<NoticeAdapter.NoticeHolder> {
 
     private Context context;
     private Activity activity;
 
     private List<Notice> notices;
-
 
     public NoticeAdapter(Context context, Activity activity) {
         this.context = context;
@@ -45,18 +49,35 @@ public class NoticeAdapter extends RecyclerView.Adapter<NoticeAdapter.NoticeHold
         notifyDataSetChanged();
     }
 
-    static class NoticeHolder extends RecyclerView.ViewHolder {
+    /**
+     * 绑定单击时间
+     *
+     * @param holder 当前视图
+     * @param notice 当前通知对象
+     */
+    private void bindOneClick(NoticeHolder holder, Notice notice) {
 
-        LinearLayout layout;
-        TextView titleView;
-        TextView timeView;
+        String contentUrl = notice.getContentUrl();
+        holder.layout.setOnClickListener(v -> HttpUtil.getNoticeDetail(contentUrl, new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                ToastUtils.showConnectErrorOnMain(context, (NoticeActivity) context);
+            }
 
-        public NoticeHolder(View itemView) {
-            super(itemView);
-            layout = itemView.findViewById(R.id.notice_layout);
-            titleView = itemView.findViewById(R.id.notice_title_view);
-            timeView = itemView.findViewById(R.id.notice_time_view);
-        }
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                assert response.body() != null;
+                String resp = response.body().string();
+                Notice notice = HtmlCodeExtractUtil.getSingleNoticeDetail(resp, contentUrl);
+                Intent intent = new Intent(activity, TweetDetailActivity.class);
+                Bundle bundle = new Bundle();
+                intent.putExtra("FROM", 1);
+                bundle.putSerializable("notice", notice);
+                intent.putExtras(bundle);
+                activity.startActivity(intent);
+
+            }
+        }));
     }
 
     @NonNull
@@ -80,29 +101,18 @@ public class NoticeAdapter extends RecyclerView.Adapter<NoticeAdapter.NoticeHold
 
     }
 
-    private void bindOneClick(NoticeHolder holder, Notice notice) {
+    static class NoticeHolder extends RecyclerView.ViewHolder {
 
-        String contentUrl = notice.getContentUrl();
-        holder.layout.setOnClickListener(v -> HttpUtil.getNoticeDetail(contentUrl, new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                ToastUtils.showConnectErrorOnMain(context, (NoticeActivity) context);
-            }
+        LinearLayout layout;
+        TextView titleView;
+        TextView timeView;
 
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-
-                String resp = response.body().string();
-                Notice notice = HtmlCodeExtractUtil.getSingleNoticeDetail(resp,contentUrl);
-                Intent intent = new Intent(activity, TweetDetailActivity.class);
-                Bundle bundle = new Bundle();
-                intent.putExtra("FROM", 1);
-                bundle.putSerializable("notice", notice);
-                intent.putExtras(bundle);
-                activity.startActivity(intent);
-
-            }
-        }));
+        NoticeHolder(View itemView) {
+            super(itemView);
+            layout = itemView.findViewById(R.id.notice_layout);
+            titleView = itemView.findViewById(R.id.notice_title_view);
+            timeView = itemView.findViewById(R.id.notice_time_view);
+        }
     }
 
     @Override

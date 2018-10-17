@@ -24,6 +24,11 @@
         <item name="colorControlActivated">@android:color/holo_blue_light</item>
     </style>
 
+    <style name="MyEditText2" parent="Theme.AppCompat.Light">
+        <item name="colorControlNormal">@android:color/darker_gray</item>
+        <item name="colorControlActivated">#EBEAD1</item>
+    </style>
+
 
     <!--图片选择-->
     <!--白色主题样式，，注意每一项都不能少-->

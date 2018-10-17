@@ -12,12 +12,22 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;
 
+/**
+ * 网上找来的share持久化工具类
+ *
+ * @author lqs2
+ */
 public class SharedPreferenceUtil {
 
-    public static final String FILE_NAME = "share_data";
+    private static final String FILE_NAME = "share_data";
+
 
     /**
      * 保存数据的方法根据类型调用不同的保存方法
+     *
+     * @param context 上下文
+     * @param key     key
+     * @param object  value
      */
     public static void put(Context context, String key, Object object) {
         SharedPreferences sp = context.getSharedPreferences(FILE_NAME,
@@ -41,6 +51,11 @@ public class SharedPreferenceUtil {
 
     /**
      * 得到保存数据的方法, 调用相对于的方法获取值
+     *
+     * @param context       上下文
+     * @param key           key
+     * @param defaultObject 如果不存在此key对应的value，返回的默认值
+     * @return value
      */
     public static Object get(Context context, String key, Object defaultObject) {
         SharedPreferences sp = context.getSharedPreferences(FILE_NAME,
@@ -61,6 +76,9 @@ public class SharedPreferenceUtil {
 
     /**
      * 移除某个key值已经对应的值
+     *
+     * @param context 上下文
+     * @param key     key
      */
     public static void remove(Context context, String key) {
         SharedPreferences sp = context.getSharedPreferences(FILE_NAME,
@@ -72,6 +90,8 @@ public class SharedPreferenceUtil {
 
     /**
      * 清除所有数据
+     *
+     * @param context 上下文
      */
     public static void clear(Context context) {
         SharedPreferences sp = context.getSharedPreferences(FILE_NAME,
@@ -82,13 +102,16 @@ public class SharedPreferenceUtil {
         SharedPreferenceUtil.put(context, "remember_password_jw", false);
         SharedPreferenceUtil.put(context, "remember_password_jw", false);
         SharedPreferenceUtil.put(context, "courseSourceCode", "");
-
         editor.clear();
         SharedPreferencesCompat.apply(editor);
     }
 
     /**
      * 查询某个key是否已经存在
+     *
+     * @param context 上下文
+     * @param key     key
+     * @return 存在/不存在
      */
     public static boolean contains(Context context, String key) {
         SharedPreferences sp = context.getSharedPreferences(FILE_NAME,
@@ -98,6 +121,9 @@ public class SharedPreferenceUtil {
 
     /**
      * 返回所有的键值对
+     *
+     * @param context 上下文
+     * @return 所有键值对
      */
     public static Map<String, ?> getAll(Context context) {
         SharedPreferences sp = context.getSharedPreferences(FILE_NAME,
@@ -108,31 +134,30 @@ public class SharedPreferenceUtil {
     /**
      * 保存图片到SharedPreferences
      *
-     * @param mContext
-     * @param bitmap
+     * @param mContext 上下文
+     * @param bitmap   图像
      */
     public static void putImage(Context mContext, String key, Bitmap bitmap) {
-//        BitmapDrawable drawable = (BitmapDrawable) imageView.getDrawable();
-//        Bitmap bitmap = drawable.getBitmap();
-        // 将Bitmap压缩成字节数组输出流
+//        /将Bitmap压缩成字节数组输出流
         ByteArrayOutputStream byStream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, byStream);
-        // 利用Base64将字节数组输出流转换成String
+//        利用Base64将字节数组输出流转换成String
         byte[] byteArray = byStream.toByteArray();
         String imgString = Base64.encodeToString(byteArray, Base64.DEFAULT);
-        // 将String保存shareUtils
+//        将String保存shareUtils
         SharedPreferenceUtil.put(mContext, key, imgString);
     }
 
     /**
      * 从SharedPreferences读取图片
      *
-     * @param mContext
-     * @param
+     * @param mContext 上下文
+     * @param key      key
+     * @return 图像
      */
     public static Bitmap getImage(Context mContext, String key) {
         String imgString = (String) SharedPreferenceUtil.get(mContext, key, "");
-        if (!imgString.equals("")) {
+        if (!"".equals(imgString)) {
             // 利用Base64将string转换
             byte[] byteArray = Base64.decode(imgString, Base64.DEFAULT);
             ByteArrayInputStream byStream = new ByteArrayInputStream(byteArray);
@@ -146,7 +171,7 @@ public class SharedPreferenceUtil {
      * 创建一个解决SharedPreferencesCompat.apply方法的一个兼容类
      */
     private static class SharedPreferencesCompat {
-        private static final Method sApplyMethod = findApplyMethod();
+        private static final Method S_APPLY_METHOD = findApplyMethod();
 
         /**
          * 反射查找apply方法
@@ -156,7 +181,7 @@ public class SharedPreferenceUtil {
             try {
                 Class clz = SharedPreferences.Editor.class;
                 return clz.getMethod("apply");
-            } catch (NoSuchMethodException e) {
+            } catch (NoSuchMethodException ignored) {
             }
             return null;
         }
@@ -164,19 +189,17 @@ public class SharedPreferenceUtil {
         /**
          * 如果找到则使用apply执行，否则使用commit
          */
-        public static void apply(SharedPreferences.Editor editor) {
+        static void apply(SharedPreferences.Editor editor) {
             try {
-                if (sApplyMethod != null) {
-                    sApplyMethod.invoke(editor);
+                if (S_APPLY_METHOD != null) {
+                    S_APPLY_METHOD.invoke(editor);
                     return;
                 }
-            } catch (IllegalArgumentException e) {
-            } catch (IllegalAccessException e) {
-            } catch (InvocationTargetException e) {
+            } catch (IllegalArgumentException ignored) {
+            } catch (IllegalAccessException ignored) {
+            } catch (InvocationTargetException ignored) {
             }
             editor.commit();
         }
     }
-
-    //常用的读取操作
 }

@@ -3,6 +3,7 @@ package com.example.lqs2.courseapp.adapters;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -26,28 +27,26 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
+/**
+ * 聊天适配器
+ *
+ * @author lqs2
+ */
 public class ChatMsgAdapter extends RecyclerView.Adapter<ChatMsgAdapter.ViewHolder> {
 
     private List<ChatMsg> mMsgList;
     private Context mContext;
 
-
     private Bitmap userBit;
     private Bitmap myBit;
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-
         LinearLayout leftLayout;
-
         LinearLayout rightLayout;
-
         TextView leftMsg;
         TextView rightMsg;
-
-
         CircleImageView leftPic;
         CircleImageView rightPic;
-
 
         public ViewHolder(View view) {
             super(view);
@@ -65,23 +64,29 @@ public class ChatMsgAdapter extends RecyclerView.Adapter<ChatMsgAdapter.ViewHold
     }
 
 
+    /**
+     * 设置数据
+     *
+     * @param list 数据
+     */
     public void setData(List<ChatMsg> list) {
         this.mMsgList = list;
         notifyDataSetChanged();
     }
 
+    @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.chat_msg_item, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         ChatMsg msg = mMsgList.get(position);
         if (msg.getType() == ChatMsg.TYPE_RECEIVED) {
             if (null == userBit) {
-                pushUserProfilePic(msg.getFromId(), holder.leftPic, false);
+                pullUserProfilePic(msg.getFromId(), holder.leftPic, false);
             } else {
                 Glide.with(mContext).load(userBit).into(holder.leftPic);
             }
@@ -90,7 +95,7 @@ public class ChatMsgAdapter extends RecyclerView.Adapter<ChatMsgAdapter.ViewHold
             holder.leftMsg.setText(msg.getContent());
         } else if (msg.getType() == ChatMsg.TYPE_SENT) {
             if (null == myBit) {
-                pushUserProfilePic(msg.getFromId(), holder.rightPic, true);
+                pullUserProfilePic(msg.getFromId(), holder.rightPic, true);
             } else {
                 Glide.with(mContext).load(myBit).into(holder.rightPic);
             }
@@ -106,18 +111,25 @@ public class ChatMsgAdapter extends RecyclerView.Adapter<ChatMsgAdapter.ViewHold
     }
 
 
-    private void pushUserProfilePic(String fromId, CircleImageView imageView, boolean myself) {
+    /**
+     * 拉取用户头像
+     *
+     * @param fromId    来源
+     * @param imageView 头像layout
+     * @param myself    my
+     */
+    private void pullUserProfilePic(String fromId, CircleImageView imageView, boolean myself) {
         HttpUtil.getUserProfilePicture(fromId, new Callback() {
             @Override
-            public void onFailure(Call call, IOException e) {
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
 
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                assert response.body() != null;
                 String resp = response.body().string();
                 if (!TextUtils.isEmpty(resp) && Base64ImageUtils.isPicPath(resp)) {
-
                     if (myself) {
                         myBit = Base64ImageUtils.base64StrToBitmap(resp);
                     } else {
@@ -128,17 +140,14 @@ public class ChatMsgAdapter extends RecyclerView.Adapter<ChatMsgAdapter.ViewHold
                         myBit = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.default_head);
                     } else {
                         userBit = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.default_head);
-
                     }
                 }
-
                 if (myself) {
-                    ((ChatActivity)mContext).runOnUiThread(() -> Glide.with(mContext).load(myBit).into(imageView));
+                    ((ChatActivity) mContext).runOnUiThread(() -> Glide.with(mContext).load(myBit).into(imageView));
                 } else {
-                    ((ChatActivity)mContext).runOnUiThread(() -> Glide.with(mContext).load(userBit).into(imageView));
+                    ((ChatActivity) mContext).runOnUiThread(() -> Glide.with(mContext).load(userBit).into(imageView));
                 }
             }
         });
     }
-
 }

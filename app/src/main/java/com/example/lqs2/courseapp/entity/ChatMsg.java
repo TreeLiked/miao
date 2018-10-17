@@ -1,11 +1,15 @@
 package com.example.lqs2.courseapp.entity;
 
+/**
+ * chat message model
+ *
+ * @author lqs2
+ */
 public class ChatMsg {
 
     public static final int TYPE_RECEIVED = 0;
 
     public static final int TYPE_SENT = 1;
-
 
 
     private String fromId;

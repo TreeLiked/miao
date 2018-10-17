@@ -2,53 +2,77 @@ package com.example.lqs2.courseapp.utils;
 
 import android.os.Environment;
 
+/**
+ * 常量
+ *
+ * @author lqs2
+ */
 public class Constant {
 
-    //    教务网首页
-    public static final String main_url = "http://jwjx.njit.edu.cn/Default2.aspx";
-    //    重定向网页
-    public static final String forward_url = "http://jwjx.njit.edu.cn/xs_main.aspx?xh=";
+    /**
+     * 教务网首页
+     */
+    public static final String MAIN_URL = "http://jwjx.njit.edu.cn/Default2.aspx";
+
+    /**
+     * 重定向网页
+     */
+    public static final String FORWARD_URL = "http://jwjx.njit.edu.cn/xs_main.aspx?xh=";
+
+    /**
+     * 查询网址前缀
+     */
+    public static final String QUERY_PREFIX_URL = "http://jwjx.njit.edu.cn/xscjcx_dq.aspx";
+
+    /**
+     * 验证码请求网址
+     */
+    public static final String CHECK_CODE_URL = "http://jwjx.njit.edu.cn/CheckCode.aspx";
+    /**
+     * 防盗链
+     */
+    public static final String REFER_URL = "http://jwjx.njit.edu.cn/";
+
+    /**
+     * bing每日一图api
+     */
+    public static final String BING_PIC_API = "http://guolin.tech/api/bing_pic";
+
+    /**
+     * 校历选择网址
+     */
+    public static final String SCHOOL_CALENDAR_CHOOSE_URL = "http://jwc.njit.edu.cn/xl_list.jsp?urltype=tree.TreeTempUrl&wbtreeid=1129";
 
 
-    public static final String refer_url = "http://jwjx.njit.edu.cn/";
-    public static final String bing_pic_api = "http://guolin.tech/api/bing_pic";
-    //    网络服务登录网址
-    public static final String net_login_url = "http://net.njit.edu.cn:8080/Self/LogoutAction.action";
-    //    校历选择网址
-    public static final String school_calendar_choose_url = "http://jwc.njit.edu.cn/xl_list.jsp?urltype=tree.TreeTempUrl&wbtreeid=1129";
+    public static final String SERVER_OFF = "服务器发生错误";
+    public static final String NETWORK_OFF = "网络连接断开";
+    public static final String CODE_FLUSH_FAIL = "验证码刷新失败";
+    public static final String LOGIN_ERROR_CORD = "验证码不正确";
+    public static final String LOGIN_ERROR_PW = "密码错误";
+    public static final String LOGIN_ERROR_NO_COMMENT = "你还没有进行本学期的教学质量评价,在本系统的“教学质量评价”栏中完成评价工作后，才能进入系统";
+    public static final String LOGIN_SUCCESS_INFO = "QAQ登录成功";
+    public static final String LOGIN_ERROR_XH = "用户名不存在或未按照要求参加教学活动";
+    public static final String LOGIN_JW_SUCCESS = "为保障您的个人信息的安全，请点在退出时，请击安全退出";
 
 
-    public static final String server_off = "服务器发生错误";
-    public static final String network_off = "网络连接断开";
-    public static final String code_flush_fail = "验证码刷新失败";
-    public static final String login_error_cord = "验证码不正确";
-    public static final String login_error_pw = "密码错误";
-    public static final String login_error_noComment = "你还没有进行本学期的教学质量评价,在本系统的“教学质量评价”栏中完成评价工作后，才能进入系统";
-    public static final String login_success_info = "QAQ登录成功";
-    public static final String login_error_xh = "用户名不存在或未按照要求参加教学活动";
-    public static final String login_jw_success = "为保障您的个人信息的安全，请点在退出时，请击安全退出";
+    public static final String BOOK_URL_BEFORE = "http://opac.lib.njit.edu.cn/opac/openlink.php?s2_type=title&s2_text=";
+    public static final String BOOK_URL_AFTER = "&search_bar=new&doctype=ALL&with_ebook=off&match_flag=forward&showmode=list&location=ALL";
+
+    public static final String GRADE_QUERY_WELCOME = "欢迎使用成绩查询系统";
+    public static final String CREDIT_QUERY_WELCOME = "欢迎使用学分查询系统";
+    public static final String GRADE_QUERY_ITEM1 = "I\t学期成绩查询";
+    public static final String GRADE_QUERY_ITEM2 = "II\t学分查询";
+    public static final String GRADE_QUERY_ITEM3 = "III\t四六级查询";
 
 
-    public static final String bookUrlBefore = "http://opac.lib.njit.edu.cn/opac/openlink.php?s2_type=title&s2_text=";
-    public static final String bookUrlAfter = "&search_bar=new&doctype=ALL&with_ebook=off&match_flag=forward&showmode=list&location=ALL";
-
-    public static final String gradeQueryWelcome = "欢迎使用成绩查询系统";
-    public static final String creditQueryWelcome = "欢迎使用学分查询系统";
-    public static final String gradeQueryItem1 = "I\t学期成绩查询";
-    public static final String gradeQueryItem2 = "II\t学分查询";
-    public static final String gradeQueryItem3 = "III\t四六级查询";
+    public static final String MAIN_NO_COURSE_LEFT_INFO = "今天已经没有课了, 快去休息一下吧";
 
 
-    public static final String main_no_course_left_info = "今天已经没有课了, 快去休息一下吧";
-    public static final String main_no_course_info = "今天没有课, 快去好好放松一下吧";
+    public static final String NO_SIG_INFO = "一句话介绍一下自己吧";
 
 
-    public static final String no_login_info = "您还没有登录";
-    public static final String no_sig_info = "一句话介绍一下自己吧";
-
-
-    public static final String no_course_info = "该学期暂无成绩";
-    public static final String course_all_passed_info = "恭喜你， 全部通过";
+    public static final String NO_COURSE_INFO = "该学期暂无成绩";
+    public static final String COURSE_ALL_PASSED_INFO = "恭喜你， 全部通过";
 
 
     public static final String MEMO_HELP_TEXT = "1、备忘录可被创建和删除\n" +
@@ -69,102 +93,77 @@ public class Constant {
     public static final int SHOW_TOAST = 5;
 
 
-    public static final String __VIEWSTATE_COMMENT = "";
-
-
     public static final String DOWNLOAD_DIR = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath();
 
 
-    //    个人中心请求
+    /**
+     * 个人中心请求
+     */
     public static final int CENTER_FILE = 101;
     public static final int LOCAL_FILE = 102;
-    public static final int CENTER_MEMO = 103;
-    public static final int CENTER_FRIEND = 104;
 
 
-    //    Main广播
+    /**
+     * Main广播
+     */
     public static final String ACTION1 = "com.example.lqs2.courseapp.OPEN_DIY_MAIN_BG";
     public static final String ACTION2 = "com.example.lqs2.courseapp.CLOSE_DIY_MAIN_BG";
     public static final String ACTION3 = "com.example.lqs2.courseapp.CHANGE_COURSE";
 
 
-    //    权限请求码
+    /**
+     * 权限请求码
+     */
     public static final int IMAGE_REQUEST_CODE = 1;
     public static final int IMAGE_REQUEST_CODE_CROP = 202;
     public static final int GET_CONTENT = 301;
-    public static final int SET_CONTENT = 302;
 
 
-    //    请求网址 darkme.cn
+    public static final String BASE_URL = "http://darkme.cn:8880/android";
+    public static final String UPLOAD_IMAGE_URL = "http://darkme.cn:8880/android/image/ui";
+    public static final String IMG_ACCESS_URL = "http://darkme.cn:8880/file/img";
+    public static final String FILE_SHOW_URL = "http://darkme.cn:8880/android/file/gmf";
+    public static final String FILE_DEL_URL = "http://darkme.cn:8880/android/file/rmf";
+    public static final String FILE_SEARCH_URL = "http://darkme.cn:8880/android/file/smf";
+    public static final String FILE_GENERATE_URL = "http://darkme.cn:8880/android/file/gnf";
+    public static final String FILE_INSERT_RECORD_URL = "http://darkme.cn:8880/android/file/ifr";
+    public static final String TWEET_POST_URL = "http://darkme.cn:8880/android/tweet/nt";
+    public static final String TWEET_GET_ALL_URL = "http://darkme.cn:8880/android/tweet/gat";
+    public static final String TWEET_DEL_URL = "http://darkme.cn:8880/android/tweet/dt";
+    public static final String TWEET_PRAISE_ADD_URL = "http://darkme.cn:8880/android/tweet/mtg";
+    public static final String USER_DO_EXIST_URL = "http://darkme.cn:8880/android/user/ude";
+    public static final String USER_DO_LOGIN_URL = "http://darkme.cn:8880/android/user/ulv";
+    public static final String USER_DO_REGISTER_URL = "http://darkme.cn:8880/android/user/urv";
+    public static final String USER_SET_PROFILE_PICTURE_URL = "http://darkme.cn:8880/android/user/supp";
+    public static final String USER_GET_PROFILE_PICTURE_URL = "http://darkme.cn:8880/android/user/gupp";
+    public static final String USER_GET_HANDOFF_TEXT_URL = "http://darkme.cn:8880/android/user/guht";
+    public static final String USER_TURN_OFF_HANDOFF_TEXT_URL = "http://darkme.cn:8880/android/user/offuht";
+    public static final String USER_POST_HANDOFF_TEXT_URL = "http://darkme.cn:8880/android/user/suht";
+    public static final String USER_TWEET_INFO_URL = "http://darkme.cn:8880/android/user/guti";
+    public static final String USER_PRAISE_TWEET_URL = "http://darkme.cn:8880/android/user/upt";
+    public static final String USER_COLLECT_TWEET_URL = "http://darkme.cn:8880/android/user/uct";
+    public static final String USER_SHOW_MY_FRIEND_URL = "http://darkme.cn:8880/android/user/gmf";
+    public static final String USER_CHANGE_FRIEND_MARK = "http://darkme.cn:8880/android/user/cfm";
+    public static final String USER_DELETE_FRIEND_URL = "http://darkme.cn:8880/android/user/duf";
+    public static final String USER_SEND_MAKE_FRIEND_MSG = "http://darkme.cn:8880/android/user/smfm";
+    public static final String USER_SEND_AGREE_MAKE_FRIEND_MSG = "http://darkme.cn:8880/android/user/amfm";
+    public static final String USER_GET_MSG = "http://darkme.cn:8880/android/user/gum";
+    public static final String USER_DEL_MSG = "http://darkme.cn:8880/android/user/dum";
+    public static final String USER_GET_MEMO_BY_STATE_URL = "http://darkme.cn:8880/android/memo/gmbs";
+    public static final String USER_CHANGE_MEMO_STATE_URL = "http://darkme.cn:8880/android/memo/cmbs";
+    public static final String USER_NEW_MEMO_URL = "http://darkme.cn:8880/android/memo/nm";
+    public static final String CHECK_UPDATE_URL = "http://darkme.cn:8880/android/version/cu";
+    public static final String PUSH_UPDATE_URL = "http://darkme.cn:8880/android/version/pu";
+    public static final String SCHOOL_NOTICE_URL = "https://www.njit.edu.cn/index/tzgg.htm";
+    public static final String NOTICE_NEXT_BASE_URL = "https://www.njit.edu.cn/index/tzgg/";
+    public static final String NOTICE_BASE_URL = "https://www.njit.edu.cn";
 
-
-    private static String LQS2_1_SecretId = "AKIDysfHk4P8sPktrzlq34u0ztdBXlofpm3B";
-    private static String LQS2_1_SecretKey = "50iFKLDuPkuwnSvGPM7g3FH9pLn37zjH";
-    private static String APPID = "1253931949";
-
-
-    public static String BASE_URL = "http://darkme.cn:8880/android";
-    public static String upload_image_url = "http://darkme.cn:8880/android/image/ui";
-    public static String img_access_url = "http://darkme.cn:8880/file/img";
-
-
-    public static String file_show_url = "http://darkme.cn:8880/android/file/gmf";
-    public static String file_del_url = "http://darkme.cn:8880/android/file/rmf";
-    public static String file_sear_url = "http://darkme.cn:8880/android/file/smf";
-    public static String file_generate_url = "http://darkme.cn:8880/android/file/gnf";
-
-    public static String file_insert_record_url = "http://darkme.cn:8880/android/file/ifr";
-
-
-    public static String tweet_post_url = "http://darkme.cn:8880/android/tweet/nt";
-    public static String tweet_get_all_url = "http://darkme.cn:8880/android/tweet/gat";
-    public static String tweet_del_url = "http://darkme.cn:8880/android/tweet/dt";
-    public static String tweet_praise_add_url = "http://darkme.cn:8880/android/tweet/mtg";
-
-
-    public static String user_do_exist_url = "http://darkme.cn:8880/android/user/ude";
-    public static String user_do_login_url = "http://darkme.cn:8880/android/user/ulv";
-    public static String user_do_register_url = "http://darkme.cn:8880/android/user/urv";
-
-    public static String user_set_profile_picture_url = "http://darkme.cn:8880/android/user/supp";
-    public static String user_get_profile_picture_url = "http://darkme.cn:8880/android/user/gupp";
-
-    public static String user_get_handoff_text_url = "http://darkme.cn:8880/android/user/guht";
-    public static String user_turn_off_handoff_text_url = "http://darkme.cn:8880/android/user/offuht";
-    public static String user_post_handoff_text_url = "http://darkme.cn:8880/android/user/suht";
-
-    public static String user_tweet_info_url = "http://darkme.cn:8880/android/user/guti";
-    public static String user_praise_tweet_url = "http://darkme.cn:8880/android/user/upt";
-    public static String user_collect_tweet_url = "http://darkme.cn:8880/android/user/uct";
-
-
-    public static String user_show_my_friend_url = "http://darkme.cn:8880/android/user/gmf";
-    public static String user_change_friend_mark = "http://darkme.cn:8880/android/user/cfm";
-    public static String user_delete_friend_url = "http://darkme.cn:8880/android/user/duf";
-    public static String user_send_make_friend_msg = "http://darkme.cn:8880/android/user/smfm";
-    public static String user_send_agree_make_friend_msg = "http://darkme.cn:8880/android/user/amfm";
-
-    public static String user_get_msg = "http://darkme.cn:8880/android/user/gum";
-    public static String user_del_msg = "http://darkme.cn:8880/android/user/dum";
-
-
-    public static String user_get_memo_by_state_url = "http://darkme.cn:8880/android/memo/gmbs";
-    public static String user_change_memo_state_url = "http://darkme.cn:8880/android/memo/cmbs";
-    public static String user_new_memo_url = "http://darkme.cn:8880/android/memo/nm";
-
-    public static String check_update_url = "http://darkme.cn:8880/android/version/cu";
-    public static String push_update_url = "http://darkme.cn:8880/android/version/pu";
-
-    public static String school_notice_url = "https://www.njit.edu.cn/index/tzgg.htm";
-    public static String notice_main_url = "https://www.njit.edu.cn/index/tzgg.htm";
-    public static String notice_next_base_url = "https://www.njit.edu.cn/index/tzgg/";
-    public static String notice_base_url = "https://www.njit.edu.cn";
-
-
-    //ImageAdapter的三种类型
-    public static final int ADAPTER_FOR_NewTweetActivity = 1;
+    /**
+     * ImageAdapter的三种类型
+     */
+    public static final int ADAPTER_FOR_NEW_TWEET_ACTIVITY = 1;
     public static final int ADAPTER_TO_DRAWABLE = 2;
-    public static final int ADAPTER_FOR_MainActivity = 3;
-    public static final int ADAPTER_FOR_TweetDetailActivity = 4;
+    public static final int ADAPTER_FOR_MAIN_ACTIVITY = 3;
+    public static final int ADAPTER_FOR_TWEET_DETAIL_ACTIVITY = 4;
 
 }

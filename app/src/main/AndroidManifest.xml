@@ -33,7 +33,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activities.LoginNJITActivity" />
+        <activity android:name=".activities.LoginNjitActivity" />
         <activity
             android:name=".activities.CourseActivity"
             android:launchMode="singleTask" />
@@ -41,6 +41,7 @@
         <!-- android:name=".activities.DailyRecordActivity" -->
         <!-- android:launchMode="singleTask" /> -->
         <activity android:name=".activities.GradeActivity" />
+        <activity android:name=".activities.ActivityCollector" />
         <activity android:name=".activities.LibraryActivity" />
         <activity android:name=".activities.SettingActivity" />
         <activity android:name=".activities.SchoolCalendarActivity" />
@@ -92,7 +93,8 @@
         <activity android:name=".activities.ChatActivity" />
         <activity android:name=".activities.ImageBrowseActivity" />
         <activity android:name=".activities.NoticeActivity" />
-        <activity android:name=".activities.CreditActivity"></activity>
+        <activity android:name=".activities.CreditActivity" />
+        <activity android:name=".activities.WebViewActivity"></activity>
     </application>
 
 </manifest>

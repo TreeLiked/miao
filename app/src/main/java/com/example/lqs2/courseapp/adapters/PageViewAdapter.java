@@ -7,6 +7,11 @@ import android.support.v4.app.FragmentPagerAdapter;
 
 import java.util.List;
 
+/**
+ * 这是做什么的？？？
+ *
+ * @author lqs2
+ */
 public class PageViewAdapter extends FragmentPagerAdapter {
 
 
@@ -22,7 +27,7 @@ public class PageViewAdapter extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        if (fragments!=null){
+        if (fragments != null) {
             return fragments.get(position);
         }
         return null;
@@ -30,7 +35,7 @@ public class PageViewAdapter extends FragmentPagerAdapter {
 
     @Override
     public int getCount() {
-        if (fragments!=null){
+        if (fragments != null) {
             return fragments.size();
         }
         return 0;

@@ -5,6 +5,11 @@ import android.support.v7.widget.CardView;
 import android.view.View;
 
 
+/**
+ * 便签切换动画
+ *
+ * @author lqs2
+ */
 public class ShadowTransformer implements ViewPager.OnPageChangeListener, ViewPager.PageTransformer {
 
     private ViewPager mViewPager;
@@ -18,6 +23,11 @@ public class ShadowTransformer implements ViewPager.OnPageChangeListener, ViewPa
         mAdapter = adapter;
     }
 
+    /**
+     * 是否开启缩放
+     *
+     * @param enable 是/否
+     */
     public void enableScaling(boolean enable) {
         if (mScalingEnabled && !enable) {
             // shrink main card
@@ -26,7 +36,7 @@ public class ShadowTransformer implements ViewPager.OnPageChangeListener, ViewPa
                 currentCard.animate().scaleY(1);
                 currentCard.animate().scaleX(1);
             }
-        }else if(!mScalingEnabled && enable){
+        } else if (!mScalingEnabled && enable) {
             // grow main card
             CardView currentCard = mAdapter.getCardViewAt(mViewPager.getCurrentItem());
             if (currentCard != null) {
