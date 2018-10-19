@@ -1,24 +1,24 @@
 package com.example.lqs2.courseapp.activities;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.Html;
 import android.text.TextUtils;
-import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.example.lqs2.courseapp.R;
 import com.example.lqs2.courseapp.adapters.ImageAdapter;
 import com.example.lqs2.courseapp.entity.Notice;
 import com.example.lqs2.courseapp.entity.Tweet;
+import com.example.lqs2.courseapp.global.GlideApp;
 import com.example.lqs2.courseapp.utils.Base64ImageUtils;
 import com.example.lqs2.courseapp.utils.Constant;
 import com.example.lqs2.courseapp.utils.StatusBarUtils;
@@ -32,22 +32,17 @@ import java.util.Objects;
  * @author lqs2
  */
 public class TweetDetailActivity extends ActivityCollector {
-
-
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tweet_detail);
-
         StatusBarUtils.setStatusTransparent(this);
 
         CollapsingToolbarLayout layout = findViewById(R.id.tweet_detail_cover_layout);
         ImageView imageView = findViewById(R.id.tweet_detail_cover);
         TextView contentView = findViewById(R.id.tweet_detail_content);
         TextView postTimeView = findViewById(R.id.tweet_detail_postTime);
-
-
         Intent intent = getIntent();
 //        0 来自动态，1来自通知
         int type = intent.getIntExtra("FROM", 1);
@@ -68,112 +63,52 @@ public class TweetDetailActivity extends ActivityCollector {
                 }
                 postTimeView.setText(TimeUtils.tweetPostTimeConvert(tweet.getPostTime()));
                 if (Base64ImageUtils.isPicPath(tweet.getImgPath0())) {
-                    Glide.with(TweetDetailActivity.this).load(Constant.IMG_ACCESS_URL + tweet.getImgPath0()).into(imageView);
+                    GlideApp.with(TweetDetailActivity.this).load(Constant.IMG_ACCESS_URL + tweet.getImgPath0()).into(imageView);
                     adapter.setDataC(ImageAdapter.getImagePathList(tweet));
                 } else {
-                    Glide.with(this).load(R.drawable.tweet_no_img).into(imageView);
+                    GlideApp.with(this).load(R.drawable.tweet_no_img).into(imageView);
                 }
                 break;
             case 1:
                 findViewById(R.id.tweet_detail_img_view).setVisibility(View.GONE);
                 findViewById(R.id.news_detail_comment).setVisibility(View.GONE);
-                Glide.with(this).load(R.drawable.notice_banner).into(imageView);
+                GlideApp.with(this).load(Constant.CARD_COVER_URL).into(imageView);
                 Notice notice = (Notice) Objects.requireNonNull(intent.getExtras()).getSerializable("notice");
                 assert notice != null;
                 layout.setTitle(notice.getTitle());
-                layout.setExpandedTitleColor(getResources().getColor(R.color.white));
-                layout.setCollapsedTitleTextColor(getResources().getColor(R.color.black));
+                layout.setExpandedTitleColor(ContextCompat.getColor(this, R.color.white));
+                layout.setCollapsedTitleTextColor(ContextCompat.getColor(this, R.color.white));
                 contentView.setText(notice.getContent());
                 TextView linkView = findViewById(R.id.link_text_view);
-                linkView.setMovementMethod(LinkMovementMethod.getInstance());
-                CharSequence c1 = Html.fromHtml("<a href=\"" + notice.getContentUrl() + "\">" + "在网页中查看" + "</a>");
-                linkView.setText(c1);
-
+                linkView.setOnClickListener(v -> {
+                    Uri uri = Uri.parse(notice.getContentUrl());
+                    Intent intent1 = new Intent(Intent.ACTION_VIEW, uri);
+                    startActivity(intent1);
+                });
+                imageView.setOnClickListener(v -> {
+                    Intent intent2 = new Intent(this, ImageBrowseActivity.class);
+                    intent2.putExtra("type", 1);
+                    intent2.putExtra("url", Constant.CARD_COVER_URL);
+                    startActivity(intent2);
+                });
                 postTimeView.setText(notice.getTime());
                 if (!TextUtils.isEmpty(notice.getAnnexUrl())) {
                     TextView annexView = findViewById(R.id.annex_text_view);
-                    annexView.setMovementMethod(LinkMovementMethod.getInstance());
-                    CharSequence c2 = Html.fromHtml("<a href=\"" + notice.getAnnexUrl() + "\">" + notice.getAnnexText() + "</a>");
-                    annexView.setText(c2);
-
+                    annexView.setText(notice.getAnnexText());
+                    annexView.setOnClickListener(v -> {
+                        Uri uri = Uri.parse(notice.getAnnexUrl());
+                        Intent intent1 = new Intent(Intent.ACTION_VIEW, uri);
+                        startActivity(intent1);
+                    });
+//                    annexView.setMovementMethod(LinkMovementMethod.getInstance());
+//                    CharSequence c2 = Html.fromHtml("<a href=\"" + notice.getAnnexUrl() + "\">" + notice.getAnnexText() + "</a>");
+//                    annexView.setText(c2);
+//                    annexView.setTextColor(ContextCompat.getColor(this, R.color.fri_title_bg));
                 }
                 break;
             default:
                 break;
         }
-//        android.support.v7.widget.Toolbar toolbar = findViewById(R.id.toolbar);
-//        CollapsingToolbarLayout collapsingToolbarLayout = findViewById(R.id.collapsing_toolbar);
-//
-//        TextView news_detail_detail_view = findViewById(R.id.news_detail_detail);
-//        TextView news_detail_from_name_view = findViewById(R.id.news_detail_from_name);
-//        TextView news_detail_from_id_view = findViewById(R.id.news_detail_from_id);
-//        TextView news_detail_date_view = findViewById(R.id.news_detail_date);
-//
-//        setSupportActionBar(toolbar);
-//        ActionBar actionBar = getSupportActionBar();
-//        if (actionBar!= null) {
-//            actionBar.setDisplayHomeAsUpEnabled(true);
-//        }
-//        collapsingToolbarLayout.setTitle(news_title);
-//        news_detail_detail_view.setText(news_detail);
-//        news_detail_from_name_view.setText("来自: "+news_from_name);
-//        news_detail_from_id_view.setText("ID: "+news_from_id);
-//        news_detail_date_view.setText(news_date);
-//
-//
-//        FloatingActionButton comment_btn = findViewById(R.id.news_detail_comment);
-//        comment_btn.setOnClickListener(v -> {
-//            //弹窗隐藏时回调方法
-//            //View控件点击事件回调
-//            new TDialog.Builder(getSupportFragmentManager())
-//                    .setLayoutRes(R.layout.t_dialog_evaluate)    //设置弹窗展示的xml布局
-////                .setDialogView(view)  //设置弹窗布局,直接传入View
-//                    .setWidth(600)  //设置弹窗宽度(px)
-//                    .setHeight(getResources().getDisplayMetrics().widthPixels)  //设置弹窗高度(px)
-//                    .setScreenWidthAspect(TweetDetailActivity.this, 0.8f)   //设置弹窗宽度(参数aspect为屏幕宽度比例 0 - 1f)
-//                    .setScreenHeightAspect(TweetDetailActivity.this, 0.3f)  //设置弹窗高度(参数aspect为屏幕宽度比例 0 - 1f)
-//                    .setGravity(Gravity.BOTTOM)     //设置弹窗展示位置
-//                    .setTag("快来评论吧")   //设置Tag
-//                    .setDimAmount(0.6f)     //设置弹窗背景透明度(0-1f)
-//                    .setCancelableOutside(true)     //弹窗在界面外是否可以点击取消
-//                    .setCancelable(true)    //弹窗是否可以取消
-//                    .setOnDismissListener(dialog -> Toast.makeText(TweetDetailActivity.this, "弹窗消失回调", Toast.LENGTH_SHORT).show())
-////                        .setOnBindViewListener(new OnBindViewListener() {   //通过BindViewHolder拿到控件对象,进行修改
-////                            @Override
-////                            public void bindView(BindViewHolder bindViewHolder) {
-////                                bindViewHolder.setText(R.id.tv_content, "abcdef");
-////                                bindViewHolder.setText(R.id.tv_title, "我是Title");
-////                            }
-////                        })
-//                        .addOnClickListener(R.id.btn_evluate)   //添加进行点击控件的id
-//                        .setOnViewClickListener((viewHolder, view, tDialog) -> {
-//                            switch (view.getId()) {
-//                                case R.id.btn_evluate:
-//                                    comment_detail_edit = findViewById(R.id.comment_detail);
-//                                    String comment = comment_detail_edit.getText().toString();
-//                                    Toast.makeText(TweetDetailActivity.this, comment, Toast.LENGTH_SHORT).show();
-//                                    tDialog.dismiss();
-//
-//                                    break;
-//                                default:
-//                                    break;
-////                                    case R.id.btn_left:
-////                                        Toast.makeText(DiffentDialogActivity.this, "left clicked", Toast.LENGTH_SHORT).show();
-////                                        break;
-////                                    case R.id.btn_right:
-////                                        Toast.makeText(DiffentDialogActivity.this, "right clicked", Toast.LENGTH_SHORT).show();
-////                                        tDialog.dismiss();
-////                                        break;
-////                                    case R.id.tv_title:
-////                                        Toast.makeText(DiffentDialogActivity.this, "title clicked", Toast.LENGTH_SHORT).show();
-////                                        break;
-//                            }
-//                        })
-//                    .create()   //创建TDialog
-//                    .show();    //展示
-//        });
-
-
     }
 
 

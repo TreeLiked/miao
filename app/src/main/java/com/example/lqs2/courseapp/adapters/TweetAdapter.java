@@ -20,12 +20,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.example.lqs2.courseapp.R;
 import com.example.lqs2.courseapp.activities.MainActivity;
 import com.example.lqs2.courseapp.activities.TweetDetailActivity;
 import com.example.lqs2.courseapp.entity.Tweet;
 import com.example.lqs2.courseapp.entity.UserAndTweet;
+import com.example.lqs2.courseapp.global.GlideApp;
 import com.example.lqs2.courseapp.global.ThreadPoolExecutorFactory;
 import com.example.lqs2.courseapp.utils.Base64ImageUtils;
 import com.example.lqs2.courseapp.utils.HttpUtil;
@@ -119,7 +119,7 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> 
         if (!TextUtils.isEmpty(picStr)) {
             ThreadPoolExecutorFactory.getThreadPoolExecutor().execute(() -> {
                 Bitmap b = Base64ImageUtils.base64StrToBitmap(picStr);
-                ((MainActivity) mContext).runOnUiThread(() -> Glide.with(mContext).load(b).thumbnail(0.2f).into(holder.circleImageView));
+                ((MainActivity) mContext).runOnUiThread(() -> GlideApp.with(mContext).load(b).thumbnail(0.2f).into(holder.circleImageView));
             });
         } else {
             holder.circleImageView.setImageBitmap(BitmapFactory.decodeResource(mContext.getResources(), R.drawable.default_head));

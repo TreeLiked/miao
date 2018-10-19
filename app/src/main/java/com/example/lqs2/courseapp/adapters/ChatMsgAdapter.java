@@ -12,10 +12,10 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.example.lqs2.courseapp.R;
 import com.example.lqs2.courseapp.activities.ChatActivity;
 import com.example.lqs2.courseapp.entity.ChatMsg;
+import com.example.lqs2.courseapp.global.GlideApp;
 import com.example.lqs2.courseapp.utils.Base64ImageUtils;
 import com.example.lqs2.courseapp.utils.HttpUtil;
 
@@ -88,7 +88,7 @@ public class ChatMsgAdapter extends RecyclerView.Adapter<ChatMsgAdapter.ViewHold
             if (null == userBit) {
                 pullUserProfilePic(msg.getFromId(), holder.leftPic, false);
             } else {
-                Glide.with(mContext).load(userBit).into(holder.leftPic);
+                GlideApp.with(mContext).load(userBit).into(holder.leftPic);
             }
             holder.leftLayout.setVisibility(View.VISIBLE);
             holder.rightLayout.setVisibility(View.GONE);
@@ -97,7 +97,7 @@ public class ChatMsgAdapter extends RecyclerView.Adapter<ChatMsgAdapter.ViewHold
             if (null == myBit) {
                 pullUserProfilePic(msg.getFromId(), holder.rightPic, true);
             } else {
-                Glide.with(mContext).load(myBit).into(holder.rightPic);
+                GlideApp.with(mContext).load(myBit).into(holder.rightPic);
             }
             holder.rightLayout.setVisibility(View.VISIBLE);
             holder.leftLayout.setVisibility(View.GONE);
@@ -143,9 +143,9 @@ public class ChatMsgAdapter extends RecyclerView.Adapter<ChatMsgAdapter.ViewHold
                     }
                 }
                 if (myself) {
-                    ((ChatActivity) mContext).runOnUiThread(() -> Glide.with(mContext).load(myBit).into(imageView));
+                    ((ChatActivity) mContext).runOnUiThread(() -> GlideApp.with(mContext).load(myBit).into(imageView));
                 } else {
-                    ((ChatActivity) mContext).runOnUiThread(() -> Glide.with(mContext).load(userBit).into(imageView));
+                    ((ChatActivity) mContext).runOnUiThread(() -> GlideApp.with(mContext).load(userBit).into(imageView));
                 }
             }
         });

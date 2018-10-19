@@ -119,44 +119,50 @@ public class Constant {
     public static final int GET_CONTENT = 301;
 
 
-    public static final String BASE_URL = "http://darkme.cn:8880/android";
-    public static final String UPLOAD_IMAGE_URL = "http://darkme.cn:8880/android/image/ui";
+    //    public static final String API_BASE_URL = "http://darkme.cn:8880/android";
+    public static final String API_BASE_URL = "http://darkme.cn:8880/android";
+
+
+    public static final String UPLOAD_IMAGE_URL = API_BASE_URL + "/image/ui";
     public static final String IMG_ACCESS_URL = "http://darkme.cn:8880/file/img";
-    public static final String FILE_SHOW_URL = "http://darkme.cn:8880/android/file/gmf";
-    public static final String FILE_DEL_URL = "http://darkme.cn:8880/android/file/rmf";
-    public static final String FILE_SEARCH_URL = "http://darkme.cn:8880/android/file/smf";
-    public static final String FILE_GENERATE_URL = "http://darkme.cn:8880/android/file/gnf";
-    public static final String FILE_INSERT_RECORD_URL = "http://darkme.cn:8880/android/file/ifr";
-    public static final String TWEET_POST_URL = "http://darkme.cn:8880/android/tweet/nt";
-    public static final String TWEET_GET_ALL_URL = "http://darkme.cn:8880/android/tweet/gat";
-    public static final String TWEET_DEL_URL = "http://darkme.cn:8880/android/tweet/dt";
-    public static final String TWEET_PRAISE_ADD_URL = "http://darkme.cn:8880/android/tweet/mtg";
-    public static final String USER_DO_EXIST_URL = "http://darkme.cn:8880/android/user/ude";
-    public static final String USER_DO_LOGIN_URL = "http://darkme.cn:8880/android/user/ulv";
-    public static final String USER_DO_REGISTER_URL = "http://darkme.cn:8880/android/user/urv";
-    public static final String USER_SET_PROFILE_PICTURE_URL = "http://darkme.cn:8880/android/user/supp";
-    public static final String USER_GET_PROFILE_PICTURE_URL = "http://darkme.cn:8880/android/user/gupp";
-    public static final String USER_GET_HANDOFF_TEXT_URL = "http://darkme.cn:8880/android/user/guht";
-    public static final String USER_TURN_OFF_HANDOFF_TEXT_URL = "http://darkme.cn:8880/android/user/offuht";
-    public static final String USER_POST_HANDOFF_TEXT_URL = "http://darkme.cn:8880/android/user/suht";
-    public static final String USER_TWEET_INFO_URL = "http://darkme.cn:8880/android/user/guti";
-    public static final String USER_PRAISE_TWEET_URL = "http://darkme.cn:8880/android/user/upt";
-    public static final String USER_COLLECT_TWEET_URL = "http://darkme.cn:8880/android/user/uct";
-    public static final String USER_SHOW_MY_FRIEND_URL = "http://darkme.cn:8880/android/user/gmf";
-    public static final String USER_CHANGE_FRIEND_MARK = "http://darkme.cn:8880/android/user/cfm";
-    public static final String USER_DELETE_FRIEND_URL = "http://darkme.cn:8880/android/user/duf";
-    public static final String USER_SEND_MAKE_FRIEND_MSG = "http://darkme.cn:8880/android/user/smfm";
-    public static final String USER_SEND_AGREE_MAKE_FRIEND_MSG = "http://darkme.cn:8880/android/user/amfm";
-    public static final String USER_GET_MSG = "http://darkme.cn:8880/android/user/gum";
-    public static final String USER_DEL_MSG = "http://darkme.cn:8880/android/user/dum";
-    public static final String USER_GET_MEMO_BY_STATE_URL = "http://darkme.cn:8880/android/memo/gmbs";
-    public static final String USER_CHANGE_MEMO_STATE_URL = "http://darkme.cn:8880/android/memo/cmbs";
-    public static final String USER_NEW_MEMO_URL = "http://darkme.cn:8880/android/memo/nm";
-    public static final String CHECK_UPDATE_URL = "http://darkme.cn:8880/android/version/cu";
-    public static final String PUSH_UPDATE_URL = "http://darkme.cn:8880/android/version/pu";
+    public static final String CARD_COVER_URL = IMG_ACCESS_URL + "/cover.PNG";
+
+    public static final String FILE_SHOW_URL = API_BASE_URL + "/file/gmf";
+    public static final String FILE_DEL_URL = API_BASE_URL + "/file/rmf";
+    public static final String FILE_SEARCH_URL = API_BASE_URL + "/file/smf";
+    public static final String FILE_GENERATE_URL = API_BASE_URL + "/file/gnf";
+    public static final String FILE_INSERT_RECORD_URL = API_BASE_URL + "/file/ifr";
+    public static final String TWEET_POST_URL = API_BASE_URL + "/tweet/nt";
+    public static final String TWEET_GET_ALL_URL = API_BASE_URL + "/tweet/gat";
+    public static final String TWEET_DEL_URL = API_BASE_URL + "/tweet/dt";
+    public static final String TWEET_PRAISE_ADD_URL = API_BASE_URL + "/tweet/mtg";
+    public static final String USER_DO_EXIST_URL = API_BASE_URL + "/user/ude";
+    public static final String USER_DO_LOGIN_URL = API_BASE_URL + "/user/ulv";
+    public static final String USER_DO_REGISTER_URL = API_BASE_URL + "/user/urv";
+    public static final String USER_SET_PROFILE_PICTURE_URL = API_BASE_URL + "/user/supp";
+    public static final String USER_GET_PROFILE_PICTURE_URL = API_BASE_URL + "/user/gupp";
+    public static final String USER_GET_HANDOFF_TEXT_URL = API_BASE_URL + "/user/guht";
+    public static final String USER_TURN_OFF_HANDOFF_TEXT_URL = API_BASE_URL + "/user/offuht";
+    public static final String USER_POST_HANDOFF_TEXT_URL = API_BASE_URL + "/user/suht";
+    public static final String USER_TWEET_INFO_URL = API_BASE_URL + "/user/guti";
+    public static final String USER_PRAISE_TWEET_URL = API_BASE_URL + "/user/upt";
+    public static final String USER_COLLECT_TWEET_URL = API_BASE_URL + "/user/uct";
+    public static final String USER_SHOW_MY_FRIEND_URL = API_BASE_URL + "/user/gmf";
+    public static final String USER_CHANGE_FRIEND_MARK = API_BASE_URL + "/user/cfm";
+    public static final String USER_DELETE_FRIEND_URL = API_BASE_URL + "/user/duf";
+    public static final String USER_SEND_MAKE_FRIEND_MSG = API_BASE_URL + "/user/smfm";
+    public static final String USER_SEND_AGREE_MAKE_FRIEND_MSG = API_BASE_URL + "/user/amfm";
+    public static final String USER_GET_MSG = API_BASE_URL + "/user/gum";
+    public static final String USER_DEL_MSG = API_BASE_URL + "/user/dum";
+    public static final String USER_GET_MEMO_BY_STATE_URL = API_BASE_URL + "/memo/gmbs";
+    public static final String USER_CHANGE_MEMO_STATE_URL = API_BASE_URL + "/memo/cmbs";
+    public static final String USER_NEW_MEMO_URL = API_BASE_URL + "/memo/nm";
+    public static final String CHECK_UPDATE_URL = API_BASE_URL + "/version/cu";
+    public static final String PUSH_UPDATE_URL = API_BASE_URL + "/version/pu";
     public static final String SCHOOL_NOTICE_URL = "https://www.njit.edu.cn/index/tzgg.htm";
     public static final String NOTICE_NEXT_BASE_URL = "https://www.njit.edu.cn/index/tzgg/";
     public static final String NOTICE_BASE_URL = "https://www.njit.edu.cn";
+
 
     /**
      * ImageAdapter的三种类型

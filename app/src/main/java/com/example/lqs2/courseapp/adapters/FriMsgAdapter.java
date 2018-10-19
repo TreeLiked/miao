@@ -14,10 +14,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.example.lqs2.courseapp.R;
 import com.example.lqs2.courseapp.activities.FileActivity;
 import com.example.lqs2.courseapp.entity.UserMessage;
+import com.example.lqs2.courseapp.global.GlideApp;
 import com.example.lqs2.courseapp.global.ThreadPoolExecutorFactory;
 import com.example.lqs2.courseapp.utils.Base64ImageUtils;
 import com.example.lqs2.courseapp.utils.HttpUtil;
@@ -121,21 +121,21 @@ public class FriMsgAdapter extends RecyclerView.Adapter<FriMsgAdapter.ViewHolder
                 holder.userIdView.setText("好友消息");
                 holder.contentView.setText(msgContent);
                 holder.chatTimeView.setText(TimeUtils.tweetPostTimeConvert(msg.getPostTime()));
-                Glide.with(mContext).load(R.drawable.fri_msg_fri_icon).into(holder.profilePicView);
+                GlideApp.with(mContext).load(R.drawable.fri_msg_fri_icon).into(holder.profilePicView);
                 bindFriAction(holder, msgType, msg, position);
                 break;
             case 3:
                 holder.userIdView.setText("文件消息");
                 holder.contentView.setText(msgContent);
                 holder.chatTimeView.setText(TimeUtils.tweetPostTimeConvert(msg.getPostTime()));
-                Glide.with(mContext).load(R.drawable.fri_msg_file_icon).into(holder.profilePicView);
+                GlideApp.with(mContext).load(R.drawable.fri_msg_file_icon).into(holder.profilePicView);
                 bindFileAction(holder, msgType, msg, position);
                 break;
             case 0:
                 holder.userIdView.setText("系统通知");
                 holder.contentView.setText(msgContent);
                 holder.chatTimeView.setText(TimeUtils.tweetPostTimeConvert(msg.getPostTime()));
-                Glide.with(mContext).load(R.drawable.fri_msg_system_icon).into(holder.profilePicView);
+                GlideApp.with(mContext).load(R.drawable.fri_msg_system_icon).into(holder.profilePicView);
                 bindSysAction(holder, msgType, msg, position);
                 break;
             default:
@@ -268,11 +268,11 @@ public class FriMsgAdapter extends RecyclerView.Adapter<FriMsgAdapter.ViewHolder
                 String resp = response.body().string();
                 if (!TextUtils.isEmpty(resp) && Base64ImageUtils.isPicPath(resp)) {
                     Bitmap bitmap = Base64ImageUtils.base64StrToBitmap(resp);
-                    activity.runOnUiThread(() -> Glide.with(mContext).load(bitmap).into(view));
+                    activity.runOnUiThread(() -> GlideApp.with(mContext).load(bitmap).into(view));
                 } else {
                     switch (type) {
                         case 1:
-                            activity.runOnUiThread(() -> Glide.with(mContext).load(R.drawable.default_head).into(view));
+                            activity.runOnUiThread(() -> GlideApp.with(mContext).load(R.drawable.default_head).into(view));
                             break;
                         case 3:
                             break;

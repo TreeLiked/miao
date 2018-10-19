@@ -16,7 +16,6 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
-import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.lqs2.courseapp.R;
 import com.example.lqs2.courseapp.activities.ImageBrowseActivity;
@@ -24,6 +23,7 @@ import com.example.lqs2.courseapp.activities.MainActivity;
 import com.example.lqs2.courseapp.activities.NewTweetActivity;
 import com.example.lqs2.courseapp.activities.TweetDetailActivity;
 import com.example.lqs2.courseapp.entity.Tweet;
+import com.example.lqs2.courseapp.global.GlideApp;
 import com.example.lqs2.courseapp.utils.Base64ImageUtils;
 import com.example.lqs2.courseapp.utils.Constant;
 import com.example.lqs2.courseapp.utils.MaterialDialogUtils;
@@ -224,7 +224,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
         switch (type) {
             case Constant.ADAPTER_FOR_NEW_TWEET_ACTIVITY:
                 String path = mMedias.get(position).getPath();
-                Glide.with(mContext).load(BitmapFactory.decodeFile(path)).thumbnail(0.05f).into(holder.img);
+                GlideApp.with(mContext).load(BitmapFactory.decodeFile(path)).thumbnail(0.05f).into(holder.img);
                 clickToDoThing(holder, path, position);
                 break;
             case Constant.ADAPTER_FOR_MAIN_ACTIVITY:
@@ -237,7 +237,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
                     mContext.startActivity(intent);
 
                 });
-                Glide.with(mContext)
+                GlideApp.with(mContext)
                         .load(fullPath)
                         .thumbnail(0.2f)
                         .apply(options)
@@ -245,7 +245,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
                 break;
             case Constant.ADAPTER_FOR_TWEET_DETAIL_ACTIVITY:
                 String absoluteImgPath = Constant.IMG_ACCESS_URL + stringListTweetDetail.get(position);
-                Glide.with(mContext).load(absoluteImgPath).thumbnail(0.2f).into(holder.img);
+                GlideApp.with(mContext).load(absoluteImgPath).thumbnail(0.2f).into(holder.img);
                 holder.img.setOnClickListener(v -> {
                     Intent intent = new Intent(tweetDetailActivity, ImageBrowseActivity.class);
                     intent.putExtra("type", 1);

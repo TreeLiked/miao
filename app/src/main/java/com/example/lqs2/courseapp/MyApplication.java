@@ -11,6 +11,11 @@ import java.lang.reflect.Field;
 
 import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
 
+/**
+ * 全局修改字体
+ *
+ * @author lqs2
+ */
 public class MyApplication extends Application {
 
     private static Context context;
@@ -63,7 +68,7 @@ public class MyApplication extends Application {
         Context c = MyApplication.getContext();
         Intent intent = c.getPackageManager().getLaunchIntentForPackage(c.getPackageName());
         PendingIntent restartIntent = PendingIntent.getActivity(c, 0, intent, PendingIntent.FLAG_ONE_SHOT);
-        AlarmManager mgr = (AlarmManager)c.getSystemService(Context.ALARM_SERVICE);
+        AlarmManager mgr = (AlarmManager) c.getSystemService(Context.ALARM_SERVICE);
         mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 50, restartIntent);
         android.os.Process.killProcess(android.os.Process.myPid());
     }

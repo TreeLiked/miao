@@ -29,10 +29,10 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.example.lqs2.courseapp.R;
 import com.example.lqs2.courseapp.adapters.SpinnerAdapter;
 import com.example.lqs2.courseapp.entity.Course;
+import com.example.lqs2.courseapp.global.GlideApp;
 import com.example.lqs2.courseapp.global.ThreadPoolExecutorFactory;
 import com.example.lqs2.courseapp.utils.Constant;
 import com.example.lqs2.courseapp.utils.CropUtils;
@@ -457,12 +457,12 @@ public class CourseActivity extends ActivityCollector implements View.OnClickLis
     private void changeCourseBg(Context context, Bitmap bitmap, boolean backDefault, boolean isInit) {
         runOnUiThread(() -> {
             if (backDefault) {
-                Glide.with(context).load(bitmap).into(imageView);
+                GlideApp.with(context).load(bitmap).into(imageView);
                 if (!isInit) {
                     ToastUtils.showToast(CourseActivity.this, "恢复默认背景成功", Toast.LENGTH_LONG);
                 }
             } else {
-                Glide.with(context).load(bitmap).into(imageView);
+                GlideApp.with(context).load(bitmap).into(imageView);
                 if (!isInit) {
                     ToastUtils.showToast(CourseActivity.this, "更换背景成功", Toast.LENGTH_LONG);
                 }

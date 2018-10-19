@@ -43,6 +43,7 @@ import com.example.lqs2.courseapp.R;
 import com.example.lqs2.courseapp.adapters.TweetAdapter;
 import com.example.lqs2.courseapp.entity.Course;
 import com.example.lqs2.courseapp.entity.Tweet;
+import com.example.lqs2.courseapp.global.GlideApp;
 import com.example.lqs2.courseapp.global.ThreadPoolExecutorFactory;
 import com.example.lqs2.courseapp.utils.Base64ImageUtils;
 import com.example.lqs2.courseapp.utils.Constant;
@@ -834,7 +835,7 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
                 }
             });
         } else {
-            setCourseAreaContent("", "No Njit Login Detected", "", true);
+            setCourseAreaContent("", "No NJIT LOGIN DETECTED", "", true);
         }
     }
 
@@ -973,7 +974,7 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
                                     public void onSuccess(File file) {
                                         // 压缩成功后调用，返回压缩后的图片文件
                                         Bitmap bitmap = ImageTools.getSmallBitmap(file.getAbsolutePath(), true);
-                                        Glide.with(MainActivity.this).load(bitmap).into(wholeHeadImage);
+                                        GlideApp.with(MainActivity.this).load(bitmap).into(wholeHeadImage);
                                         saveAndUploadUserHeadImage(bitmap, darkmeUn);
                                     }
 
@@ -1014,7 +1015,7 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
                         if (!"0".equals(resp)) {
                             Bitmap bitmap = ImageTools.compressImage(Base64ImageUtils.base64StrToBitmap(resp));
                             runOnUiThread(() -> {
-                                Glide.with(MainActivity.this).load(bitmap).into(wholeHeadImage);
+                                GlideApp.with(MainActivity.this).load(bitmap).into(wholeHeadImage);
                             });
                         } else {
                             runOnUiThread(() -> Glide.with(MainActivity.this).load(R.drawable.default_head).into(wholeHeadImage));
@@ -1023,7 +1024,7 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
                 }
             });
         } else {
-            Glide.with(MainActivity.this).load(R.drawable.default_head).into(wholeHeadImage);
+            GlideApp.with(MainActivity.this).load(R.drawable.default_head).into(wholeHeadImage);
         }
     }
 
@@ -1094,7 +1095,7 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
                     if ((boolean) SharedPreferenceUtil.get(MainActivity.this, "blurBackground", false)) {
                         runOnUiThread(() -> Dali.create(MainActivity.this).load(bitmap1).blurRadius(8).into(bingMainPic));
                     } else {
-                        runOnUiThread(() -> Glide.with(MainActivity.this).load(bitmap1).into(bingMainPic));
+                        runOnUiThread(() -> GlideApp.with(MainActivity.this).load(bitmap1).into(bingMainPic));
                     }
                 } else {
                     runOnUiThread(() -> {
@@ -1163,7 +1164,7 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
                             break;
                         case 1:
                             loadDirectly.set(true);
-                            runOnUiThread(() -> Glide.with(MainActivity.this).load(R.drawable.main_bg1).into(bingMainPic));
+                            runOnUiThread(() -> GlideApp.with(MainActivity.this).load(R.drawable.main_bg1).into(bingMainPic));
                             break;
                         case 2:
                             useGlideFlag.set(true);
@@ -1188,7 +1189,7 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
                             if (!useGlideFlag.get()) {
                                 Blurry.with(MainActivity.this).radius(blurDegree.get()).from(finalMainBit).into(bingMainPic);
                             } else {
-                                Glide.with(MainActivity.this).load(finalMainBit).into(bingMainPic);
+                                GlideApp.with(MainActivity.this).load(finalMainBit).into(bingMainPic);
                             }
                         }
                     });

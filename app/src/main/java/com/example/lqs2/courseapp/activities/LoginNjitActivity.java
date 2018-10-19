@@ -53,11 +53,8 @@ import okhttp3.Response;
  * @author lqs2
  */
 public class LoginNjitActivity extends ActivityCollector {
-
-
     private NetworkChangeReceiver networkChangeReceiver;
     public static boolean isOnline = false;
-
 
     private EditText accountText;
     private EditText passwordText;
@@ -194,18 +191,19 @@ public class LoginNjitActivity extends ActivityCollector {
                     if (!(TextUtils.isEmpty(xh) || TextUtils.isEmpty(xm) || TextUtils.isEmpty(code))) {
                         HttpUtil.getLoginViewstate(new Callback() {
                             @Override
-                            public void onFailure(Call call, IOException e) {
+                            public void onFailure(@NonNull Call call, @NonNull IOException e) {
                                 sendMessage(Constant.SERVER_ERROR, Constant.SERVER_OFF);
                             }
 
                             @Override
-                            public void onResponse(Call call, Response response) throws IOException {
+                            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                                assert response.body() != null;
                                 String html = response.body().string();
                                 Document doc = Jsoup.parse(html);
                                 String __VIEWSTATE = doc.select("input[name='__VIEWSTATE']").val();
                                 HttpUtil.login(xh, xm, code, cookie, __VIEWSTATE, new Callback() {
                                     @Override
-                                    public void onFailure(Call call, IOException e) {
+                                    public void onFailure(@NonNull Call call, @NonNull IOException e) {
                                         e.printStackTrace();
                                         sendMessage(Constant.SERVER_ERROR, "登录失败");
                                     }
@@ -214,22 +212,19 @@ public class LoginNjitActivity extends ActivityCollector {
                                     public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                                         final int responseCode = response.code();
                                         if (responseCode == 200) {
+                                            assert response.body() != null;
                                             String loginResponse = response.body().string();
 
                                             if (loginResponse.contains(Constant.LOGIN_JW_SUCCESS)) {
                                                 HttpUtil.redirect(xh, cookie, new Callback() {
                                                     @Override
-                                                    public void onFailure(Call call, IOException e) {
-                                                        e.printStackTrace();
+                                                    public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                                                        showToast("连接错误");
                                                     }
 
                                                     @Override
-                                                    public void onResponse(Call call, Response response) throws IOException {
-
-                                                        String redirectHtml = response.body().string();
-
+                                                    public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                                                         SharedPreferenceUtil.put(context, "xh", accountText.getText().toString());
-
                                                         if (rememberPass.isChecked()) {
                                                             SharedPreferenceUtil.put(context, "xh", accountText.getText().toString());
                                                             SharedPreferenceUtil.put(context, "xm", passwordText.getText().toString());
@@ -247,17 +242,15 @@ public class LoginNjitActivity extends ActivityCollector {
                                                                 Boolean isXn = intent.getBooleanExtra("isXn", false);
                                                                 HttpUtil.queryCourse(context, xh, xm, year, team, cookie, isXn, new Callback() {
                                                                     @Override
-                                                                    public void onFailure(Call call, IOException e) {
-                                                                        e.printStackTrace();
+                                                                    public void onFailure(@NonNull Call call, @NonNull IOException e) {
                                                                         sendMessage(Constant.SERVER_ERROR, "查询失败");
                                                                     }
 
                                                                     @Override
-                                                                    public void onResponse(Call call, Response response) throws IOException {
+                                                                    public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                                                                         sendMessage(Constant.TURN_PROGRESS_BAR_OFF, null);
+                                                                        assert response.body() != null;
                                                                         String sourceCode = response.body().string();
-                                                                        System.out.println(sourceCode);
-
                                                                         if (!sourceCode.contains(Constant.LOGIN_ERROR_NO_COMMENT)) {
                                                                             sendMessage(Constant.SHOW_TOAST, Constant.LOGIN_SUCCESS_INFO);
                                                                             SharedPreferenceUtil.put(context, "hasGetCourse", true);
@@ -318,12 +311,13 @@ public class LoginNjitActivity extends ActivityCollector {
                                                             case "GRADE":
                                                                 HttpUtil.queryGradeInit(xh, xm, cookie, new Callback() {
                                                                     @Override
-                                                                    public void onFailure(Call call, IOException e) {
+                                                                    public void onFailure(@NonNull Call call, @NonNull IOException e) {
                                                                         e.printStackTrace();
                                                                     }
 
                                                                     @Override
-                                                                    public void onResponse(Call call, Response response) throws IOException {
+                                                                    public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                                                                        assert response.body() != null;
                                                                         String code = response.body().string();
                                                                         if (!code.contains(Constant.LOGIN_ERROR_NO_COMMENT)) {
                                                                             Document doc = Jsoup.parse(code);
@@ -367,12 +361,13 @@ public class LoginNjitActivity extends ActivityCollector {
                                                             case "CREDIT":
                                                                 HttpUtil.queryCreditInit(xh, xm, cookie, new Callback() {
                                                                     @Override
-                                                                    public void onFailure(Call call, IOException e) {
+                                                                    public void onFailure(@NonNull Call call, @NonNull IOException e) {
                                                                         e.printStackTrace();
                                                                     }
 
                                                                     @Override
-                                                                    public void onResponse(Call call, Response response) throws IOException {
+                                                                    public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                                                                        assert response.body() != null;
                                                                         byte[] bytes = response.body().bytes();
                                                                         String resp = new String(bytes, "gb2312");
                                                                         // 只是一个成功的标志位
@@ -382,12 +377,13 @@ public class LoginNjitActivity extends ActivityCollector {
                                                                             System.out.println("---" + __VIEWSTATE);
                                                                             HttpUtil.queryCredit(xh, xm, __VIEWSTATE, cookie, new Callback() {
                                                                                 @Override
-                                                                                public void onFailure(Call call, IOException e) {
+                                                                                public void onFailure(@NonNull Call call, @NonNull IOException e) {
                                                                                     e.printStackTrace();
                                                                                 }
 
                                                                                 @Override
-                                                                                public void onResponse(Call call, Response response) throws IOException {
+                                                                                public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                                                                                    assert response.body() != null;
                                                                                     byte[] bytes = response.body().bytes();
                                                                                     String resp = new String(bytes, "gb2312");
                                                                                     Intent intent1 = new Intent(context, CreditActivity.class);

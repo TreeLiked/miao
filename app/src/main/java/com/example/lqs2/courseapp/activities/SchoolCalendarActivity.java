@@ -9,8 +9,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.example.lqs2.courseapp.R;
+import com.example.lqs2.courseapp.global.GlideApp;
 import com.example.lqs2.courseapp.utils.HttpUtil;
 import com.example.lqs2.courseapp.utils.ImageTools;
 import com.example.lqs2.courseapp.utils.PermissionUtils;
@@ -128,7 +128,7 @@ public class SchoolCalendarActivity extends ActivityCollector {
                         runOnUiThread(() -> {
                             picName = a.text();
                             textView.setText(picName);
-                            Glide.with(SchoolCalendarActivity.this).load(finalPicUrl).into(calendarView);
+                            GlideApp.with(SchoolCalendarActivity.this).load(finalPicUrl).into(calendarView);
                             progressBar.setVisibility(View.GONE);
                             Toast.makeText(SchoolCalendarActivity.this, "喵～长按图片保存到本地", Toast.LENGTH_LONG).show();
                         });
