@@ -1,7 +1,7 @@
 # MiaoApp
 ## 安卓课程表 "喵" 南京工程学院专版
 
-### 点击这里 [下载最新版本](http://darkme.cn:8880/android/miao/apk "V 0.1.7")
+### 点击这里 [下载最新版本](http://darkme.cn:8880/android/miao/apk "V 0.1.9")
 
 ### 功能介绍
 #### 课程表
@@ -37,10 +37,11 @@
 #### 其他
 - 壁纸切换
 - 在线更新
-- 不满意的可以发送邮件至1172714116@qq.com、im.lqs2@icloud.com、im.lqs2@gmail.com进行投诉
+- 有任何问题可以发送邮件至1172714116@qq.com、im.lqs2@icloud.com、im.lqs2@gmail.com提出建议/进行投诉
 - 真好
 - 有时间写个ios的
 - 下面是一个巨大的logo
+- 应该没时间
 
 ![喵](./app/src/main/res/drawable/default_head.png "miao-logo")
 
