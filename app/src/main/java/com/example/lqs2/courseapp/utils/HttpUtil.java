@@ -111,7 +111,7 @@ public class HttpUtil {
      * @param c         回调接口
      */
     public static void login(String xh, String xm, String code, String cookie, String viewstate, Callback c) {
-        FormBody formBody = generateFormBody(new HashMap<String, String>(9) {{
+        FormBody formBody = generateFormBody(new HashMap<String, String>(16) {{
             put("__VIEWSTATE", viewstate);
             put("txtUserName", xh);
             put("TextBox2", xm);
@@ -122,7 +122,7 @@ public class HttpUtil {
             put("hidPdrs", "");
             put("hidsc", "");
         }});
-        doAsynPostRequest(Constant.MAIN_URL, null, new HashMap<String, String>(3) {{
+        doAsynPostRequest(Constant.MAIN_URL, null, new HashMap<String, String>(4) {{
             put("contentType", "GB2312");
             put("Referer", Constant.REFER_URL);
             put("Cookie", cookie);
@@ -137,7 +137,7 @@ public class HttpUtil {
      * @param c      回调接口
      */
     public static void redirect(String xh, String cookie, Callback c) {
-        doAsynGetRequest(Constant.FORWARD_URL + xh, null, new HashMap<String, String>(2) {{
+        doAsynGetRequest(Constant.FORWARD_URL + xh, null, new HashMap<String, String>(4) {{
             put("Referer", Constant.REFER_URL);
             put("Cookie", cookie);
         }}, c);
@@ -229,11 +229,11 @@ public class HttpUtil {
      * @param c      回调接口
      */
     public static void queryGradeInit(String xh, String xm, String cookie, Callback c) {
-        doAsynGetRequest(Constant.QUERY_PREFIX_URL, new HashMap<String, String>(3) {{
+        doAsynGetRequest(Constant.QUERY_PREFIX_URL_1, new HashMap<String, String>(4) {{
             put("xh", xh);
             put("xm", xm);
             put("gnmkdm", "N121605");
-        }}, new HashMap<String, String>(3) {{
+        }}, new HashMap<String, String>(4) {{
             put("contentType", "GB2312");
             put("Referer", Constant.FORWARD_URL + xh);
             put("Cookie", cookie);
@@ -252,7 +252,7 @@ public class HttpUtil {
      * @param c         回调
      */
     public static void queryGrade(String viewstate, String xh, String xm, String cookie, String xn, String xq, Callback c) {
-        FormBody formBody = generateFormBody(new HashMap<String, String>(6) {{
+        FormBody formBody = generateFormBody(new HashMap<String, String>(8) {{
             put("__EVENTTARGET", "");
             put("__EVENTARGUMENT", "");
             put("__VIEWSTATE", viewstate);
@@ -260,11 +260,11 @@ public class HttpUtil {
             put("ddlxq", xn);
             put("btnCx", " 查  询 ");
         }});
-        doAsynPostRequest(Constant.QUERY_PREFIX_URL, new HashMap<String, String>(3) {{
+        doAsynPostRequest(Constant.QUERY_PREFIX_URL_1, new HashMap<String, String>(4) {{
             put("xh", xh);
             put("xm", xm);
             put("gnmkdm", "N121605");
-        }}, new HashMap<String, String>(3) {{
+        }}, new HashMap<String, String>(4) {{
             put("contentType", "GB2312");
             put("Referer", "http://jwjx.njit.edu.cn/xscjcx_dq.aspx?xh=" + xh + "&xm=" + xm + "&gnmkdm=N121605");
             put("Cookie", cookie);
@@ -281,11 +281,11 @@ public class HttpUtil {
      * @param c      回调接口
      */
     public static void queryCreditInit(String xh, String xm, String cookie, Callback c) {
-        doAsynGetRequest(Constant.QUERY_PREFIX_URL, new HashMap<String, String>(3) {{
+        doAsynGetRequest(Constant.QUERY_PREFIX_URL_2, new HashMap<String, String>(4) {{
             put("xh", xh);
             put("xm", xm);
             put("gnmkdm", "N121617");
-        }}, new HashMap<String, String>(3) {{
+        }}, new HashMap<String, String>(4) {{
             put("contentType", "GB2312");
             put("Referer", Constant.FORWARD_URL + xh);
             put("Cookie", cookie);
@@ -302,7 +302,7 @@ public class HttpUtil {
      * @param c         回调
      */
     public static void queryCredit(String xh, String xm, String viewState, String cookie, Callback c) {
-        RequestBody formBody = generateFormBody(new HashMap<String, String>(8) {{
+        RequestBody formBody = generateFormBody(new HashMap<String, String>(16) {{
             put("__EVENTTARGET", "");
             put("__EVENTARGUMENT", "");
             put("__VIEWSTATE", viewState);
@@ -312,11 +312,11 @@ public class HttpUtil {
             put("ddl_kcxz", "");
             put("Button1", "成绩统计");
         }});
-        doAsynPostRequest(Constant.QUERY_PREFIX_URL, new HashMap<String, String>(3) {{
+        doAsynPostRequest(Constant.QUERY_PREFIX_URL_2, new HashMap<String, String>(4) {{
             put("xh", xh);
             put("xm", xm);
             put("gnmkdm", "N121617");
-        }}, new HashMap<String, String>(7) {{
+        }}, new HashMap<String, String>(16) {{
             put("contentType", "GB2312");
             put("Referer", "http://jwjx.njit.edu.cn/xscjcx.aspx?xh=" + xh + "&xm=" + xm + "&gnmkdm=N121617");
             put("Host", "jwjx.njit.edu.cn");
@@ -355,7 +355,7 @@ public class HttpUtil {
      * @param c  回调
      */
     public static void showMyFriends(String un, Callback c) {
-        doAsynGetRequest(Constant.USER_SHOW_MY_FRIEND_URL, new HashMap<String, String>(1) {{
+        doAsynGetRequest(Constant.USER_SHOW_MY_FRIEND_URL, new HashMap<String, String>(2) {{
             put("un", un);
         }}, null, c);
     }
@@ -368,7 +368,7 @@ public class HttpUtil {
      */
     public static void showMyFile(String un, Callback c) {
 
-        doAsynGetRequest(Constant.FILE_SHOW_URL, new HashMap<String, String>(1) {{
+        doAsynGetRequest(Constant.FILE_SHOW_URL, new HashMap<String, String>(2) {{
             put("un", un);
         }}, null, c);
     }
@@ -385,7 +385,7 @@ public class HttpUtil {
      * @param c              回调
      */
     public static void insertFileRecord(String filePostAuthor, String fileNo, String fileName, String attachment, String destination, String fileSize, Callback c) {
-        FormBody formBody = generateFormBody(new HashMap<String, String>(6) {{
+        FormBody formBody = generateFormBody(new HashMap<String, String>(8) {{
             put("filePostAuthor", filePostAuthor);
             put("fileNo", fileNo);
             put("fileName", fileName);
@@ -423,7 +423,7 @@ public class HttpUtil {
             return null;
         }
         if (extra == null) {
-            extra = new HashMap<>(2);
+            extra = new HashMap<>(4);
         }
         extra.put("un", un);
         extra.put("pwd", pwd);
@@ -442,7 +442,7 @@ public class HttpUtil {
             return null;
         }
         if (extra == null) {
-            extra = new HashMap<>(1);
+            extra = new HashMap<>(2);
         }
         extra.put("un", un);
         return generateFormBody(extra);
@@ -471,7 +471,7 @@ public class HttpUtil {
      * @param c        回调接口
      */
     public static void generateNewFile(String filename, Callback c) {
-        doAsynGetRequest(Constant.FILE_GENERATE_URL, new HashMap<String, String>(1) {{
+        doAsynGetRequest(Constant.FILE_GENERATE_URL, new HashMap<String, String>(2) {{
             put("filename", filename);
         }}, null, c);
     }
@@ -484,7 +484,7 @@ public class HttpUtil {
      * @param c  回调
      */
     public static void searchFileByNo(String un, String no, Callback c) {
-        doAsynPostRequest(Constant.FILE_SEARCH_URL, null, null, generateFormBody(un, new HashMap<String, String>(1) {{
+        doAsynPostRequest(Constant.FILE_SEARCH_URL, null, null, generateFormBody(un, new HashMap<String, String>(2) {{
             put("fileNo", no);
         }}), c);
     }
@@ -660,7 +660,7 @@ public class HttpUtil {
      * @param c             回调
      */
     public static void getAllTweets(int startPosition, Callback c) {
-        doAsynGetRequest(Constant.TWEET_GET_ALL_URL, new HashMap<String, String>(1) {{
+        doAsynGetRequest(Constant.TWEET_GET_ALL_URL, new HashMap<String, String>(2) {{
             put("sp", String.valueOf(startPosition));
 
         }}, null, c);
@@ -673,7 +673,7 @@ public class HttpUtil {
      * @param c  回调
      */
     public static void deleteTweet(String id, Callback c) {
-        doAsynGetRequest(Constant.TWEET_DEL_URL, new HashMap<String, String>(1) {{
+        doAsynGetRequest(Constant.TWEET_DEL_URL, new HashMap<String, String>(2) {{
             put("id", id);
         }}, null, c);
     }
@@ -686,7 +686,7 @@ public class HttpUtil {
      * @param add 点赞/取消
      */
     public static void modifyTweetGood(String id, boolean add) {
-        doSyncGetRequest(Constant.TWEET_PRAISE_ADD_URL, new HashMap<String, String>(2) {{
+        doSyncGetRequest(Constant.TWEET_PRAISE_ADD_URL, new HashMap<String, String>(4) {{
             put("id", id);
             put("add", String.valueOf(add));
         }}, null);
@@ -700,7 +700,7 @@ public class HttpUtil {
      * @param c       回调
      */
     public static void showUserTweetInfo(String un, String tweetId, Callback c) {
-        doAsynGetRequest(Constant.USER_TWEET_INFO_URL, new HashMap<String, String>(2) {{
+        doAsynGetRequest(Constant.USER_TWEET_INFO_URL, new HashMap<String, String>(4) {{
             put("un", un);
             put("tweetId", tweetId);
         }}, null, c);
@@ -715,7 +715,7 @@ public class HttpUtil {
      * @param praise  点赞/取消点赞
      */
     public static void userPraiseTweet(String un, String tweetId, boolean praise) {
-        doSyncGetRequest(Constant.USER_PRAISE_TWEET_URL, new HashMap<String, String>(3) {{
+        doSyncGetRequest(Constant.USER_PRAISE_TWEET_URL, new HashMap<String, String>(4) {{
             put("un", un);
             put("tweetId", tweetId);
             put("praise", String.valueOf(praise));
@@ -734,7 +734,7 @@ public class HttpUtil {
     public static Response userCollectTweet(String un, String tweetId, boolean collect) throws IOException {
         client = getInstance();
         Request request = new Request.Builder()
-                .url(generateGetUrl(Constant.USER_COLLECT_TWEET_URL, new HashMap<String, String>(3) {{
+                .url(generateGetUrl(Constant.USER_COLLECT_TWEET_URL, new HashMap<String, String>(4) {{
                     put("un", un);
                     put("tweetId", tweetId);
                     put("collect", String.valueOf(collect));
@@ -752,7 +752,7 @@ public class HttpUtil {
      */
     public static void setUserProfilePicture(String darkmeUn, Bitmap headImgBit, Callback c) {
         String picStr = Base64ImageUtils.bitmapToBase64Str(headImgBit);
-        doAsynPostRequest(Constant.USER_SET_PROFILE_PICTURE_URL, null, null, generateFormBody(darkmeUn, new HashMap<String, String>(1) {{
+        doAsynPostRequest(Constant.USER_SET_PROFILE_PICTURE_URL, null, null, generateFormBody(darkmeUn, new HashMap<String, String>(2) {{
             put("profilePicStr", picStr);
         }}), c);
     }
@@ -764,7 +764,7 @@ public class HttpUtil {
      * @param c        回调
      */
     public static void getUserProfilePicture(String darkmeUn, Callback c) {
-        doAsynGetRequest(Constant.USER_GET_PROFILE_PICTURE_URL, new HashMap<String, String>(1) {{
+        doAsynGetRequest(Constant.USER_GET_PROFILE_PICTURE_URL, new HashMap<String, String>(2) {{
             put("un", darkmeUn);
         }}, null, c);
     }
@@ -776,7 +776,7 @@ public class HttpUtil {
      * @param c        回调
      */
     public static void getUserHandoffText(String darkmeUn, Callback c) {
-        doAsynGetRequest(Constant.USER_GET_HANDOFF_TEXT_URL, new HashMap<String, String>(1) {{
+        doAsynGetRequest(Constant.USER_GET_HANDOFF_TEXT_URL, new HashMap<String, String>(2) {{
             put("un", darkmeUn);
         }}, null, c);
     }
@@ -790,7 +790,7 @@ public class HttpUtil {
      * @param c        回调接口
      */
     public static void setUserHandoffText(String darkmeUn, String text, Callback c) {
-        doAsynPostRequest(Constant.USER_POST_HANDOFF_TEXT_URL, null, null, generateFormBody(darkmeUn, new HashMap<String, String>(1) {{
+        doAsynPostRequest(Constant.USER_POST_HANDOFF_TEXT_URL, null, null, generateFormBody(darkmeUn, new HashMap<String, String>(2) {{
             put("text", text);
         }}), c);
     }
@@ -801,7 +801,7 @@ public class HttpUtil {
      * @param darkmeUn 用户名
      */
     public static void haveReceivedHandOffText(String darkmeUn) {
-        doSyncGetRequest(Constant.USER_TURN_OFF_HANDOFF_TEXT_URL, new HashMap<String, String>(1) {{
+        doSyncGetRequest(Constant.USER_TURN_OFF_HANDOFF_TEXT_URL, new HashMap<String, String>(2) {{
             put("un", darkmeUn);
         }}, null);
     }
@@ -817,7 +817,7 @@ public class HttpUtil {
      * @param c          回调
      */
     public static void getUserMemoByState(String darkmeUn, boolean isFinished, Callback c) {
-        doAsynPostRequest(Constant.USER_GET_MEMO_BY_STATE_URL, null, null, generateFormBody(darkmeUn, new HashMap<String, String>(1) {{
+        doAsynPostRequest(Constant.USER_GET_MEMO_BY_STATE_URL, null, null, generateFormBody(darkmeUn, new HashMap<String, String>(2) {{
             put("isFinished", String.valueOf(isFinished));
         }}), c);
     }
@@ -832,7 +832,7 @@ public class HttpUtil {
      * @param c        回调
      */
     public static void changeUserMemoState(String darkmeUn, int id, int toState, boolean isDel, Callback c) {
-        doAsynGetRequest(Constant.USER_CHANGE_MEMO_STATE_URL, new HashMap<String, String>(4) {{
+        doAsynGetRequest(Constant.USER_CHANGE_MEMO_STATE_URL, new HashMap<String, String>(8) {{
             put("un", darkmeUn);
             put("id", String.valueOf(id));
             put("toState", String.valueOf(toState));
@@ -850,7 +850,7 @@ public class HttpUtil {
      * @param c        回调
      */
     public static void newUserMemo(String darkmeUn, String t, String content, int type, Callback c) {
-        doAsynPostRequest(Constant.USER_NEW_MEMO_URL, null, null, generateFormBody(darkmeUn, new HashMap<String, String>(3) {{
+        doAsynPostRequest(Constant.USER_NEW_MEMO_URL, null, null, generateFormBody(darkmeUn, new HashMap<String, String>(4) {{
             put("title", t);
             put("content", content);
             put("type", String.valueOf(type));
@@ -866,7 +866,7 @@ public class HttpUtil {
      * @param c        回调
      */
     public static void changeFriendMark(String un, String friendId, String mark, Callback c) {
-        doAsynGetRequest(Constant.USER_CHANGE_FRIEND_MARK, new HashMap<String, String>(3) {{
+        doAsynGetRequest(Constant.USER_CHANGE_FRIEND_MARK, new HashMap<String, String>(4) {{
             put("un", un);
             put("friendId", friendId);
             put("mark", mark);
@@ -882,7 +882,7 @@ public class HttpUtil {
      * @param c      回调
      */
     public static void deleteUserFriend(String id, String userId, String friId, Callback c) {
-        doAsynGetRequest(Constant.USER_DELETE_FRIEND_URL, new HashMap<String, String>(3) {{
+        doAsynGetRequest(Constant.USER_DELETE_FRIEND_URL, new HashMap<String, String>(4) {{
             put("id", id);
             put("userId", userId);
             put("friendId", friId);
@@ -1027,7 +1027,7 @@ public class HttpUtil {
      * @param destFriId 好友id
      */
     public static void userSendAddFriendMessage(String un, String destFriId) {
-        doSyncGetRequest(Constant.USER_SEND_MAKE_FRIEND_MSG, new HashMap<String, String>(2) {{
+        doSyncGetRequest(Constant.USER_SEND_MAKE_FRIEND_MSG, new HashMap<String, String>(4) {{
             put("un", un);
             put("friendId", destFriId);
         }}, null);
@@ -1058,7 +1058,7 @@ public class HttpUtil {
      * @param c  回调
      */
     public static void getUserMessage(String un, Callback c) {
-        doAsynGetRequest(Constant.USER_GET_MSG, new HashMap<String, String>(1) {{
+        doAsynGetRequest(Constant.USER_GET_MSG, new HashMap<String, String>(2) {{
             put("un", un);
         }}, null, c);
     }
@@ -1069,7 +1069,7 @@ public class HttpUtil {
      * @param msgId 消息id
      */
     public static void deleteUserMessage(String msgId) {
-        doSyncGetRequest(Constant.USER_DEL_MSG, new HashMap<String, String>(1) {{
+        doSyncGetRequest(Constant.USER_DEL_MSG, new HashMap<String, String>(2) {{
             put("id", msgId);
         }}, null);
     }

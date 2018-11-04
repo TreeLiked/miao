@@ -16,6 +16,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -24,7 +25,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.InflateException;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -356,7 +356,17 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
                                     put("TODO", "CREDIT");
                                 }});
                                 break;
-                            case 2:
+//                            case 2:
+//                                View view1 = loadView(R.layout.tzcs_login);
+//                                MaterialDialogUtils.showYesOrNoDialogWithCustomView(context, new String[]{"登录到 [tzcs.njit.edu.cn]", "", "查询", "退出"}, view1, new MaterialDialogUtils.AbstractDialogOnConfirmClickListener() {
+//                                    @Override
+//                                    public void onConfirmButtonClick() {
+//
+//                                    }
+//                                }, false);
+//                                break;
+
+                            case 3:
                                 break;
                             default:
                                 break;
@@ -364,7 +374,8 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
                     }, new ArrayList<String>() {{
                         add(Constant.GRADE_QUERY_ITEM1);
                         add(Constant.GRADE_QUERY_ITEM2);
-                        add(Constant.GRADE_QUERY_ITEM3);
+//                        add(Constant.GRADE_QUERY_ITEM3);
+                        add(Constant.GRADE_QUERY_ITEM4);
                     }});
                     dialog[0].show();
                     break;
@@ -385,14 +396,7 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
                     break;
                 case R.id.nav_home:
                     if (!checkHasLoginDarkme()) {
-                        View view = null;
-                        try {
-                            LayoutInflater inflater = LayoutInflater.from(this);
-                            view = inflater.inflate(R.layout.darkme_login, null);
-                        } catch (InflateException e) {
-                            e.printStackTrace();
-                        }
-                        View finalView = view;
+                        View finalView = loadView(R.layout.darkme_login);
                         assert finalView != null;
                         CheckBox rem = finalView.findViewById(R.id.darkme_rememberme);
                         EditText eText1 = finalView.findViewById(R.id.darkme_login_un);
@@ -401,8 +405,8 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
 
                         new com.afollestad.materialdialogs.MaterialDialog.Builder(this)
                                 .title("登录 [ darkme.cn ] ")
-                                .customView(view, true)
-                                .positiveColor(getResources().getColor(R.color.r4))
+                                .customView(finalView, true)
+                                .positiveColor(ContextCompat.getColor(context, R.color.r4))
                                 .positiveText("登录")
                                 .negativeColor(getResources().getColor(R.color.r7))
                                 .negativeText("注册")
@@ -1444,6 +1448,17 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
         }, true);
 
         ThreadPoolExecutorFactory.getThreadPoolExecutor().execute(() -> HttpUtil.haveReceivedHandOffText(darkmeUn));
+    }
+
+    /**
+     * 加载指定资源id的布局
+     *
+     * @param resourceId
+     * @return 视图dialog
+     */
+    private View loadView(int resourceId) {
+        return LayoutInflater.from(context).inflate(resourceId, null);
+
     }
 
     /**

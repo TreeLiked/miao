@@ -60,6 +60,7 @@ public class ActivityCollector extends AppCompatActivity {
      */
     public static void removeActivity(Activity activity) {
         activities.remove(activity);
+        activity.finish();
     }
 
     /**

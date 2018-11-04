@@ -370,15 +370,16 @@ public class LoginNjitActivity extends ActivityCollector {
                                                                         assert response.body() != null;
                                                                         byte[] bytes = response.body().bytes();
                                                                         String resp = new String(bytes, "gb2312");
-                                                                        // 只是一个成功的标志位
+                                                                        System.out.println("---" + resp);
+//                                                                         只是一个成功的标志位
                                                                         if (resp.contains("至今未通过课程成绩")) {
                                                                             Document doc = Jsoup.parse(resp);
                                                                             String __VIEWSTATE = doc.select("input[name='__VIEWSTATE']").val();
-                                                                            System.out.println("---" + __VIEWSTATE);
                                                                             HttpUtil.queryCredit(xh, xm, __VIEWSTATE, cookie, new Callback() {
                                                                                 @Override
                                                                                 public void onFailure(@NonNull Call call, @NonNull IOException e) {
                                                                                     e.printStackTrace();
+                                                                                    finish();
                                                                                 }
 
                                                                                 @Override
@@ -394,6 +395,7 @@ public class LoginNjitActivity extends ActivityCollector {
                                                                             });
                                                                         } else {
                                                                             ToastUtils.showToastOnMain(context, activity, "服务出错", Toast.LENGTH_SHORT);
+                                                                            ActivityCollector.removeActivity(activity);
                                                                         }
                                                                     }
                                                                 });

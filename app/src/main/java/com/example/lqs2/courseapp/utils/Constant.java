@@ -20,14 +20,20 @@ public class Constant {
     public static final String FORWARD_URL = "http://jwjx.njit.edu.cn/xs_main.aspx?xh=";
 
     /**
-     * 查询网址前缀
+     * 查询成绩前缀
      */
-    public static final String QUERY_PREFIX_URL = "http://jwjx.njit.edu.cn/xscjcx_dq.aspx";
+    public static final String QUERY_PREFIX_URL_1 = "http://jwjx.njit.edu.cn/xscjcx_dq.aspx";
+
+    /**
+     * 查询学分前缀
+     */
+    public static final String QUERY_PREFIX_URL_2 = "http://jwjx.njit.edu.cn/xscjcx.aspx";
 
     /**
      * 验证码请求网址
      */
     public static final String CHECK_CODE_URL = "http://jwjx.njit.edu.cn/CheckCode.aspx";
+
     /**
      * 防盗链
      */
@@ -62,7 +68,8 @@ public class Constant {
     public static final String CREDIT_QUERY_WELCOME = "欢迎使用学分查询系统";
     public static final String GRADE_QUERY_ITEM1 = "I\t学期成绩查询";
     public static final String GRADE_QUERY_ITEM2 = "II\t学分查询";
-    public static final String GRADE_QUERY_ITEM3 = "III\t四六级查询";
+    public static final String GRADE_QUERY_ITEM3 = "III\t体测成绩查询";
+    public static final String GRADE_QUERY_ITEM4 = "IV\t四六级查询";
 
 
     public static final String MAIN_NO_COURSE_LEFT_INFO = "今天已经没有课了, 快去休息一下吧";
@@ -125,7 +132,7 @@ public class Constant {
 
     public static final String UPLOAD_IMAGE_URL = API_BASE_URL + "/image/ui";
     public static final String IMG_ACCESS_URL = "http://darkme.cn:8880/file/img";
-    public static final String CARD_COVER_URL = IMG_ACCESS_URL + "/cover.PNG";
+    public static final String CARD_COVER_URL = IMG_ACCESS_URL + "/cover.jpg";
 
     public static final String FILE_SHOW_URL = API_BASE_URL + "/file/gmf";
     public static final String FILE_DEL_URL = API_BASE_URL + "/file/rmf";
