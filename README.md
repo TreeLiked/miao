@@ -1,7 +1,7 @@
 # MiaoApp
 ## 安卓课程表 "喵" 南京工程学院专版
 
-### 点击这里 [下载最新版本](http://darkme.cn:8880/android/miao/apk "V 0.1.9")
+### 点击这里 [下载最新版本](https://myhome0-1253931949.cos.ap-shanghai.myqcloud.com/app-debug.apk "V 0.2.1")
 
 ### 功能介绍
 #### 课程表
