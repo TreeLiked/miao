@@ -356,16 +356,6 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
                                     put("TODO", "CREDIT");
                                 }});
                                 break;
-//                            case 2:
-//                                View view1 = loadView(R.layout.tzcs_login);
-//                                MaterialDialogUtils.showYesOrNoDialogWithCustomView(context, new String[]{"登录到 [tzcs.njit.edu.cn]", "", "查询", "退出"}, view1, new MaterialDialogUtils.AbstractDialogOnConfirmClickListener() {
-//                                    @Override
-//                                    public void onConfirmButtonClick() {
-//
-//                                    }
-//                                }, false);
-//                                break;
-
                             case 3:
                                 break;
                             default:
@@ -1130,9 +1120,7 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
             mainCourseName.setTextColor(getResources().getColor(R.color.white));
             mainCourseLocation.setTextColor(getResources().getColor(R.color.white));
             mainCourseState.setTextColor(getResources().getColor(R.color.white));
-
         }
-
     }
 
 
@@ -1200,7 +1188,6 @@ public class MainActivity extends ActivityCollector implements View.OnClickListe
                 }
         );
     }
-
 
     /**
      * 课程冒泡排序

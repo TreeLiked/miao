@@ -134,7 +134,8 @@ public class FriendFragment extends Fragment {
     }
 
     public void displayMyFriend() {
-        layout.setRefreshing(true);
+
+        this.activity.runOnUiThread(() -> layout.setRefreshing(true));
         un = UsualSharedPreferenceUtil.getDarkmeAccount(this.getContext());
         HttpUtil.showMyFriends(un, new okhttp3.Callback() {
             @Override

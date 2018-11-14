@@ -173,12 +173,14 @@ public class MaterialDialogUtils {
                             dialog.dismiss();
                         }
                         listener.onConfirmButtonClick();
+                        dialog.dismiss();
                     })
                     .setNegativeButton(config[3], v -> {
                         if (dismissOnClick) {
                             dialog.dismiss();
                         }
                         listener.onCancelButtonClick();
+                        dialog.dismiss();
                     })
                     .setCanceledOnTouchOutside(true);
             if (-1 != resId) {

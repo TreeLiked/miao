@@ -165,7 +165,8 @@ public class Constant {
     public static final String USER_CHANGE_MEMO_STATE_URL = API_BASE_URL + "/memo/cmbs";
     public static final String USER_NEW_MEMO_URL = API_BASE_URL + "/memo/nm";
     public static final String CHECK_UPDATE_URL = API_BASE_URL + "/version/cu";
-    public static final String PUSH_UPDATE_URL = API_BASE_URL + "/version/pu";
+    public static final String PUSH_UPDATE_URL = "https://myhome0-1253931949.cos.ap-shanghai.myqcloud.com/app-debug.apk";
+//    public static final String PUSH_UPDATE_URL = API_BASE_URL + "/version/pu";
     public static final String SCHOOL_NOTICE_URL = "https://www.njit.edu.cn/index/tzgg.htm";
     public static final String NOTICE_NEXT_BASE_URL = "https://www.njit.edu.cn/index/tzgg/";
     public static final String NOTICE_BASE_URL = "https://www.njit.edu.cn";

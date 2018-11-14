@@ -94,6 +94,8 @@
                 android:paddingHorizontal="15dp"
                 android:textColorHint="#CACACA"
                 android:inputType="textMultiLine"
+                android:textColor="#909190"
+                android:textSize="16sp"
                 android:maxLines="10"
                 />
         </LinearLayout>
